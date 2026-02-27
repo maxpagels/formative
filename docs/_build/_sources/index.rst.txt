@@ -2,8 +2,11 @@ formative
 =========
 
 formative is Python package for causal effect estimation.
-It is designed to help practitioners estimate causal effects from observational data using a variety of methods, 
+It is designed to help practitioners estimate causal effects from observational data using a variety of methods,
 whilst guiding them through the process of model specification, estimation, and interpretation.
+
+Causal estimation is full of statistical jargon, which hinders adoption. formative's goal is to make causal
+estimation more accessible, because any attempt to understand the world causally is better than none at all.
 
 .. code-block:: python
 
