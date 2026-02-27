@@ -1,5 +1,5 @@
 {
-  "buildCommand": "curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"$HOME/.local/bin:$PATH\" && uv sync --group docs && uv run sphinx-build -b html docs docs/_build",
+  "buildCommand": "export LC_ALL=C.UTF-8 && export LANG=C.UTF-8 && curl -LsSf https://astral.sh/uv/install.sh | sh && export PATH=\"$HOME/.local/bin:$PATH\" && uv sync --group docs && uv run sphinx-build -b html docs docs/_build",
   "outputDirectory": "docs/_build",
   "framework": null
 }
