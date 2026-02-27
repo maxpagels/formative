@@ -53,7 +53,7 @@ class OLSResult:
 
     @property
     def pvalue(self) -> float:
-        """p-value for the adjusted treatment effect (H0: effect = 0)."""
+        """p-value for the adjusted treatment effect (``H0: effect = 0``)."""
         return float(self._adjusted.pvalues[self._treatment])
 
     @property
@@ -114,11 +114,13 @@ class OLSObservational:
     Observational OLS estimator with DAG-based confounder identification.
 
     Given a DAG encoding your causal assumptions, this estimator:
-      1. Identifies which variables must be controlled for (the adjustment set)
-         using the backdoor criterion.
-      2. Raises an error if unobserved confounders make OLS invalid.
-      3. Estimates the causal effect via OLS, controlling for the adjustment set.
-      4. Also runs unadjusted OLS so you can see the confounding bias directly.
+
+    1. Identifies which variables must be controlled for (the adjustment set)
+       using the backdoor criterion — any variable that is an ancestor of both
+       treatment and outcome, but not a descendant of treatment.
+    2. Raises an error if unobserved confounders make OLS invalid.
+    3. Estimates the causal effect via OLS, controlling for the adjustment set.
+    4. Also runs unadjusted OLS so you can see the confounding bias directly.
 
     Example::
 
