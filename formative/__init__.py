@@ -1,4 +1,4 @@
 from .dag import DAG
-from .estimators.ols import OLSObservational
+from .estimators.ols import OLSObservational, OLSResult
 
-__all__ = ["DAG", "OLSObservational"]
+__all__ = ["DAG", "OLSObservational", "OLSResult"]

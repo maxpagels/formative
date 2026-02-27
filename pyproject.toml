@@ -13,4 +13,6 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev = ["pytest", "pytest-cov"]
+dev  = ["pytest", "pytest-cov"]
+docs = ["sphinx", "sphinx-rtd-theme", "sphinx-copybutton", "sphinx-autodoc-typehints"]
+

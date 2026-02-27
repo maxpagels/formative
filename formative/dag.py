@@ -4,7 +4,7 @@ from ._exceptions import GraphError
 
 class _Node:
     """
-    A node proxy returned by DAG.assume(). Use .causes() to assert edges.
+    A node proxy returned by ``DAG.assume()``. Use ``.causes()`` to assert edges::
 
         dag.assume("ability").causes("education", "income")
         dag.assume("education").causes("income")
@@ -17,7 +17,7 @@ class _Node:
     def causes(self, *effects: str) -> _Node:
         """
         Assert that this node causes one or more effects.
-        Returns self so you can chain further .causes() calls.
+        Returns self so you can chain further ``.causes()`` calls::
 
             dag.assume("ability").causes("education", "income")
         """
@@ -28,14 +28,16 @@ class _Node:
 
 class DAG:
     """
-    A directed acyclic graph representing causal assumptions.
+    A directed acyclic graph representing causal assumptions. This should
+    be your starting point for using formative, before fitting any estimators on
+    your data.
 
-    Build the graph by calling assume().causes() for each causal relationship
-    you believe holds. Include latent variables freely — if a node isn't in
-    your dataframe at fit() time, the estimator treats it as unobserved.
+    Build the graph by calling ``assume().causes()`` for each causal relationship
+    you believe holds. Include latent variables freely — if a node is not in
+    your data at ``fit()`` time, the estimator treats it as unobserved.
 
-    Usage
-    -----
+    Example::
+
         dag = DAG()
         dag.assume("ability").causes("education", "income")
         dag.assume("education").causes("income")
@@ -48,7 +50,7 @@ class DAG:
 
     def assume(self, node: str) -> _Node:
         """
-        Name a node and return it so you can assert what it causes.
+        Name a node and return it so you can assert what it causes::
 
             dag.assume("ability").causes("education")
         """

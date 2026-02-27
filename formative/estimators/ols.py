@@ -12,7 +12,7 @@ class OLSResult:
     The result of an OLS causal estimation.
 
     Holds both the adjusted estimate (controlling for confounders) and the
-    unadjusted estimate (treatment ~ outcome only), so you can see the
+    unadjusted estimate (``treatment ~ outcome`` only), so you can see the
     effect of controlling for confounders directly.
     """
 
@@ -120,12 +120,11 @@ class OLSObservational:
       3. Estimates the causal effect via OLS, controlling for the adjustment set.
       4. Also runs unadjusted OLS so you can see the confounding bias directly.
 
-    Usage
-    -----
+    Example::
+
         dag = DAG()
-        dag.add_edge("ability", "education")
-        dag.add_edge("ability", "income")
-        dag.add_edge("education", "income")
+        dag.assume("ability").causes("education", "income")
+        dag.assume("education").causes("income")
 
         # If 'ability' is in df, it is controlled for automatically.
         # If 'ability' is not in df, an IdentificationError is raised.
@@ -159,9 +158,9 @@ class OLSObservational:
           - Not a descendant of treatment (not a mediator or post-treatment variable)
 
         Whether a confounder is observed is determined by whether it appears
-        in data_columns — no explicit marking required.
+        in ``data_columns`` — no explicit marking required.
 
-        Returns (observed_adjustment_set, unobserved_confounders).
+        Returns ``(observed_adjustment_set, unobserved_confounders)``.
         """
         dag = self._dag
         T, Y = self._treatment, self._outcome
@@ -190,15 +189,15 @@ class OLSObservational:
             Must contain columns for treatment, outcome, and any confounders
             that appear in the DAG. Column names must match the node names in
             the DAG. DAG nodes absent from the dataframe are treated as
-            unobserved — if any of these are confounders, an IdentificationError
+            unobserved — if any of these are confounders, an ``IdentificationError``
             is raised before estimation.
 
         Raises
         ------
-        IdentificationError
+        ``IdentificationError``
             If confounders in the DAG are absent from the dataframe and cannot
             be controlled for, making OLS biased.
-        ValueError
+        ``ValueError``
             If treatment or outcome columns are missing from the dataframe.
         """
         data_columns = set(data.columns)
