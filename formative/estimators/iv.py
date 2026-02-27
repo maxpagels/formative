@@ -75,6 +75,37 @@ class IVResult:
         """The underlying unadjusted OLS result, for full diagnostics."""
         return self._unadjusted
 
+    def refute(self, data: pd.DataFrame):
+        """
+        Run refutation checks against this IV estimation.
+
+        Re-uses the original data to run statistical tests that probe the
+        assumptions underlying the IV estimate. Returns an
+        ``IVRefutationReport`` with one ``RefutationCheck`` per test.
+
+        Currently runs:
+
+        - **First-stage F-statistic**: tests instrument relevance.
+          ``F < 10`` indicates a weak instrument (Stock & Yogo, 2005).
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The same dataframe passed to ``fit()``.
+        """
+        from ..refutations.iv import IVRefutationReport, _check_first_stage_f
+
+        controls = sorted(self._adjustment_set)
+        checks = [
+            _check_first_stage_f(data, self._treatment, self._instrument, controls),
+        ]
+        return IVRefutationReport(
+            checks=checks,
+            treatment=self._treatment,
+            outcome=self._outcome,
+            instrument=self._instrument,
+        )
+
     def summary(self) -> str:
         lo, hi = self.conf_int
         adj = sorted(self._adjustment_set)

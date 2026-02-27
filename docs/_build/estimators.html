@@ -79,11 +79,14 @@
 <li class="toctree-l2"><a class="reference internal" href="#ivresult">IVResult</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#formative.IVResult"><code class="docutils literal notranslate"><span class="pre">IVResult</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.effect"><code class="docutils literal notranslate"><span class="pre">IVResult.effect</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.unadjusted_effect"><code class="docutils literal notranslate"><span class="pre">IVResult.unadjusted_effect</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.std_err"><code class="docutils literal notranslate"><span class="pre">IVResult.std_err</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.conf_int"><code class="docutils literal notranslate"><span class="pre">IVResult.conf_int</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.pvalue"><code class="docutils literal notranslate"><span class="pre">IVResult.pvalue</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.adjustment_set"><code class="docutils literal notranslate"><span class="pre">IVResult.adjustment_set</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.statsmodels_result"><code class="docutils literal notranslate"><span class="pre">IVResult.statsmodels_result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.statsmodels_unadjusted_result"><code class="docutils literal notranslate"><span class="pre">IVResult.statsmodels_unadjusted_result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.IVResult.refute"><code class="docutils literal notranslate"><span class="pre">IVResult.refute()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -287,7 +290,7 @@ the primary use case for IV estimation.</p></li>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;ability&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;education&quot;</span><span class="p">,</span> <span class="s2">&quot;income&quot;</span><span class="p">)</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;education&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;income&quot;</span><span class="p">)</span>
 
-<span class="c1"># &#39;ability&#39; is absent from df (unobserved) — the instrument handles it.</span>
+<span class="c1"># &#39;ability&#39; is absent from df (unobserved) — the instrument &quot;controls&quot; for it.</span>
 <span class="n">result</span> <span class="o">=</span> <span class="n">IV2SLS</span><span class="p">(</span>
     <span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;education&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s2">&quot;proximity&quot;</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -333,10 +336,11 @@ automatically if they appear in the dataframe.</p>
 <h2>IVResult<a class="headerlink" href="#ivresult" title="Link to this heading"></a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="formative.IVResult">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.</span></span><span class="sig-name descname"><span class="pre">IVResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">treatment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjustment_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.IVResult" title="Link to this definition"></a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.</span></span><span class="sig-name descname"><span class="pre">IVResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unadjusted_result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">treatment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">instrument</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">adjustment_set</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.IVResult" title="Link to this definition"></a></dt>
 <dd><p>The result of an IV (2SLS) causal estimation.</p>
-<p>Holds the instrumented (2SLS) effect estimate, standard error, confidence
-interval, p-value, and the set of observed confounders used as controls.</p>
+<p>Holds both the instrumented (2SLS) estimate and the unadjusted OLS
+estimate (<code class="docutils literal notranslate"><span class="pre">outcome</span> <span class="pre">~</span> <span class="pre">treatment</span></code> only), so you can see the confounding
+bias that IV corrects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -351,6 +355,17 @@ interval, p-value, and the set of observed confounders used as controls.</p>
 <dt class="sig sig-object py" id="formative.IVResult.effect">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">effect</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.IVResult.effect" title="Link to this definition"></a></dt>
 <dd><p>2SLS point estimate of the causal effect of treatment on outcome.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.IVResult.unadjusted_effect">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">unadjusted_effect</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.IVResult.unadjusted_effect" title="Link to this definition"></a></dt>
+<dd><p>naive regression without instrument or controls.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Unadjusted OLS estimate</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py property">
@@ -381,6 +396,31 @@ interval, p-value, and the set of observed confounders used as controls.</p>
 <dt class="sig sig-object py" id="formative.IVResult.statsmodels_result">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">statsmodels_result</span></span><a class="headerlink" href="#formative.IVResult.statsmodels_result" title="Link to this definition"></a></dt>
 <dd><p>The underlying statsmodels IV2SLS result, for full diagnostics.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.IVResult.statsmodels_unadjusted_result">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">statsmodels_unadjusted_result</span></span><a class="headerlink" href="#formative.IVResult.statsmodels_unadjusted_result" title="Link to this definition"></a></dt>
+<dd><p>The underlying unadjusted OLS result, for full diagnostics.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.IVResult.refute">
+<span class="sig-name descname"><span class="pre">refute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.IVResult.refute" title="Link to this definition"></a></dt>
+<dd><p>Run refutation checks against this IV estimation.</p>
+<p>Re-uses the original data to run statistical tests that probe the
+assumptions underlying the IV estimate. Returns an
+<code class="docutils literal notranslate"><span class="pre">IVRefutationReport</span></code> with one <code class="docutils literal notranslate"><span class="pre">RefutationCheck</span></code> per test.</p>
+<p>Currently runs:</p>
+<ul class="simple">
+<li><p><strong>First-stage F-statistic</strong>: tests instrument relevance.
+<code class="docutils literal notranslate"><span class="pre">F</span> <span class="pre">&lt;</span> <span class="pre">10</span></code> indicates a weak instrument (Stock &amp; Yogo, 2005).</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em>) – The same dataframe passed to <code class="docutils literal notranslate"><span class="pre">fit()</span></code>.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>

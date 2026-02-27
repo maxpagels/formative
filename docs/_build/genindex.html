@@ -46,6 +46,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a></li>
 </ul>
 
         </div>
@@ -85,6 +86,7 @@
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#U"><strong>U</strong></a>
  
@@ -124,10 +126,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dag.html#formative.dag._Node.causes">causes() (formative.dag._Node method)</a>
 </li>
-      <li><a href="dag.html#formative.DAG.children">children() (formative.DAG method)</a>
+      <li><a href="refutations.html#formative.IVRefutationReport.checks">checks (formative.IVRefutationReport property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="dag.html#formative.DAG.children">children() (formative.DAG method)</a>
+</li>
       <li><a href="estimators.html#formative.IVResult.conf_int">conf_int (formative.IVResult property)</a>
 
       <ul>
@@ -168,6 +172,10 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="refutations.html#formative.IVRefutationReport.failed_checks">failed_checks (formative.IVRefutationReport property)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="estimators.html#formative.IV2SLS.fit">fit() (formative.IV2SLS method)</a>
 
       <ul>
@@ -184,6 +192,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="refutations.html#formative.IVRefutationReport">IVRefutationReport (class in formative)</a>
+</li>
       <li><a href="estimators.html#formative.IVResult">IVResult (class in formative)</a>
 </li>
   </ul></td>
@@ -214,6 +224,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dag.html#formative.DAG.parents">parents() (formative.DAG method)</a>
 </li>
+      <li><a href="refutations.html#formative.IVRefutationReport.passed">passed (formative.IVRefutationReport property)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="estimators.html#formative.IVResult.pvalue">pvalue (formative.IVResult property)</a>
@@ -222,6 +234,18 @@
         <li><a href="estimators.html#formative.OLSResult.pvalue">(formative.OLSResult property)</a>
 </li>
       </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="refutations.html#formative.RefutationCheck">RefutationCheck (class in formative)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="estimators.html#formative.IVResult.refute">refute() (formative.IVResult method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -234,10 +258,14 @@
         <li><a href="estimators.html#formative.OLSResult.statsmodels_result">(formative.OLSResult property)</a>
 </li>
       </ul></li>
+      <li><a href="estimators.html#formative.IVResult.statsmodels_unadjusted_result">statsmodels_unadjusted_result (formative.IVResult property)</a>
+
+      <ul>
+        <li><a href="estimators.html#formative.OLSResult.statsmodels_unadjusted_result">(formative.OLSResult property)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="estimators.html#formative.OLSResult.statsmodels_unadjusted_result">statsmodels_unadjusted_result (formative.OLSResult property)</a>
-</li>
       <li><a href="estimators.html#formative.IVResult.std_err">std_err (formative.IVResult property)</a>
 
       <ul>
@@ -250,8 +278,12 @@
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="estimators.html#formative.OLSResult.unadjusted_effect">unadjusted_effect (formative.OLSResult property)</a>
+      <li><a href="estimators.html#formative.IVResult.unadjusted_effect">unadjusted_effect (formative.IVResult property)</a>
+
+      <ul>
+        <li><a href="estimators.html#formative.OLSResult.unadjusted_effect">(formative.OLSResult property)</a>
 </li>
+      </ul></li>
   </ul></td>
 </tr></table>
 
