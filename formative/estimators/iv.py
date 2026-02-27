@@ -93,11 +93,19 @@ class IVResult:
         data : pd.DataFrame
             The same dataframe passed to ``fit()``.
         """
-        from ..refutations.iv import IVRefutationReport, _check_first_stage_f
+        from ..refutations.iv import (
+            IVRefutationReport,
+            _check_first_stage_f,
+            _check_random_common_cause,
+        )
 
         controls = sorted(self._adjustment_set)
         checks = [
             _check_first_stage_f(data, self._treatment, self._instrument, controls),
+            _check_random_common_cause(
+                data, self._treatment, self._outcome, self._instrument,
+                self._adjustment_set, self.effect, self.std_err,
+            ),
         ]
         return IVRefutationReport(
             checks=checks,

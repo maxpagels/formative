@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
+from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
 from ._check import RefutationCheck
 
 _FIRST_STAGE_F_THRESHOLD = 10.0
+_RCC_SEED = 54321
+_RCC_COL = "_rcc"
 
 
 def _check_first_stage_f(
@@ -39,6 +44,53 @@ def _check_first_stage_f(
             f"and confidence intervals unreliable."
         )
     return RefutationCheck(name="First-stage F-statistic", passed=passed, detail=detail)
+
+
+def _check_random_common_cause(
+    data: pd.DataFrame,
+    treatment: str,
+    outcome: str,
+    instrument: str,
+    adjustment_set: set[str],
+    original_effect: float,
+    original_se: float,
+) -> RefutationCheck:
+    """
+    Add a random noise column as an extra control and re-run 2SLS.
+
+    Because the column is pure noise (orthogonal to instrument, treatment, and
+    outcome), the IV estimate should not move by more than one standard error.
+    A larger shift indicates the estimate is sensitive to spurious controls.
+    """
+    rng = np.random.default_rng(_RCC_SEED)
+
+    col = _RCC_COL
+    while col in data.columns:
+        col = "_" + col
+
+    augmented = data.copy()
+    augmented[col] = rng.normal(size=len(data))
+
+    controls = sorted(adjustment_set | {col})
+    X = sm.add_constant(augmented[[treatment] + controls], prepend=True)
+    Z_mat = sm.add_constant(augmented[[instrument] + controls], prepend=True)
+    Z_mat.columns = X.columns
+
+    new_effect = float(
+        _IV2SLS(endog=augmented[outcome], exog=X, instrument=Z_mat).fit().params[treatment]
+    )
+
+    shift = abs(new_effect - original_effect)
+    passed = shift <= original_se
+
+    if passed:
+        detail = f"estimate shifted by {shift:.4f}  (≤ 1 SE = {original_se:.4f})"
+    else:
+        detail = (
+            f"estimate shifted by {shift:.4f}  (> 1 SE = {original_se:.4f})  "
+            f"Adding a random common cause destabilised the estimate."
+        )
+    return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
 
 
 class IVRefutationReport:

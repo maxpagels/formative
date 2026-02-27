@@ -105,6 +105,35 @@ class OLSResult:
         ]
         return "\n".join(lines)
 
+    def refute(self, data: pd.DataFrame):
+        """
+        Run refutation checks against this OLS estimation.
+
+        Currently runs:
+
+        - **Random common cause**: adds a random noise column as an extra
+          control and checks that the estimate does not shift by more than
+          one standard error.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The same dataframe passed to ``fit()``.
+        """
+        from ..refutations.ols import OLSRefutationReport, _check_random_common_cause
+
+        checks = [
+            _check_random_common_cause(
+                data, self._treatment, self._outcome,
+                self._adjustment_set, self.effect, self.std_err,
+            ),
+        ]
+        return OLSRefutationReport(
+            checks=checks,
+            treatment=self._treatment,
+            outcome=self._outcome,
+        )
+
     def __repr__(self) -> str:
         return self.summary()
 

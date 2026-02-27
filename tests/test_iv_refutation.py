@@ -43,8 +43,7 @@ class TestIVRefutationReport:
         result = IV2SLS(make_dag(), treatment="education", outcome="income", instrument="proximity").fit(df)
         report = result.refute(df)
         assert report.passed
-        assert len(report.checks) == 1
-        assert report.checks[0].passed
+        assert all(c.passed for c in report.checks)
 
     def test_weak_instrument_fails(self):
         df = make_weak_instrument_data()
@@ -85,4 +84,20 @@ class TestIVRefutationReport:
         result = IV2SLS(make_dag(), treatment="education", outcome="income", instrument="proximity").fit(df)
         report = result.refute(df)
         report.checks.clear()
-        assert len(report.checks) == 1
+        assert len(report.checks) == 2
+
+    def test_random_common_cause_passes(self):
+        df = make_strong_instrument_data()
+        result = IV2SLS(make_dag(), treatment="education", outcome="income", instrument="proximity").fit(df)
+        report = result.refute(df)
+        rcc = next(c for c in report.checks if c.name == "Random common cause")
+        assert rcc.passed
+
+    def test_report_has_two_checks(self):
+        df = make_strong_instrument_data()
+        result = IV2SLS(make_dag(), treatment="education", outcome="income", instrument="proximity").fit(df)
+        report = result.refute(df)
+        assert len(report.checks) == 2
+        names = {c.name for c in report.checks}
+        assert "First-stage F-statistic" in names
+        assert "Random common cause" in names

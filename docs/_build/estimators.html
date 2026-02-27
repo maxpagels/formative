@@ -22,6 +22,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Refutations" href="refutations.html" />
     <link rel="prev" title="DAG" href="dag.html" /> 
 </head>
 
@@ -65,6 +66,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#formative.OLSResult.adjustment_set"><code class="docutils literal notranslate"><span class="pre">OLSResult.adjustment_set</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.OLSResult.statsmodels_result"><code class="docutils literal notranslate"><span class="pre">OLSResult.statsmodels_result</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.OLSResult.statsmodels_unadjusted_result"><code class="docutils literal notranslate"><span class="pre">OLSResult.statsmodels_unadjusted_result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.OLSResult.refute"><code class="docutils literal notranslate"><span class="pre">OLSResult.refute()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -93,6 +95,7 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a></li>
 </ul>
 
         </div>
@@ -260,6 +263,23 @@ effect of controlling for confounders directly.</p>
 <dt class="sig sig-object py" id="formative.OLSResult.statsmodels_unadjusted_result">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">statsmodels_unadjusted_result</span></span><a class="headerlink" href="#formative.OLSResult.statsmodels_unadjusted_result" title="Link to this definition"></a></dt>
 <dd><p>The underlying unadjusted statsmodels result, for full diagnostics.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.OLSResult.refute">
+<span class="sig-name descname"><span class="pre">refute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.OLSResult.refute" title="Link to this definition"></a></dt>
+<dd><p>Run refutation checks against this OLS estimation.</p>
+<p>Currently runs:</p>
+<ul class="simple">
+<li><p><strong>Random common cause</strong>: adds a random noise column as an extra
+control and checks that the estimate does not shift by more than
+one standard error.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em>) – The same dataframe passed to <code class="docutils literal notranslate"><span class="pre">fit()</span></code>.</p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
@@ -433,6 +453,7 @@ assumptions underlying the IV estimate. Returns an
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="dag.html" class="btn btn-neutral float-left" title="DAG" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="refutations.html" class="btn btn-neutral float-right" title="Refutations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
