@@ -91,6 +91,7 @@ makes your identification assumptions explicit and machine-readable.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAG</span>
 
 <span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;proximity&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;education&quot;</span><span class="p">)</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;ability&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;education&quot;</span><span class="p">,</span> <span class="s2">&quot;income&quot;</span><span class="p">)</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;education&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;income&quot;</span><span class="p">)</span>
 </pre></div>
@@ -100,20 +101,45 @@ makes your identification assumptions explicit and machine-readable.</p>
 estimator reads the DAG to determine which variables to control for (or
 how to use an instrument), then fits the model. If the data cannot support
 identification given the DAG, an error is raised before estimation runs.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative</span><span class="w"> </span><span class="kn">import</span> <span class="n">OLSObservational</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative</span><span class="w"> </span><span class="kn">import</span> <span class="n">IV2SLS</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">OLSObservational</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;education&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">IV2SLS</span><span class="p">(</span>
+    <span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;education&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s2">&quot;proximity&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>IV (2SLS) Causal Effect: education → income
+  Instrument: proximity
+──────────────────────────────────────────────────
+  IV estimate          :     1.9643
+  Unadjusted estimate  :     2.2598  (no controls)
+  Confounding bias     :    +0.2955
+
+  Std. error           :     0.0377
+  95% CI               : [1.8905, 2.0381]
+  p-value              :     0.0000
+
+  Validity relies on the instrument being relevant (correlated
+  with treatment) and satisfying the exclusion restriction
+  (affecting outcome only through treatment). The DAG checks
+  structural validity but cannot verify these empirically.
 </pre></div>
 </div>
 <p><strong>3. Refute</strong></p>
 <p>Once you have a result, run statistical checks that probe whether its
 assumptions hold in the data. Each check returns a clear pass or fail.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative</span><span class="w"> </span><span class="kn">import</span> <span class="n">IV2SLS</span>
-
-<span class="n">result</span> <span class="o">=</span> <span class="n">IV2SLS</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;education&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;income&quot;</span><span class="p">,</span> <span class="n">instrument</span><span class="o">=</span><span class="s2">&quot;proximity&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<span class="n">report</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">refute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">refute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>IV Refutation Report: education → income
+  Instrument: proximity
+──────────────────────────────────────────────────
+  [PASS]  First-stage F-statistic: F = 911.22  (threshold: F ≥ 10)
+  [PASS]  Random common cause: estimate shifted by 0.0001  (≤ 1 SE = 0.0377)
+
+  All checks passed.
 </pre></div>
 </div>
 <div class="toctree-wrapper compound">

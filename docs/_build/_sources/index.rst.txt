@@ -23,6 +23,7 @@ makes your identification assumptions explicit and machine-readable.
    from formative import DAG
 
    dag = DAG()
+   dag.assume("proximity").causes("education")
    dag.assume("ability").causes("education", "income")
    dag.assume("education").causes("income")
 
@@ -35,10 +36,30 @@ identification given the DAG, an error is raised before estimation runs.
 
 .. code-block:: python
 
-   from formative import OLSObservational
+   from formative import IV2SLS
 
-   result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
+   result = IV2SLS(
+       dag, treatment="education", outcome="income", instrument="proximity"
+   ).fit(df)
    print(result.summary())
+
+.. code-block:: text
+
+   IV (2SLS) Causal Effect: education → income
+     Instrument: proximity
+   ──────────────────────────────────────────────────
+     IV estimate          :     1.9643
+     Unadjusted estimate  :     2.2598  (no controls)
+     Confounding bias     :    +0.2955
+
+     Std. error           :     0.0377
+     95% CI               : [1.8905, 2.0381]
+     p-value              :     0.0000
+
+     Validity relies on the instrument being relevant (correlated
+     with treatment) and satisfying the exclusion restriction
+     (affecting outcome only through treatment). The DAG checks
+     structural validity but cannot verify these empirically.
 
 **3. Refute**
 
@@ -47,11 +68,18 @@ assumptions hold in the data. Each check returns a clear pass or fail.
 
 .. code-block:: python
 
-   from formative import IV2SLS
-
-   result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
    report = result.refute(df)
    print(report.summary())
+
+.. code-block:: text
+
+   IV Refutation Report: education → income
+     Instrument: proximity
+   ──────────────────────────────────────────────────
+     [PASS]  First-stage F-statistic: F = 911.22  (threshold: F ≥ 10)
+     [PASS]  Random common cause: estimate shifted by 0.0001  (≤ 1 SE = 0.0377)
+
+     All checks passed.
 
 .. toctree::
    :maxdepth: 2
