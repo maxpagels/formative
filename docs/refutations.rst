@@ -11,6 +11,12 @@ IVRefutationReport
 .. autoclass:: formative.IVRefutationReport
    :members:
 
+MatchingRefutationReport
+------------------------
+
+.. autoclass:: formative.MatchingRefutationReport
+   :members:
+
 RefutationCheck
 ---------------
 

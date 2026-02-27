@@ -1,11 +1,13 @@
 from .dag import DAG
 from .estimators.ols import OLSObservational, OLSResult
 from .estimators.iv import IV2SLS, IVResult
-from .refutations import OLSRefutationReport, IVRefutationReport, RefutationCheck
+from .estimators.matching import PropensityScoreMatching, MatchingResult
+from .refutations import OLSRefutationReport, IVRefutationReport, MatchingRefutationReport, RefutationCheck
 
 __all__ = [
     "DAG",
     "OLSObservational", "OLSResult",
     "IV2SLS", "IVResult",
-    "OLSRefutationReport", "IVRefutationReport", "RefutationCheck",
+    "PropensityScoreMatching", "MatchingResult",
+    "OLSRefutationReport", "IVRefutationReport", "MatchingRefutationReport", "RefutationCheck",
 ]

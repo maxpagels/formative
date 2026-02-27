@@ -24,3 +24,15 @@ IVResult
 
 .. autoclass:: formative.IVResult
    :members:
+
+PropensityScoreMatching
+-----------------------
+
+.. autoclass:: formative.PropensityScoreMatching
+   :members:
+
+MatchingResult
+--------------
+
+.. autoclass:: formative.MatchingResult
+   :members:

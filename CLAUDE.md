@@ -42,21 +42,30 @@ Called as `result.refute(df)` on a fitted result — always pass the same `df` u
 
 Refutation checks are diagnostics, not proof — the library's philosophy (reflected in the docs) is that no set of tests can guarantee causal validity. Failing checks are signals to investigate, not hard blockers.
 
-**Refutation seed:** both `formative/refutations/ols.py` and `formative/refutations/iv.py` use `_RCC_SEED = 54321` for the random common cause column. This must not be changed to a common test seed (e.g. 42) — doing so causes the generated noise to collide with instrument/treatment data generated from the same seed, producing a singular matrix in IV.
+**Refutation seeds:** all refutation modules use isolated seeds to avoid collisions with test data (which is typically seeded at 42):
+- `_RCC_SEED = 54321` — random common cause column in all refutation modules
+- `_PLACEBO_SEED = 99999` — treatment permutation in matching refutation
+- `_BOOTSTRAP_SEED = 42` — safe to reuse in matching's bootstrap because it samples row indices from existing data rather than generating independent values that could coincide with columns
+
+Changing `_RCC_SEED` or `_PLACEBO_SEED` to 42 causes the generated noise to collide with instrument/treatment data generated from the same seed, producing a singular matrix in IV.
 
 **Package layout:**
 - `formative/dag.py` — `DAG` and `_Node`
 - `formative/_exceptions.py` — `IdentificationError`, `GraphError`
 - `formative/estimators/ols.py` — `OLSObservational`, `OLSResult` (includes `refute()`)
 - `formative/estimators/iv.py` — `IV2SLS`, `IVResult` (includes `refute()`)
+- `formative/estimators/matching.py` — `PropensityScoreMatching`, `MatchingResult` (includes `refute()`); also exports `_propensity_scores`, `_att_from_ps` for use by refutations
 - `formative/refutations/_check.py` — `RefutationCheck`
 - `formative/refutations/ols.py` — `OLSRefutationReport`, `_check_random_common_cause`
 - `formative/refutations/iv.py` — `IVRefutationReport`, `_check_first_stage_f`, `_check_random_common_cause`
+- `formative/refutations/matching.py` — `MatchingRefutationReport`, `_check_placebo_treatment`, `_check_random_common_cause`
 - `formative/__init__.py` — public API
-- `tests/test_dag.py`, `tests/test_ols.py`, `tests/test_iv.py`, `tests/test_ols_refutation.py`, `tests/test_iv_refutation.py`
-- `examples/ols/`, `examples/iv/` — runnable examples
+- `tests/test_dag.py`, `tests/test_ols.py`, `tests/test_iv.py`, `tests/test_matching.py`, `tests/test_ols_refutation.py`, `tests/test_iv_refutation.py`, `tests/test_matching_refutation.py`
+- `examples/ols/`, `examples/iv/`, `examples/matching/` — runnable examples
 
 **Adding a new estimator:** follow `OLSObservational`/`IV2SLS` — `__init__` validates DAG, `fit()` calls `_identify()`, raises `IdentificationError` where appropriate, returns a result object. Export from `formative/__init__.py`. Add a `refute()` method to the result and a corresponding module under `formative/refutations/`.
+
+**Test pattern for bootstrap-heavy estimators:** matching tests use `setup_class` (not `setup_method`) so `.fit()` runs once per class rather than before every test method. With 500 bootstrap iterations this matters. Matching tests use N=1_000 — larger N causes bootstrap SE to widen while matching's inherent NN noise doesn't shrink at the same rate, which causes refutation checks to fail the 1 SE threshold even on well-specified data.
 
 ## Planned estimators
 
@@ -66,5 +75,5 @@ The long-term goal is for `formative` to cover all methods in the causal inferen
 - **DiD** (Difference-in-Differences) — panel/repeated-measures data with a treatment group and control group
 - **RD** (Regression Discontinuity) — treatment assigned by a threshold on a running variable
 - **IV** (Instrumental Variables) — ✓ implemented as `IV2SLS` in `formative/estimators/iv.py`
-- **Matching** — match treated and control units on observed confounders
+- **Matching** — ✓ implemented as `PropensityScoreMatching` in `formative/estimators/matching.py`
 - **Synthetic Control** — construct a weighted synthetic control unit from donor units
