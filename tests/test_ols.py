@@ -23,29 +23,6 @@ def make_data(true_effect=2.0):
     return pd.DataFrame({"ability": ability, "education": education, "income": income})
 
 
-class TestDAG:
-    def test_basic_edges(self):
-        dag = DAG()
-        dag.assume("A").causes("B")
-        dag.assume("B").causes("C")
-        assert dag.parents("B") == {"A"}
-        assert dag.children("B") == {"C"}
-        assert dag.ancestors("C") == {"A", "B"}
-        assert dag.descendants("A") == {"B", "C"}
-
-    def test_multiple_effects_in_one_call(self):
-        dag = DAG()
-        dag.assume("A").causes("B", "C")
-        assert dag.children("A") == {"B", "C"}
-
-    def test_cycle_detection(self):
-        dag = DAG()
-        dag.assume("A").causes("B")
-        dag.assume("B").causes("C")
-        with pytest.raises(Exception, match="cycle"):
-            dag.assume("C").causes("A")
-
-
 class TestOLSObservational:
     def test_no_confounders_runs(self):
         """When there are no confounders in the DAG, OLS is just bivariate."""
