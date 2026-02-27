@@ -1,0 +1,18 @@
+# UV / packaging
+.venv/
+*.egg-info/
+dist/
+build/
+
+# Test & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Claude
+.claude/
