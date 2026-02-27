@@ -15,8 +15,8 @@ Every analysis in formative follows three steps:
 
 **1. Encode your causal assumptions as a DAG**
 
-Before any data is touched, you declare which variables cause which. This
-makes your identification assumptions explicit and machine-readable.
+Before any data is touched, you declare which variables are assumed to cause which.
+This makes your identification assumptions explicit and machine-readable.
 
 .. code-block:: python
 
