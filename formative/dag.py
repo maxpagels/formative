@@ -2,23 +2,43 @@ from __future__ import annotations
 from ._exceptions import GraphError
 
 
+class _Node:
+    """
+    A node proxy returned by DAG.assume(). Use .causes() to assert edges.
+
+        dag.assume("ability").causes("education", "income")
+        dag.assume("education").causes("income")
+    """
+
+    def __init__(self, name: str, dag: DAG) -> None:
+        self._name = name
+        self._dag = dag
+
+    def causes(self, *effects: str) -> _Node:
+        """
+        Assert that this node causes one or more effects.
+        Returns self so you can chain further .causes() calls.
+
+            dag.assume("ability").causes("education", "income")
+        """
+        for effect in effects:
+            self._dag._assert_edge(self._name, effect)
+        return self
+
+
 class DAG:
     """
     A directed acyclic graph representing causal assumptions.
 
-    Nodes are variable names (strings). Edges represent direct causal
-    relationships: add_edge("A", "B") means "A causes B".
-
-    Include latent variables (unobserved confounders) as nodes — just don't
-    include their column in your dataframe. The estimator will detect that
-    they are unobserved when you call fit().
+    Build the graph by calling assume().causes() for each causal relationship
+    you believe holds. Include latent variables freely — if a node isn't in
+    your dataframe at fit() time, the estimator treats it as unobserved.
 
     Usage
     -----
         dag = DAG()
-        dag.causes("ability", "education")   # latent — not in dataframe
-        dag.causes("ability", "income")
-        dag.causes("education", "income")
+        dag.assume("ability").causes("education", "income")
+        dag.assume("education").causes("income")
     """
 
     def __init__(self) -> None:
@@ -26,12 +46,16 @@ class DAG:
 
     # ── Building the graph ────────────────────────────────────────────────────
 
-    def causes(self, cause: str, effect: str) -> DAG:
+    def assume(self, node: str) -> _Node:
         """
-        Assert that cause → effect. Returns self for chaining.
+        Name a node and return it so you can assert what it causes.
 
-            dag.causes("ability", "education")  # I assume ability causes education
+            dag.assume("ability").causes("education")
         """
+        return _Node(node, self)
+
+    def _assert_edge(self, cause: str, effect: str) -> None:
+        """Add a directed edge after validating it keeps the graph acyclic."""
         if cause == effect:
             raise GraphError(f"Self-loops are not allowed: '{cause}'")
         if (cause, effect) in self._edges:
@@ -43,7 +67,6 @@ class DAG:
                 f"Asserting '{cause}' → '{effect}' would create a cycle. "
                 f"Causal graphs must be acyclic (DAGs)."
             )
-        return self
 
     # ── Graph properties ──────────────────────────────────────────────────────
 
@@ -62,11 +85,11 @@ class DAG:
         return list(self._edges)
 
     def parents(self, node: str) -> set[str]:
-        """Direct causes of node (nodes with an edge into node)."""
+        """Direct causes of node."""
         return {cause for cause, effect in self._edges if effect == node}
 
     def children(self, node: str) -> set[str]:
-        """Direct effects of node (nodes with an edge out of node)."""
+        """Direct effects of node."""
         return {effect for cause, effect in self._edges if cause == node}
 
     def ancestors(self, node: str) -> set[str]:

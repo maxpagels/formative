@@ -26,9 +26,8 @@ income     = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
 df = pd.DataFrame({"ability": ability, "education": education, "income": income})
 
 dag = DAG()
-dag.causes("ability", "education")
-dag.causes("ability", "income")
-dag.causes("education", "income")
+dag.assume("ability").causes("education", "income")
+dag.assume("education").causes("income")
 
 print(dag)
 print()

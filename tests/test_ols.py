@@ -26,51 +26,55 @@ def make_data(true_effect=2.0):
 class TestDAG:
     def test_basic_edges(self):
         dag = DAG()
-        dag.causes("A", "B").causes("B", "C")
+        dag.assume("A").causes("B")
+        dag.assume("B").causes("C")
         assert dag.parents("B") == {"A"}
         assert dag.children("B") == {"C"}
         assert dag.ancestors("C") == {"A", "B"}
         assert dag.descendants("A") == {"B", "C"}
 
+    def test_multiple_effects_in_one_call(self):
+        dag = DAG()
+        dag.assume("A").causes("B", "C")
+        assert dag.children("A") == {"B", "C"}
+
     def test_cycle_detection(self):
         dag = DAG()
-        dag.causes("A", "B").causes("B", "C")
+        dag.assume("A").causes("B")
+        dag.assume("B").causes("C")
         with pytest.raises(Exception, match="cycle"):
-            dag.causes("C", "A")
+            dag.assume("C").causes("A")
 
 
 class TestOLSObservational:
     def test_no_confounders_runs(self):
         """When there are no confounders in the DAG, OLS is just bivariate."""
         dag = DAG()
-        dag.causes("education", "income")
+        dag.assume("education").causes("income")
 
         df = make_data(true_effect=2.0)
         result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
 
-        # Without controlling for ability, estimate will be biased — but it should run
         assert result.effect is not None
         assert result.adjustment_set == set()
 
     def test_observed_confounder_is_controlled(self):
         """With ability in the dataframe, it is added to the adjustment set automatically."""
         dag = DAG()
-        dag.causes("ability", "education")
-        dag.causes("ability", "income")
-        dag.causes("education", "income")
+        dag.assume("ability").causes("education", "income")
+        dag.assume("education").causes("income")
 
         df = make_data(true_effect=2.0)
         result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
 
         assert "ability" in result.adjustment_set
-        assert abs(result.effect - 2.0) < 0.15  # should recover the true effect
+        assert abs(result.effect - 2.0) < 0.15
 
     def test_unobserved_confounder_raises(self):
         """With ability absent from the dataframe, OLS should refuse to run."""
         dag = DAG()
-        dag.causes("ability", "education")
-        dag.causes("ability", "income")
-        dag.causes("education", "income")
+        dag.assume("ability").causes("education", "income")
+        dag.assume("education").causes("income")
 
         df = make_data(true_effect=2.0).drop(columns=["ability"])
         with pytest.raises(IdentificationError, match="Unobserved confounders"):
@@ -82,9 +86,8 @@ class TestOLSObservational:
         doing so would block the causal path and underestimate the effect.
         """
         dag = DAG()
-        dag.causes("education", "skills")   # mediator
-        dag.causes("skills", "income")
-        dag.causes("education", "income")   # direct path too
+        dag.assume("education").causes("skills", "income")
+        dag.assume("skills").causes("income")
 
         df = make_data(true_effect=2.0)
         result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
@@ -93,15 +96,14 @@ class TestOLSObservational:
 
     def test_unknown_treatment_raises(self):
         dag = DAG()
-        dag.causes("A", "B")
+        dag.assume("A").causes("B")
         with pytest.raises(ValueError, match="Treatment"):
             OLSObservational(dag, treatment="X", outcome="B")
 
     def test_missing_treatment_column_raises(self):
         dag = DAG()
-        dag.causes("ability", "education")
-        dag.causes("ability", "income")
-        dag.causes("education", "income")
+        dag.assume("ability").causes("education", "income")
+        dag.assume("education").causes("income")
 
         df = make_data().drop(columns=["education"])
         with pytest.raises(ValueError, match="Treatment column"):
@@ -109,9 +111,8 @@ class TestOLSObservational:
 
     def test_result_has_expected_attributes(self):
         dag = DAG()
-        dag.causes("ability", "education")
-        dag.causes("ability", "income")
-        dag.causes("education", "income")
+        dag.assume("ability").causes("education", "income")
+        dag.assume("education").causes("income")
 
         df = make_data()
         result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
@@ -126,21 +127,20 @@ class TestOLSObservational:
     def test_unadjusted_estimate_is_biased(self):
         """When ability is a confounder, unadjusted OLS overestimates the true effect."""
         dag = DAG()
-        dag.causes("ability", "education")
-        dag.causes("ability", "income")
-        dag.causes("education", "income")
+        dag.assume("ability").causes("education", "income")
+        dag.assume("education").causes("income")
 
         df = make_data(true_effect=2.0)
         result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
 
-        assert abs(result.effect - 2.0) < 0.15           # adjusted: close to truth
-        assert abs(result.unadjusted_effect - 2.0) > 0.1  # unadjusted: meaningfully off
-        assert result.unadjusted_effect > result.effect    # ability inflates the estimate
+        assert abs(result.effect - 2.0) < 0.15
+        assert abs(result.unadjusted_effect - 2.0) > 0.1
+        assert result.unadjusted_effect > result.effect
 
     def test_no_confounders_adjusted_equals_unadjusted(self):
         """With no confounders in the DAG, both estimates should be identical."""
         dag = DAG()
-        dag.causes("education", "income")
+        dag.assume("education").causes("income")
 
         df = make_data()
         result = OLSObservational(dag, treatment="education", outcome="income").fit(df)

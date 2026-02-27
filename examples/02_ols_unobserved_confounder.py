@@ -25,9 +25,8 @@ income     = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
 df = pd.DataFrame({"education": education, "income": income})
 
 dag = DAG()
-dag.causes("ability", "education")
-dag.causes("ability", "income")
-dag.causes("education", "income")
+dag.assume("ability").causes("education", "income")
+dag.assume("education").causes("income")
 
 # For reference: naive OLS ignoring the confounder
 import statsmodels.formula.api as smf

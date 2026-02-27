@@ -30,9 +30,8 @@ from formative import DAG, OLSObservational
 
 # 1. Encode your causal assumptions
 dag = DAG()
-dag.causes("ability", "education")
-dag.causes("ability", "income")
-dag.causes("education", "income")
+dag.assume("ability").causes("education", "income")
+dag.assume("education").causes("income")
 
 # 2. Estimate — confounders in the DAG are controlled for automatically
 #    if they appear in df. If they don't, an IdentificationError is raised.
@@ -43,7 +42,7 @@ print(result.summary())
 If a confounder in the DAG is absent from the dataframe, the package raises an `IdentificationError` before any estimation runs:
 
 ```python
-# df does not contain an "ability" column
+# df does not contain an "ability" column — ability treated as unobserved
 
 result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
 # IdentificationError: Unobserved confounders detected: ['ability']

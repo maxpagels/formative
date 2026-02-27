@@ -18,7 +18,7 @@ dataframe but must NOT be controlled for — doing so would block part
 of the causal path and underestimate the total effect of education.
 OLSObservational correctly excludes it from the adjustment set.
 
-True total effect of education on income: 2.0
+True total effect of education on income: 1.68  (direct 1.2 + indirect 0.8×0.6)
 """
 
 import numpy as np
@@ -30,17 +30,16 @@ RNG = np.random.default_rng(0)
 N = 2_000
 
 parental_income = RNG.normal(size=N)
-region          = RNG.integers(0, 3, size=N).astype(float)  # 0, 1, 2
+region          = RNG.integers(0, 3, size=N).astype(float)
 education       = 0.4 * parental_income + 0.3 * region + RNG.normal(size=N)
-job_type        = 0.6 * education + RNG.normal(size=N)       # mediator
+job_type        = 0.6 * education + RNG.normal(size=N)
 income          = (
-    1.2 * education           # direct effect
-    + 0.8 * job_type          # indirect effect via job_type (total = 1.2 + 0.8*0.6 = 1.68... wait)
+    1.2 * education
+    + 0.8 * job_type
     + 0.5 * parental_income
     + 0.4 * region
     + RNG.normal(size=N)
 )
-# True total effect: direct (1.2) + indirect via job_type (0.8 * 0.6) = 1.68
 
 df = pd.DataFrame({
     "parental_income": parental_income,
@@ -51,13 +50,10 @@ df = pd.DataFrame({
 })
 
 dag = DAG()
-dag.causes("parental_income", "education")
-dag.causes("parental_income", "income")
-dag.causes("region",          "education")
-dag.causes("region",          "income")
-dag.causes("education",       "job_type")
-dag.causes("job_type",        "income")
-dag.causes("education",       "income")
+dag.assume("parental_income").causes("education", "income")
+dag.assume("region").causes("education", "income")
+dag.assume("education").causes("job_type", "income")
+dag.assume("job_type").causes("income")
 
 print(dag)
 print()
