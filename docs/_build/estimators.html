@@ -150,8 +150,8 @@ is raised before estimation.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
-<li><p><strong>IdentificationError</strong> – If confounders in the DAG are absent from the dataframe and cannot
-    be controlled for, making OLS biased.</p></li>
+<li><p><strong>IdentificationError</strong> – If confounders declared in the DAG are absent from the dataframe.
+    Note: confounders not modelled in the DAG at all cannot be detected.</p></li>
 <li><p><strong>ValueError</strong> – If treatment or outcome columns are missing from the dataframe.</p></li>
 </ul>
 </dd>

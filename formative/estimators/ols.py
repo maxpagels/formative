@@ -162,7 +162,10 @@ class OLSObservational:
         Whether a confounder is observed is determined by whether it appears
         in ``data_columns`` — no explicit marking required.
 
-        Returns ``(observed_adjustment_set, unobserved_confounders)``.
+        Returns ``(adjustment_set, dag_confounders_not_in_data)``. The second
+        set contains only confounders explicitly modelled in the DAG that are
+        absent from the data. There may be additional unobserved confounders
+        not represented in the DAG at all.
         """
         dag = self._dag
         T, Y = self._treatment, self._outcome
@@ -174,9 +177,9 @@ class OLSObservational:
         confounders = (treatment_ancestors & outcome_ancestors) - treatment_descendants
 
         observed_confounders = {c for c in confounders if c in data_columns}
-        unobserved_confounders = {c for c in confounders if c not in data_columns}
+        dag_confounders_not_in_data = {c for c in confounders if c not in data_columns}
 
-        return observed_confounders, unobserved_confounders
+        return observed_confounders, dag_confounders_not_in_data
 
     def fit(self, data: pd.DataFrame) -> OLSResult:
         """
@@ -197,8 +200,8 @@ class OLSObservational:
         Raises
         ------
         ``IdentificationError``
-            If confounders in the DAG are absent from the dataframe and cannot
-            be controlled for, making OLS biased.
+            If confounders declared in the DAG are absent from the dataframe.
+            Note: confounders not modelled in the DAG at all cannot be detected.
         ``ValueError``
             If treatment or outcome columns are missing from the dataframe.
         """
@@ -208,17 +211,19 @@ class OLSObservational:
             if var not in data_columns:
                 raise ValueError(f"{label} column '{var}' not found in dataframe.")
 
-        adjustment_set, unobserved_confounders = self._identify(data_columns)
+        adjustment_set, dag_confounders_not_in_data = self._identify(data_columns)
 
-        if unobserved_confounders:
+        if dag_confounders_not_in_data:
             raise IdentificationError(
-                f"\nUnobserved confounders detected: {sorted(unobserved_confounders)}\n\n"
-                f"These variables influence both '{self._treatment}' and '{self._outcome}'\n"
-                f"but are not in the dataframe and cannot be controlled for.\n\n"
+                f"\nDAG confounders not found in dataframe: {sorted(dag_confounders_not_in_data)}\n\n"
+                f"Your DAG declares these variables as confounders of '{self._treatment}' and\n"
+                f"'{self._outcome}', but they are absent from the dataframe and cannot be\n"
+                f"controlled for. Note: there may also be confounders not modelled in your\n"
+                f"DAG at all — formative cannot detect those.\n\n"
                 f"Consider:\n"
+                f"  - Collecting data on {sorted(dag_confounders_not_in_data)} and adding it to the dataframe\n"
                 f"  - IV estimation if you have a valid instrument for '{self._treatment}'\n"
-                f"  - DiD or RD if a natural experiment is available\n"
-                f"  - Collecting data on {sorted(unobserved_confounders)} and adding it to the dataframe"
+                f"  - DiD or RD if a natural experiment is available"
             )
 
         controls = sorted(adjustment_set)

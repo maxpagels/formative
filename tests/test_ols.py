@@ -77,7 +77,7 @@ class TestOLSObservational:
         dag.assume("education").causes("income")
 
         df = make_data(true_effect=2.0).drop(columns=["ability"])
-        with pytest.raises(IdentificationError, match="Unobserved confounders"):
+        with pytest.raises(IdentificationError, match="DAG confounders not found"):
             OLSObservational(dag, treatment="education", outcome="income").fit(df)
 
     def test_mediator_not_in_adjustment_set(self):
