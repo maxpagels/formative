@@ -5,6 +5,14 @@ import statsmodels.formula.api as smf
 
 from ..dag import DAG
 from .._exceptions import IdentificationError
+from ..refutations._check import Assumption
+
+OLS_ASSUMPTIONS: list[Assumption] = [
+    Assumption("No unobserved confounders (selection on observables)", testable=False),
+    Assumption("Correct functional form for control variables", testable=False),
+    Assumption("No reverse causality", testable=False),
+    Assumption("No measurement error in key variables", testable=False),
+]
 
 
 class OLSResult:
@@ -71,6 +79,11 @@ class OLSResult:
         """The underlying unadjusted statsmodels result, for full diagnostics."""
         return self._unadjusted
 
+    @property
+    def assumptions(self) -> list[Assumption]:
+        """Modelling assumptions required for a causal interpretation."""
+        return list(OLS_ASSUMPTIONS)
+
     def summary(self) -> str:
         lo, hi = self.conf_int
         adj = sorted(self._adjustment_set)
@@ -99,10 +112,13 @@ class OLSResult:
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
             "",
-            "  Interpretation assumes the DAG correctly captures all",
-            "  confounding. Unmodelled confounders will bias this estimate.",
-            "",
+            "  Assumptions",
+            "  " + "┄" * 48,
         ]
+        for a in OLS_ASSUMPTIONS:
+            tag = "  testable  " if a.testable else " untestable "
+            lines.append(f"  [{tag}]  {a.name}")
+        lines.append("")
         return "\n".join(lines)
 
     def refute(self, data: pd.DataFrame):

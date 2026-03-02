@@ -6,6 +6,14 @@ import statsmodels.formula.api as smf
 
 from ..dag import DAG
 from .._exceptions import IdentificationError
+from ..refutations._check import Assumption
+
+MATCHING_ASSUMPTIONS: list[Assumption] = [
+    Assumption("Conditional independence: no unobserved confounders given matched variables", testable=False),
+    Assumption("Common support: overlap exists in characteristics between groups", testable=True),
+    Assumption("Correct specification of the matching variables", testable=False),
+    Assumption("Stable Unit Treatment Value Assumption (SUTVA)", testable=False),
+]
 
 _BOOTSTRAP_N    = 500
 _BOOTSTRAP_SEED = 42
@@ -121,6 +129,11 @@ class MatchingResult:
         """Full array of per-bootstrap ATT values, for diagnostics."""
         return self._bootstrap_atts.copy()
 
+    @property
+    def assumptions(self) -> list[Assumption]:
+        """Modelling assumptions required for a causal interpretation."""
+        return list(MATCHING_ASSUMPTIONS)
+
     def summary(self) -> str:
         lo, hi = self.conf_int
         adj = sorted(self._adjustment_set)
@@ -151,10 +164,14 @@ class MatchingResult:
             f"  p-value              : {self.pvalue:>10.4f}",
             "",
             "  Matching: 1-to-1 nearest-neighbour on propensity score (with replacement)",
-            "  Interpretation assumes the DAG correctly captures all",
-            "  confounding. Unmodelled confounders will bias this estimate.",
             "",
+            "  Assumptions",
+            "  " + "┄" * 48,
         ]
+        for a in MATCHING_ASSUMPTIONS:
+            tag = "  testable  " if a.testable else " untestable "
+            lines.append(f"  [{tag}]  {a.name}")
+        lines.append("")
         return "\n".join(lines)
 
     def refute(self, data: pd.DataFrame):
