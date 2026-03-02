@@ -6,7 +6,7 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
-from ._check import RefutationCheck
+from ._check import RefutationCheck, RefutationReport
 
 _FIRST_STAGE_F_THRESHOLD = 10.0
 _RCC_SEED = 54321
@@ -92,7 +92,7 @@ def _check_random_common_cause(
     return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
 
 
-class IVRefutationReport:
+class IVRefutationReport(RefutationReport):
     """
     Results of refutation checks run against an IV (2SLS) estimation.
 
@@ -115,44 +115,11 @@ class IVRefutationReport:
         outcome: str,
         instrument: str,
     ) -> None:
-        self._checks = checks
-        self._treatment = treatment
-        self._outcome = outcome
+        super().__init__(checks, treatment, outcome)
         self._instrument = instrument
 
-    @property
-    def checks(self) -> list[RefutationCheck]:
-        """All checks, in the order they were run."""
-        return list(self._checks)
-
-    @property
-    def passed(self) -> bool:
-        """``True`` if every check passed."""
-        return all(c.passed for c in self._checks)
-
-    @property
-    def failed_checks(self) -> list[RefutationCheck]:
-        """Only the checks that did not pass."""
-        return [c for c in self._checks if not c.passed]
-
-    def summary(self) -> str:
-        lines = [
-            "",
+    def _header_lines(self) -> list[str]:
+        return [
             f"IV Refutation Report: {self._treatment} → {self._outcome}",
             f"  Instrument: {self._instrument}",
-            "─" * 50,
         ]
-        for check in self._checks:
-            status = "PASS" if check.passed else "FAIL"
-            lines.append(f"  [{status}]  {check.name}: {check.detail}")
-        lines.append("")
-        if self.passed:
-            lines.append("  All checks passed.")
-        else:
-            n = len(self.failed_checks)
-            lines.append(f"  {n} check(s) failed — see above.")
-        lines.append("")
-        return "\n".join(lines)
-
-    def __repr__(self) -> str:
-        return self.summary()

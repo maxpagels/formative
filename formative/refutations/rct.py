@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ._check import RefutationCheck
+from ._check import RefutationCheck, RefutationReport
 
 _RCC_SEED = 54321
 _RCC_COL = "_rcc"
@@ -50,7 +50,7 @@ def _check_random_common_cause(
     return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
 
 
-class RCTRefutationReport:
+class RCTRefutationReport(RefutationReport):
     """
     Results of refutation checks run against an RCT estimation.
 
@@ -63,48 +63,5 @@ class RCTRefutationReport:
         print(report.summary())
     """
 
-    def __init__(
-        self,
-        checks: list[RefutationCheck],
-        treatment: str,
-        outcome: str,
-    ) -> None:
-        self._checks = checks
-        self._treatment = treatment
-        self._outcome = outcome
-
-    @property
-    def checks(self) -> list[RefutationCheck]:
-        """All checks, in the order they were run."""
-        return list(self._checks)
-
-    @property
-    def passed(self) -> bool:
-        """``True`` if every check passed."""
-        return all(c.passed for c in self._checks)
-
-    @property
-    def failed_checks(self) -> list[RefutationCheck]:
-        """Only the checks that did not pass."""
-        return [c for c in self._checks if not c.passed]
-
-    def summary(self) -> str:
-        lines = [
-            "",
-            f"RCT Refutation Report: {self._treatment} → {self._outcome}",
-            "─" * 50,
-        ]
-        for check in self._checks:
-            status = "PASS" if check.passed else "FAIL"
-            lines.append(f"  [{status}]  {check.name}: {check.detail}")
-        lines.append("")
-        if self.passed:
-            lines.append("  All checks passed.")
-        else:
-            n = len(self.failed_checks)
-            lines.append(f"  {n} check(s) failed — see above.")
-        lines.append("")
-        return "\n".join(lines)
-
-    def __repr__(self) -> str:
-        return self.summary()
+    def _header_lines(self) -> list[str]:
+        return [f"RCT Refutation Report: {self._treatment} → {self._outcome}"]

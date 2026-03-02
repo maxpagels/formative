@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from ._check import RefutationCheck
+from ._check import RefutationCheck, RefutationReport
 from ..estimators.matching import _propensity_scores, _att_from_ps
 
 _RCC_SEED     = 54321
@@ -112,7 +112,7 @@ def _check_random_common_cause(
     return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
 
 
-class MatchingRefutationReport:
+class MatchingRefutationReport(RefutationReport):
     """
     Results of refutation checks run against a propensity score matching
     estimation.
@@ -129,48 +129,5 @@ class MatchingRefutationReport:
         print(report.summary())
     """
 
-    def __init__(
-        self,
-        checks: list[RefutationCheck],
-        treatment: str,
-        outcome: str,
-    ) -> None:
-        self._checks = checks
-        self._treatment = treatment
-        self._outcome = outcome
-
-    @property
-    def checks(self) -> list[RefutationCheck]:
-        """All checks, in the order they were run."""
-        return list(self._checks)
-
-    @property
-    def passed(self) -> bool:
-        """``True`` if every check passed."""
-        return all(c.passed for c in self._checks)
-
-    @property
-    def failed_checks(self) -> list[RefutationCheck]:
-        """Only the checks that did not pass."""
-        return [c for c in self._checks if not c.passed]
-
-    def summary(self) -> str:
-        lines = [
-            "",
-            f"PSM Refutation Report: {self._treatment} → {self._outcome}",
-            "─" * 50,
-        ]
-        for check in self._checks:
-            status = "PASS" if check.passed else "FAIL"
-            lines.append(f"  [{status}]  {check.name}: {check.detail}")
-        lines.append("")
-        if self.passed:
-            lines.append("  All checks passed.")
-        else:
-            n = len(self.failed_checks)
-            lines.append(f"  {n} check(s) failed — see above.")
-        lines.append("")
-        return "\n".join(lines)
-
-    def __repr__(self) -> str:
-        return self.summary()
+    def _header_lines(self) -> list[str]:
+        return [f"PSM Refutation Report: {self._treatment} → {self._outcome}"]
