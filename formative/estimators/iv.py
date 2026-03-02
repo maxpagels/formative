@@ -14,6 +14,7 @@ IV_ASSUMPTIONS: list[Assumption] = [
     Assumption("Exclusion restriction: instrument only affects outcome through treatment", testable=False),
     Assumption("Independence: instrument is uncorrelated with unobserved confounders", testable=False),
     Assumption("Monotonicity: instrument affects treatment in same direction for everyone", testable=False),
+    Assumption("Stable Unit Treatment Value Assumption (SUTVA)", testable=False),
 ]
 
 

@@ -216,6 +216,46 @@ def explain_iv(result) -> str:
     return "\n\n".join(blocks)
 
 
+def explain_rct(result) -> str:
+    T, Y = result._treatment, result._outcome
+    lo, hi = result.conf_int
+
+    blocks = [
+        "\n".join([_SEP, f"Executive Summary — Randomized Controlled Trial",
+                   f"  {T} → {Y}  |  estimand: ATE", _SEP]),
+
+        "\n".join([
+            "METHOD",
+            f"Because {T} was randomly assigned, the Average Treatment Effect (ATE) "
+            f"is estimated directly as the difference in mean {Y} between treated and "
+            f"control units, equivalent to a simple OLS regression of {Y} on {T}. "
+            f"Randomisation eliminates confounding, so no covariate adjustment is needed "
+            f"or appropriate.",
+        ]),
+
+        _dag_section(result._dag, T, Y, set()),
+        _assumptions_section(result.assumptions),
+
+        "\n".join([
+            "RESULT",
+            f"{_effect_phrase(result.effect, T, Y).capitalize()} "
+            f"(ATE = {result.effect:.4f}, 95% CI: {_fmt_ci(lo, hi)}, "
+            f"SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}).",
+        ]),
+
+        "\n".join([
+            "CAVEATS",
+            f"This estimate is only valid if treatment was truly randomly assigned. "
+            f"Non-compliance, attrition, or interference between units can invalidate "
+            f"the causal interpretation even in a well-designed RCT. "
+            f"The ATE is an average across all units and may mask heterogeneous effects.",
+        ]),
+
+        _SEP,
+    ]
+    return "\n\n".join(blocks)
+
+
 def explain_matching(result) -> str:
     from .estimators.matching import _BOOTSTRAP_N
     T, Y = result._treatment, result._outcome

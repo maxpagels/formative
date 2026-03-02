@@ -12,6 +12,7 @@ OLS_ASSUMPTIONS: list[Assumption] = [
     Assumption("Correct functional form for control variables", testable=False),
     Assumption("No reverse causality", testable=False),
     Assumption("No measurement error in key variables", testable=False),
+    Assumption("Stable Unit Treatment Value Assumption (SUTVA)", testable=False),
 ]
 
 
