@@ -23,7 +23,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Refutations" href="refutations.html" />
-    <link rel="prev" title="DAG" href="dag.html" /> 
+    <link rel="prev" title="Estimands: ATE, ATT, and LATE" href="estimands.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,6 +48,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimands.html">Estimands: ATE, ATT, and LATE</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Estimators</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#olsobservational">OLSObservational</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#formative.OLSObservational"><code class="docutils literal notranslate"><span class="pre">OLSObservational</span></code></a><ul>
@@ -141,6 +142,29 @@
 <li class="toctree-l4"><a class="reference internal" href="#formative.RCTResult.executive_summary"><code class="docutils literal notranslate"><span class="pre">RCTResult.executive_summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.RCTResult.summary"><code class="docutils literal notranslate"><span class="pre">RCTResult.summary()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.RCTResult.refute"><code class="docutils literal notranslate"><span class="pre">RCTResult.refute()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#did">DiD</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#formative.DiD"><code class="docutils literal notranslate"><span class="pre">DiD</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiD.fit"><code class="docutils literal notranslate"><span class="pre">DiD.fit()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#didresult">DiDResult</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#formative.DiDResult"><code class="docutils literal notranslate"><span class="pre">DiDResult</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.effect"><code class="docutils literal notranslate"><span class="pre">DiDResult.effect</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.naive_diff"><code class="docutils literal notranslate"><span class="pre">DiDResult.naive_diff</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.std_err"><code class="docutils literal notranslate"><span class="pre">DiDResult.std_err</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.conf_int"><code class="docutils literal notranslate"><span class="pre">DiDResult.conf_int</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.pvalue"><code class="docutils literal notranslate"><span class="pre">DiDResult.pvalue</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.statsmodels_result"><code class="docutils literal notranslate"><span class="pre">DiDResult.statsmodels_result</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.assumptions"><code class="docutils literal notranslate"><span class="pre">DiDResult.assumptions</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.executive_summary"><code class="docutils literal notranslate"><span class="pre">DiDResult.executive_summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.summary"><code class="docutils literal notranslate"><span class="pre">DiDResult.summary()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.DiDResult.refute"><code class="docutils literal notranslate"><span class="pre">DiDResult.refute()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -337,7 +361,7 @@ effect of controlling for confounders directly.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="formative.OLSResult.summary">
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.OLSResult.summary" title="Link to this definition"></a></dt>
-<dd><p>Concise tabular summary of the estimate, confidence interval, and assumptions.</p>
+<dd><p>Concise tabular summary of the ATE estimate, confidence interval, and assumptions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
@@ -543,7 +567,7 @@ assumptions underlying the IV estimate. Returns an
 <dl class="py method">
 <dt class="sig sig-object py" id="formative.IVResult.summary">
 <span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.IVResult.summary" title="Link to this definition"></a></dt>
-<dd><p>Concise tabular summary of the estimate, confidence interval, and assumptions.</p>
+<dd><p>Concise tabular summary of the LATE estimate, confidence interval, and assumptions.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
@@ -885,13 +909,192 @@ any additional covariate.</p></li>
 </dd></dl>
 
 </section>
+<section id="did">
+<h2>DiD<a class="headerlink" href="#did" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="formative.DiD">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.</span></span><span class="sig-name descname"><span class="pre">DiD</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.DiD" title="Link to this definition"></a></dt>
+<dd><p>Difference-in-Differences estimator.</p>
+<p>Estimates the Average Treatment Effect on the Treated (ATT) by comparing
+how outcomes changed over time for the treated group versus the control
+group. The key insight is that any time trend common to both groups
+cancels out, isolating the treatment effect.</p>
+<p>Implemented as OLS with group and time main effects plus their
+interaction:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">outcome</span> <span class="o">~</span> <span class="n">group</span> <span class="o">+</span> <span class="n">time</span> <span class="o">+</span> <span class="n">group</span><span class="p">:</span><span class="n">time</span>
+</pre></div>
+</div>
+<p>The coefficient on <code class="docutils literal notranslate"><span class="pre">group:time</span></code> is the DiD estimate.</p>
+<p>The DAG is used to validate that group, time, and outcome are declared
+nodes. It does not apply the backdoor criterion — identification in DiD
+comes from the panel design, not from controlling for observed confounders.</p>
+<p>Requires <strong>binary</strong> group (0 = control, 1 = treated) and time
+(0 = pre-period, 1 = post-period) columns.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;group&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;outcome&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;outcome&quot;</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">DiD</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;outcome&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dag</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="dag.html#formative.DAG" title="formative.dag.DAG"><code class="xref py py-class docutils literal notranslate"><span class="pre">DAG</span></code></a></span>)</p></li>
+<li><p><strong>group</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>outcome</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.DiD.fit">
+<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.DiD.fit" title="Link to this definition"></a></dt>
+<dd><p>Estimate the ATT via OLS with group and time fixed effects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em>) – Must contain binary (0/1) group and time columns, and a
+numeric outcome column.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If required columns are missing or group/time are not binary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#formative.DiDResult" title="formative.estimators.did.DiDResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiDResult</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="didresult">
+<h2>DiDResult<a class="headerlink" href="#didresult" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="formative.DiDResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.</span></span><span class="sig-name descname"><span class="pre">DiDResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">result</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">naive_diff</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dag</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.DiDResult" title="Link to this definition"></a></dt>
+<dd><p>The result of a Difference-in-Differences estimation.</p>
+<p>The DiD estimate is the ATT: how much better (or worse) the treated
+group did relative to what would have been expected based on the
+control group’s trajectory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>group</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>outcome</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>naive_diff</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.DiDResult.effect">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">effect</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.DiDResult.effect" title="Link to this definition"></a></dt>
+<dd><p>ATT under the parallel trends assumption.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>DiD point estimate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.DiDResult.naive_diff">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">naive_diff</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.DiDResult.naive_diff" title="Link to this definition"></a></dt>
+<dd><p>treated mean minus control mean in the post period.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Naive post-period difference</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.DiDResult.std_err">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">std_err</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.DiDResult.std_err" title="Link to this definition"></a></dt>
+<dd><p>Standard error of the DiD estimate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.DiDResult.conf_int">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">conf_int</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.DiDResult.conf_int" title="Link to this definition"></a></dt>
+<dd><p>95% confidence interval for the DiD estimate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.DiDResult.pvalue">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pvalue</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.DiDResult.pvalue" title="Link to this definition"></a></dt>
+<dd><p>p-value for the DiD estimate (<code class="docutils literal notranslate"><span class="pre">H0:</span> <span class="pre">ATT</span> <span class="pre">=</span> <span class="pre">0</span></code>).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.DiDResult.statsmodels_result">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">statsmodels_result</span></span><a class="headerlink" href="#formative.DiDResult.statsmodels_result" title="Link to this definition"></a></dt>
+<dd><p>The underlying statsmodels OLS result, for full diagnostics.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.DiDResult.assumptions">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">assumptions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="refutations.html#formative.Assumption" title="formative.refutations._check.Assumption"><span class="pre">Assumption</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.DiDResult.assumptions" title="Link to this definition"></a></dt>
+<dd><p>Modelling assumptions required for a causal interpretation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.DiDResult.executive_summary">
+<span class="sig-name descname"><span class="pre">executive_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.DiDResult.executive_summary" title="Link to this definition"></a></dt>
+<dd><p>Narrative explanation of the method, DAG, assumptions, and result.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.DiDResult.summary">
+<span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.DiDResult.summary" title="Link to this definition"></a></dt>
+<dd><p>Concise tabular summary of the ATT estimate, confidence interval, and assumptions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.DiDResult.refute">
+<span class="sig-name descname"><span class="pre">refute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.DiDResult.refute" title="Link to this definition"></a></dt>
+<dd><p>Run refutation checks against this DiD estimation.</p>
+<p>Currently runs:</p>
+<ul class="simple">
+<li><p><strong>Placebo group</strong>: randomly permutes group labels and re-runs DiD.
+The placebo estimate should be near zero if the result is not spurious.</p></li>
+<li><p><strong>Placebo time</strong>: randomly permutes time labels and re-runs DiD.
+The placebo estimate should be near zero if the effect is genuinely
+concentrated in the post period.</p></li>
+<li><p><strong>Random common cause</strong>: adds a random noise column as an extra
+control and checks that the estimate does not shift by more than
+one standard error.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em>) – The same dataframe passed to <code class="docutils literal notranslate"><span class="pre">fit()</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 </section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="dag.html" class="btn btn-neutral float-left" title="DAG" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="estimands.html" class="btn btn-neutral float-left" title="Estimands: ATE, ATT, and LATE" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="refutations.html" class="btn btn-neutral float-right" title="Refutations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

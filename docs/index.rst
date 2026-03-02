@@ -91,5 +91,6 @@ not proof. Causal inference is a judgment call, not a mathematical certainty.
    :caption: Contents
 
    dag
+   estimands
    estimators
    refutations

@@ -1,0 +1,257 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Estimands: ATE, ATT, and LATE &mdash; formative  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Estimators" href="estimators.html" />
+    <link rel="prev" title="DAG" href="dag.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            formative
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Estimands: ATE, ATT, and LATE</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#ate-average-treatment-effect">ATE: Average Treatment Effect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#att-average-treatment-effect-on-the-treated">ATT: Average Treatment Effect on the Treated</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#late-local-average-treatment-effect">LATE: Local Average Treatment Effect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#why-not-all-methods-can-estimate-ate">Why not all methods can estimate ATE</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">formative</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Estimands: ATE, ATT, and LATE</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/estimands.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="estimands-ate-att-and-late">
+<h1>Estimands: ATE, ATT, and LATE<a class="headerlink" href="#estimands-ate-att-and-late" title="Link to this heading"></a></h1>
+<p>Every causal estimator targets a specific <em>estimand</em>. Choosing the wrong estimator for your question gives a valid answer to the wrong
+question. The three estimands formative works with are ATE, ATT, and LATE.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Estimand</p></th>
+<th class="head"><p>Full name</p></th>
+<th class="head"><p>Method</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>ATE</strong></p></td>
+<td><p>Average Treatment Effect</p></td>
+<td><p><a class="reference internal" href="estimators.html#formative.OLSObservational" title="formative.OLSObservational"><code class="xref py py-class docutils literal notranslate"><span class="pre">OLSObservational</span></code></a>, <a class="reference internal" href="estimators.html#formative.RCT" title="formative.RCT"><code class="xref py py-class docutils literal notranslate"><span class="pre">RCT</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>ATT</strong></p></td>
+<td><p>Average Treatment Effect on the Treated</p></td>
+<td><p><a class="reference internal" href="estimators.html#formative.PropensityScoreMatching" title="formative.PropensityScoreMatching"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropensityScoreMatching</span></code></a>, <a class="reference internal" href="estimators.html#formative.DiD" title="formative.DiD"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiD</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>LATE</strong></p></td>
+<td><p>Local Average Treatment Effect</p></td>
+<td><p><a class="reference internal" href="estimators.html#formative.IV2SLS" title="formative.IV2SLS"><code class="xref py py-class docutils literal notranslate"><span class="pre">IV2SLS</span></code></a></p></td>
+</tr>
+</tbody>
+</table>
+<hr class="docutils" />
+<section id="ate-average-treatment-effect">
+<h2>ATE: Average Treatment Effect<a class="headerlink" href="#ate-average-treatment-effect" title="Link to this heading"></a></h2>
+<p><strong>What it answers:</strong> If we randomly assigned treatment to everyone in the population, what
+would the average change in outcome be?</p>
+<div class="math notranslate nohighlight">
+\[\text{ATE} = \mathbb{E}[Y(1) - Y(0)]\]</div>
+<p><span class="math notranslate nohighlight">\(Y(1)\)</span> is the potential outcome under treatment and <span class="math notranslate nohighlight">\(Y(0)\)</span> under control, for
+the same unit. ATE averages this difference across <em>all units</em>, treated and untreated alike.</p>
+<p><strong>When it makes sense:</strong> When you want a policy-relevant effect for the whole population —
+e.g., “what would happen if we rolled this programme out to everyone?”</p>
+<p><strong>Methods that estimate it:</strong></p>
+<ul class="simple">
+<li><p><strong>OLS Observational</strong> — estimates ATE by adjusting for confounders identified via the
+backdoor criterion. Requires all relevant confounders to be observed.</p></li>
+<li><p><strong>RCT</strong> — randomisation makes treated and control groups exchangeable, so the simple
+difference in means is an unbiased ATE estimate with no adjustment required.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="att-average-treatment-effect-on-the-treated">
+<h2>ATT: Average Treatment Effect on the Treated<a class="headerlink" href="#att-average-treatment-effect-on-the-treated" title="Link to this heading"></a></h2>
+<p><strong>What it answers:</strong> Among units that actually received treatment, how much did treatment
+change their outcome?</p>
+<div class="math notranslate nohighlight">
+\[\text{ATT} = \mathbb{E}[Y(1) - Y(0) \mid \text{treated}]\]</div>
+<p>ATT conditions on the treated group. It asks what the treated units would have experienced
+had they <em>not</em> been treated — a counterfactual that is never directly observed.</p>
+<p><strong>When it makes sense:</strong> When you care specifically about the effect for those who
+self-selected into treatment, or when the treated group is the policy-relevant population —
+e.g., “did the training programme benefit the workers who enrolled?”</p>
+<p><strong>Methods that estimate it:</strong></p>
+<ul class="simple">
+<li><p><strong>Propensity Score Matching</strong> — each treated unit is matched to the most similar control
+unit by propensity score, and the ATT is the average outcome difference across matched
+pairs.</p></li>
+<li><p><strong>DiD</strong> — compares how outcomes changed over time for the treated group versus a control
+group. Under parallel trends, the common time trend cancels out, leaving the ATT as the
+interaction coefficient on group × time.</p></li>
+</ul>
+<p><strong>ATE vs ATT:</strong> When treatment is randomly assigned (as in an RCT), ATE = ATT, because the
+treated group is a random draw from the population. In observational settings they can
+differ — people who select into treatment often do so because the treatment is particularly
+beneficial for them (positive selection), making ATT &gt; ATE.</p>
+</section>
+<hr class="docutils" />
+<section id="late-local-average-treatment-effect">
+<h2>LATE: Local Average Treatment Effect<a class="headerlink" href="#late-local-average-treatment-effect" title="Link to this heading"></a></h2>
+<p><strong>What it answers:</strong> Among units whose treatment status was <em>moved</em> by the instrument, what
+was the effect of treatment?</p>
+<div class="math notranslate nohighlight">
+\[\text{LATE} = \mathbb{E}[Y(1) - Y(0) \mid \text{complier}]\]</div>
+<p>IV estimation with an instrument <span class="math notranslate nohighlight">\(Z\)</span> isolates only the variation in treatment caused
+by <span class="math notranslate nohighlight">\(Z\)</span>. Units whose treatment is unaffected by the instrument — <em>always-takers</em> (always
+treated regardless of <span class="math notranslate nohighlight">\(Z\)</span>) and <em>never-takers</em> (never treated regardless of <span class="math notranslate nohighlight">\(Z\)</span>)
+— contribute no identifying variation. Only <em>compliers</em> — units who take treatment when
+<span class="math notranslate nohighlight">\(Z = 1\)</span> and not when <span class="math notranslate nohighlight">\(Z = 0\)</span> — drive the IV estimate.</p>
+<p><strong>When it makes sense:</strong> When a clean instrument is available and you are willing to
+interpret the result as the effect for compliers. If compliers are representative of the
+broader population, LATE ≈ ATE. If not, the LATE may be very different from the ATE.</p>
+<p><strong>Methods that estimate it:</strong></p>
+<ul class="simple">
+<li><p><strong>IV / 2SLS</strong> — the Wald estimator (reduced form divided by first stage) identifies the
+LATE under the standard IV assumptions: relevance, exclusion restriction, independence,
+and monotonicity.</p></li>
+</ul>
+<p><strong>LATE vs ATE vs ATT:</strong> LATE is the narrowest estimand. It applies only to the complier
+subpopulation, which is typically latent (you cannot directly observe who the compliers are).
+Whether the LATE generalises depends on how similar compliers are to the rest of the
+population — a substantive question that cannot be answered from the data alone.</p>
+</section>
+<hr class="docutils" />
+<section id="why-not-all-methods-can-estimate-ate">
+<h2>Why not all methods can estimate ATE<a class="headerlink" href="#why-not-all-methods-can-estimate-ate" title="Link to this heading"></a></h2>
+<p>If your goal is the ATE, you cannot freely substitute any estimator and expect to get it.
+Each method’s design commits it to a particular estimand, and that commitment is not a
+limitation of the implementation — it is baked into the identification strategy itself.</p>
+<p><strong>Propensity Score Matching targets ATT by construction.</strong>
+Nearest-neighbour matching finds a control unit for each <em>treated</em> unit. The comparison is
+always anchored to the treated group: you are asking what would have happened to the treated
+units if they had not been treated. There is no symmetric counterpart for untreated units,
+so the estimator has nothing to say about what treatment would have done to them. To recover
+ATE from matching you would need to match in both directions — finding a treated twin for
+every control unit as well — which doubles the matching problem and requires common support
+across the full covariate distribution, an assumption that is much harder to satisfy.</p>
+<p><strong>DiD targets ATT because the counterfactual is group-specific.</strong>
+DiD uses the control group’s time trend as a stand-in for what the treated group would have
+experienced absent treatment. This counterfactual is constructed only for the treated group.
+The parallel trends assumption says the two groups would have trended together, but it says
+nothing about what the treatment effect would be for the control group if they had been
+treated. The DiD interaction coefficient therefore recovers ATT, not ATE.</p>
+<p><strong>IV recovers LATE, not ATE, because the instrument cannot reach all units.</strong>
+The instrument moves some units into (or out of) treatment but leaves others unaffected.
+Always-takers are treated regardless of the instrument; never-takers are untreated regardless.
+Neither group reveals anything about their treatment effect through the instrument’s variation,
+so they are effectively invisible to 2SLS. Recovering ATE would require knowing the treatment
+effect for these groups too — which demands either additional instruments, strong parametric
+assumptions about effect homogeneity, or extrapolation beyond what the data support.</p>
+<p><strong>The practical implication.</strong>
+If you need ATE, use OLS (with sufficient covariate adjustment) or run an RCT. If those are
+not feasible — because randomisation is impossible, or because unobserved confounders make
+OLS unreliable — then you are in a setting where ATE is likely <em>not identified</em> from the
+available data. Matching, DiD, and IV are not fallbacks that recover ATE under weaker
+assumptions; they answer a different, more limited question. Recognising which question each
+method answers is the first step to using them correctly.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dag.html" class="btn btn-neutral float-left" title="DAG" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="estimators.html" class="btn btn-neutral float-right" title="Estimators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Max Pagels.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

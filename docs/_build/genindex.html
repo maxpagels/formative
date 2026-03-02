@@ -45,6 +45,7 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimands.html">Estimands: ATE, ATT, and LATE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators</a></li>
 <li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a></li>
 </ul>
@@ -125,9 +126,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="refutations.html#formative.Assumption">Assumption (class in formative)</a>
 </li>
-      <li><a href="estimators.html#formative.IVResult.assumptions">assumptions (formative.IVResult property)</a>
+      <li><a href="estimators.html#formative.DiDResult.assumptions">assumptions (formative.DiDResult property)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.assumptions">(formative.IVResult property)</a>
+</li>
         <li><a href="estimators.html#formative.MatchingResult.assumptions">(formative.MatchingResult property)</a>
 </li>
         <li><a href="estimators.html#formative.OLSResult.assumptions">(formative.OLSResult property)</a>
@@ -151,23 +154,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dag.html#formative.dag._Node.causes">causes() (formative.dag._Node method)</a>
 </li>
-      <li><a href="refutations.html#formative.IVRefutationReport.checks">checks (formative.IVRefutationReport property)</a>
-
-      <ul>
-        <li><a href="refutations.html#formative.MatchingRefutationReport.checks">(formative.MatchingRefutationReport property)</a>
-</li>
-        <li><a href="refutations.html#formative.OLSRefutationReport.checks">(formative.OLSRefutationReport property)</a>
-</li>
-        <li><a href="refutations.html#formative.RCTRefutationReport.checks">(formative.RCTRefutationReport property)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dag.html#formative.DAG.children">children() (formative.DAG method)</a>
 </li>
-      <li><a href="estimators.html#formative.IVResult.conf_int">conf_int (formative.IVResult property)</a>
+      <li><a href="estimators.html#formative.DiDResult.conf_int">conf_int (formative.DiDResult property)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.conf_int">(formative.IVResult property)</a>
+</li>
         <li><a href="estimators.html#formative.MatchingResult.conf_int">(formative.MatchingResult property)</a>
 </li>
         <li><a href="estimators.html#formative.OLSResult.conf_int">(formative.OLSResult property)</a>
@@ -183,9 +176,15 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dag.html#formative.DAG">DAG (class in formative)</a>
 </li>
+      <li><a href="dag.html#formative.DAG.descendants">descendants() (formative.DAG method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="dag.html#formative.DAG.descendants">descendants() (formative.DAG method)</a>
+      <li><a href="estimators.html#formative.DiD">DiD (class in formative)</a>
+</li>
+      <li><a href="refutations.html#formative.DiDRefutationReport">DiDRefutationReport (class in formative)</a>
+</li>
+      <li><a href="estimators.html#formative.DiDResult">DiDResult (class in formative)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -195,9 +194,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dag.html#formative.DAG.edges">edges (formative.DAG property)</a>
 </li>
-      <li><a href="estimators.html#formative.IVResult.effect">effect (formative.IVResult property)</a>
+      <li><a href="estimators.html#formative.DiDResult.effect">effect (formative.DiDResult property)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.effect">(formative.IVResult property)</a>
+</li>
         <li><a href="estimators.html#formative.MatchingResult.effect">(formative.MatchingResult property)</a>
 </li>
         <li><a href="estimators.html#formative.OLSResult.effect">(formative.OLSResult property)</a>
@@ -207,9 +208,11 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="estimators.html#formative.IVResult.executive_summary">executive_summary() (formative.IVResult method)</a>
+      <li><a href="estimators.html#formative.DiDResult.executive_summary">executive_summary() (formative.DiDResult method)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.executive_summary">(formative.IVResult method)</a>
+</li>
         <li><a href="estimators.html#formative.MatchingResult.executive_summary">(formative.MatchingResult method)</a>
 </li>
         <li><a href="estimators.html#formative.OLSResult.executive_summary">(formative.OLSResult method)</a>
@@ -223,21 +226,11 @@
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="refutations.html#formative.IVRefutationReport.failed_checks">failed_checks (formative.IVRefutationReport property)</a>
+      <li><a href="estimators.html#formative.DiD.fit">fit() (formative.DiD method)</a>
 
       <ul>
-        <li><a href="refutations.html#formative.MatchingRefutationReport.failed_checks">(formative.MatchingRefutationReport property)</a>
+        <li><a href="estimators.html#formative.IV2SLS.fit">(formative.IV2SLS method)</a>
 </li>
-        <li><a href="refutations.html#formative.OLSRefutationReport.failed_checks">(formative.OLSRefutationReport property)</a>
-</li>
-        <li><a href="refutations.html#formative.RCTRefutationReport.failed_checks">(formative.RCTRefutationReport property)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="estimators.html#formative.IV2SLS.fit">fit() (formative.IV2SLS method)</a>
-
-      <ul>
         <li><a href="estimators.html#formative.OLSObservational.fit">(formative.OLSObservational method)</a>
 </li>
         <li><a href="estimators.html#formative.PropensityScoreMatching.fit">(formative.PropensityScoreMatching method)</a>
@@ -245,6 +238,10 @@
         <li><a href="estimators.html#formative.RCT.fit">(formative.RCT method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="refutations.html#formative.Assumption.fmt_tag">fmt_tag() (formative.Assumption method)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -277,10 +274,12 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="refutations.html#formative.Assumption.name">name (formative.Assumption attribute)</a>
+      <li><a href="estimators.html#formative.DiDResult.naive_diff">naive_diff (formative.DiDResult property)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="refutations.html#formative.Assumption.name">name (formative.Assumption attribute)</a>
+</li>
       <li><a href="dag.html#formative.DAG.nodes">nodes (formative.DAG property)</a>
 </li>
   </ul></td>
@@ -305,23 +304,13 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="dag.html#formative.DAG.parents">parents() (formative.DAG method)</a>
 </li>
-      <li><a href="refutations.html#formative.IVRefutationReport.passed">passed (formative.IVRefutationReport property)</a>
-
-      <ul>
-        <li><a href="refutations.html#formative.MatchingRefutationReport.passed">(formative.MatchingRefutationReport property)</a>
-</li>
-        <li><a href="refutations.html#formative.OLSRefutationReport.passed">(formative.OLSRefutationReport property)</a>
-</li>
-        <li><a href="refutations.html#formative.RCTRefutationReport.passed">(formative.RCTRefutationReport property)</a>
-</li>
-      </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="estimators.html#formative.PropensityScoreMatching">PropensityScoreMatching (class in formative)</a>
 </li>
-      <li><a href="estimators.html#formative.IVResult.pvalue">pvalue (formative.IVResult property)</a>
+      <li><a href="estimators.html#formative.DiDResult.pvalue">pvalue (formative.DiDResult property)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.pvalue">(formative.IVResult property)</a>
+</li>
         <li><a href="estimators.html#formative.MatchingResult.pvalue">(formative.MatchingResult property)</a>
 </li>
         <li><a href="estimators.html#formative.OLSResult.pvalue">(formative.OLSResult property)</a>
@@ -345,9 +334,11 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="estimators.html#formative.IVResult.refute">refute() (formative.IVResult method)</a>
+      <li><a href="estimators.html#formative.DiDResult.refute">refute() (formative.DiDResult method)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.refute">(formative.IVResult method)</a>
+</li>
         <li><a href="estimators.html#formative.MatchingResult.refute">(formative.MatchingResult method)</a>
 </li>
         <li><a href="estimators.html#formative.OLSResult.refute">(formative.OLSResult method)</a>
@@ -361,9 +352,11 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="estimators.html#formative.IVResult.statsmodels_result">statsmodels_result (formative.IVResult property)</a>
+      <li><a href="estimators.html#formative.DiDResult.statsmodels_result">statsmodels_result (formative.DiDResult property)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.statsmodels_result">(formative.IVResult property)</a>
+</li>
         <li><a href="estimators.html#formative.OLSResult.statsmodels_result">(formative.OLSResult property)</a>
 </li>
         <li><a href="estimators.html#formative.RCTResult.statsmodels_result">(formative.RCTResult property)</a>
@@ -375,9 +368,11 @@
         <li><a href="estimators.html#formative.OLSResult.statsmodels_unadjusted_result">(formative.OLSResult property)</a>
 </li>
       </ul></li>
-      <li><a href="estimators.html#formative.IVResult.std_err">std_err (formative.IVResult property)</a>
+      <li><a href="estimators.html#formative.DiDResult.std_err">std_err (formative.DiDResult property)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.std_err">(formative.IVResult property)</a>
+</li>
         <li><a href="estimators.html#formative.MatchingResult.std_err">(formative.MatchingResult property)</a>
 </li>
         <li><a href="estimators.html#formative.OLSResult.std_err">(formative.OLSResult property)</a>
@@ -387,9 +382,11 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="estimators.html#formative.IVResult.summary">summary() (formative.IVResult method)</a>
+      <li><a href="estimators.html#formative.DiDResult.summary">summary() (formative.DiDResult method)</a>
 
       <ul>
+        <li><a href="estimators.html#formative.IVResult.summary">(formative.IVResult method)</a>
+</li>
         <li><a href="estimators.html#formative.MatchingResult.summary">(formative.MatchingResult method)</a>
 </li>
         <li><a href="estimators.html#formative.OLSResult.summary">(formative.OLSResult method)</a>
