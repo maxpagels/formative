@@ -2,7 +2,7 @@ Estimands: ATE, ATT, and LATE
 ==============================
 
 Every causal estimator targets a specific *estimand*. Choosing the wrong estimator for your question gives a valid answer to the wrong
-question. The three estimands formative works with are ATE, ATT, and LATE.
+question. The three estimands formative works with are ATE, ATT, and LATE. One method can only target one estimand.
 
 .. list-table::
    :header-rows: 1
@@ -37,9 +37,20 @@ would the average change in outcome be?
 the same unit. ATE averages this difference across *all units*, treated and untreated alike.
 
 **When it makes sense:** When you want a policy-relevant effect for the whole population —
-e.g., "what would happen if we rolled this programme out to everyone?"
+e.g., "what would happen if we rolled this programme out to everyone?". Note that this is
+usually the question you want answered, but strictly speaking only OLS and RCT can answer it
+in formative.
 
-**Methods that estimate it:**
+RCTs can do ATE because you are randomising the treatment, so the characteristics of the
+treatment and control groups are assumed to be balanced. If the ATE is 1.5, the estimate
+applies to the control group too, because there is no reason to assume the units in the control
+group are systematically different from the treated group.
+
+Assuming a perfect world where all confounders are observed, OLS can also theoretically do ATE. The units
+in the treatment groups are not randomised, but if you adjust for all confounders that affect
+both treatment and outcome, you can recover the ATE.
+
+**Methods that estimate ATE:**
 
 - **OLS Observational** — estimates ATE by adjusting for confounders identified via the
   backdoor criterion. Requires all relevant confounders to be observed.
@@ -59,13 +70,33 @@ change their outcome?
    \text{ATT} = \mathbb{E}[Y(1) - Y(0) \mid \text{treated}]
 
 ATT conditions on the treated group. It asks what the treated units would have experienced
-had they *not* been treated — a counterfactual that is never directly observed.
+had they *not* been treated. This is a counterfactual that is never directly observed.
 
 **When it makes sense:** When you care specifically about the effect for those who
 self-selected into treatment, or when the treated group is the policy-relevant population —
-e.g., "did the training programme benefit the workers who enrolled?"
+e.g., "did the training programme benefit the workers who enrolled?". Note that this is a
+"narrower" question than ATE, and the answer may not generalise to the broader population.
+However, in practice, ATT is often used to estimate ATE, even if theoretically it is not
+the same thing.
 
-**Methods that estimate it:**
+Matching can do ATT but not ATE. For each treated unit, it finds one or more untreated units
+that look similar on observables. This constructs the missing counterfactual, i.e.
+what would the treated unit have experienced without treatment. In order to recover ATE,
+you would have to do the same for untreated units. Finding treated matches for any given
+control unit is hard; usually the treatment group is much smaller than the control group,
+so finding a good match for every control unit becomes a much harder problem to solve.
+
+The same restriction applies to DiD, but for a different reason. DiD constructs the
+counterfactual for the treated group by using the control group's time trend.
+The parallel trends assumption says the two groups would have trended together,
+but it says nothing about what the treatment effect would be for the control group
+if they had been treated. In order to get DiD to recover ATE, you would have to
+assume that the treatment effect is the same for both groups, which is a strong assumption.
+For example, say you launched an app in a few countries first. You probably launched assuming
+the app would be more beneficial in those countries than in the others, so the ATT is likely
+greater than the ATE.
+
+**Methods that estimate ATT:**
 
 - **Propensity Score Matching** — each treated unit is matched to the most similar control
   unit by propensity score, and the ATT is the average outcome difference across matched
@@ -92,16 +123,16 @@ was the effect of treatment?
    \text{LATE} = \mathbb{E}[Y(1) - Y(0) \mid \text{complier}]
 
 IV estimation with an instrument :math:`Z` isolates only the variation in treatment caused
-by :math:`Z`. Units whose treatment is unaffected by the instrument — *always-takers* (always
-treated regardless of :math:`Z`) and *never-takers* (never treated regardless of :math:`Z`)
-— contribute no identifying variation. Only *compliers* — units who take treatment when
-:math:`Z = 1` and not when :math:`Z = 0` — drive the IV estimate.
+by :math:`Z`. Only "compliers" — units who take treatment when
+:math:`Z = 1` and not when :math:`Z = 0` — contribute to the estimate. That is why IV
+recovers LATE, not ATE. In order to get ATE, you would need to know the treatment effect for
+never-takers and always-takers too, which is not possible without additional assumptions.
 
 **When it makes sense:** When a clean instrument is available and you are willing to
 interpret the result as the effect for compliers. If compliers are representative of the
 broader population, LATE ≈ ATE. If not, the LATE may be very different from the ATE.
 
-**Methods that estimate it:**
+**Methods that estimate LATE:**
 
 - **IV / 2SLS** — the Wald estimator (reduced form divided by first stage) identifies the
   LATE under the standard IV assumptions: relevance, exclusion restriction, independence,
@@ -110,45 +141,4 @@ broader population, LATE ≈ ATE. If not, the LATE may be very different from th
 **LATE vs ATE vs ATT:** LATE is the narrowest estimand. It applies only to the complier
 subpopulation, which is typically latent (you cannot directly observe who the compliers are).
 Whether the LATE generalises depends on how similar compliers are to the rest of the
-population — a substantive question that cannot be answered from the data alone.
-
-----
-
-Why not all methods can estimate ATE
---------------------------------------
-
-If your goal is the ATE, you cannot freely substitute any estimator and expect to get it.
-Each method's design commits it to a particular estimand, and that commitment is not a
-limitation of the implementation — it is baked into the identification strategy itself.
-
-**Propensity Score Matching targets ATT by construction.**
-Nearest-neighbour matching finds a control unit for each *treated* unit. The comparison is
-always anchored to the treated group: you are asking what would have happened to the treated
-units if they had not been treated. There is no symmetric counterpart for untreated units,
-so the estimator has nothing to say about what treatment would have done to them. To recover
-ATE from matching you would need to match in both directions — finding a treated twin for
-every control unit as well — which doubles the matching problem and requires common support
-across the full covariate distribution, an assumption that is much harder to satisfy.
-
-**DiD targets ATT because the counterfactual is group-specific.**
-DiD uses the control group's time trend as a stand-in for what the treated group would have
-experienced absent treatment. This counterfactual is constructed only for the treated group.
-The parallel trends assumption says the two groups would have trended together, but it says
-nothing about what the treatment effect would be for the control group if they had been
-treated. The DiD interaction coefficient therefore recovers ATT, not ATE.
-
-**IV recovers LATE, not ATE, because the instrument cannot reach all units.**
-The instrument moves some units into (or out of) treatment but leaves others unaffected.
-Always-takers are treated regardless of the instrument; never-takers are untreated regardless.
-Neither group reveals anything about their treatment effect through the instrument's variation,
-so they are effectively invisible to 2SLS. Recovering ATE would require knowing the treatment
-effect for these groups too — which demands either additional instruments, strong parametric
-assumptions about effect homogeneity, or extrapolation beyond what the data support.
-
-**The practical implication.**
-If you need ATE, use OLS (with sufficient covariate adjustment) or run an RCT. If those are
-not feasible — because randomisation is impossible, or because unobserved confounders make
-OLS unreliable — then you are in a setting where ATE is likely *not identified* from the
-available data. Matching, DiD, and IV are not fallbacks that recover ATE under weaker
-assumptions; they answer a different, more limited question. Recognising which question each
-method answers is the first step to using them correctly.
+population. This cannot be answered from the data alone.
