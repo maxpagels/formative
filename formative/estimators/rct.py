@@ -71,6 +71,7 @@ class RCTResult:
         return explain_rct(self)
 
     def summary(self) -> str:
+        """Concise tabular summary of the ATE estimate, confidence interval, and assumptions."""
         lo, hi = self.conf_int
         lines = [
             "",

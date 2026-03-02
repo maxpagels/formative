@@ -136,6 +136,7 @@ class IVResult:
         )
 
     def summary(self) -> str:
+        """Concise tabular summary of the LATE estimate, confidence interval, and assumptions."""
         lo, hi = self.conf_int
         adj = sorted(self._adjustment_set)
         bias = self.unadjusted_effect - self.effect

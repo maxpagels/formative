@@ -56,10 +56,13 @@ identification given the DAG, an error is raised before estimation runs.
      95% CI               : [1.8905, 2.0381]
      p-value              :     0.0000
 
-     Validity relies on the instrument being relevant (correlated
-     with treatment) and satisfying the exclusion restriction
-     (affecting outcome only through treatment). The DAG checks
-     structural validity but cannot verify these empirically.
+     Assumptions
+     ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+     [  testable  ]  Relevance: the instrument strongly affects treatment
+     [ untestable ]  Exclusion restriction: instrument only affects outcome through treatment
+     [ untestable ]  Independence: instrument is uncorrelated with unobserved confounders
+     [ untestable ]  Monotonicity: instrument affects treatment in same direction for everyone
+     [ untestable ]  Stable Unit Treatment Value Assumption (SUTVA)
 
 **3. Refute**
 
