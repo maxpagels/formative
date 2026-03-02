@@ -31,8 +31,7 @@ def _check_random_common_cause(
     while col in data.columns:
         col = "_" + col
 
-    augmented = data.copy()
-    augmented[col] = rng.normal(size=len(data))
+    augmented = data.assign(**{col: rng.normal(size=len(data))})
 
     controls = sorted(adjustment_set | {col})
     rhs = " + ".join([treatment] + controls)

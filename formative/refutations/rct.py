@@ -30,8 +30,7 @@ def _check_random_common_cause(
     while col in data.columns:
         col = "_" + col
 
-    augmented = data.copy()
-    augmented[col] = rng.normal(size=len(data))
+    augmented = data.assign(**{col: rng.normal(size=len(data))})
 
     new_effect = float(
         smf.ols(f"{outcome} ~ {treatment} + {col}", data=augmented).fit().params[treatment]

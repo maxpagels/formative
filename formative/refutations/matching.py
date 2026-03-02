@@ -28,8 +28,7 @@ def _check_placebo_treatment(
     """
     rng = np.random.default_rng(_PLACEBO_SEED)
 
-    augmented = data.copy()
-    augmented[treatment] = rng.permutation(data[treatment].values)
+    augmented = data.assign(**{treatment: rng.permutation(data[treatment].values)})
 
     try:
         ps = _propensity_scores(augmented, treatment, adjustment_set)
@@ -82,8 +81,7 @@ def _check_random_common_cause(
     while col in data.columns:
         col = "_" + col
 
-    augmented = data.copy()
-    augmented[col] = rng.normal(size=len(data))
+    augmented = data.assign(**{col: rng.normal(size=len(data))})
 
     new_adjustment = adjustment_set | {col}
 

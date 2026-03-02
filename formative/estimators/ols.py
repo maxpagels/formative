@@ -125,8 +125,7 @@ class OLSResult:
             "  " + "┄" * 48,
         ]
         for a in OLS_ASSUMPTIONS:
-            tag = "  testable  " if a.testable else " untestable "
-            lines.append(f"  [{tag}]  {a.name}")
+            lines.append(f"  {a.fmt_tag()}  {a.name}")
         lines.append("")
         return "\n".join(lines)
 

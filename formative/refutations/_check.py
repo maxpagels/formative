@@ -20,6 +20,10 @@ class Assumption:
     testable: bool
     """``True`` if the assumption can be empirically checked; ``False`` if it rests on domain knowledge."""
 
+    def fmt_tag(self) -> str:
+        """Return a fixed-width bracketed testability label for use in summary output."""
+        return "[  testable  ]" if self.testable else "[ untestable ]"
+
 
 class RefutationCheck:
     """Result of a single refutation check."""
