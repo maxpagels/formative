@@ -315,24 +315,28 @@ class PropensityScoreMatching:
             data.loc[data[T] == 1, Y].mean() - data.loc[data[T] == 0, Y].mean()
         )
 
+        # Pre-convert once; reuse numpy arrays throughout.
+        T_arr = data[T].values.astype(float)
+        Y_arr = data[Y].values.astype(float)
+
         # Point estimate ATT.
         ps  = _propensity_scores(data, T, adjustment_set)
-        att = _att_from_ps(data[T].values.astype(float), data[Y].values.astype(float), ps)
+        att = _att_from_ps(T_arr, Y_arr, ps)
 
         # Bootstrap SE and CI.
-        rng  = np.random.default_rng(_BOOTSTRAP_SEED)
-        n    = len(data)
-        boot = []
+        # Use a minimal DataFrame (treatment + confounders only) to avoid
+        # copying unneeded columns on every iteration.
+        rng     = np.random.default_rng(_BOOTSTRAP_SEED)
+        n       = len(data)
+        ps_cols = sorted({T} | adjustment_set)
+        ps_data = data[ps_cols]
+        boot    = []
         for _ in range(_BOOTSTRAP_N):
-            idx      = rng.integers(0, n, size=n)
-            bd       = data.iloc[idx].reset_index(drop=True)
+            idx = rng.integers(0, n, size=n)
+            bd  = ps_data.iloc[idx].reset_index(drop=True)
             try:
-                bps  = _propensity_scores(bd, T, adjustment_set)
-                boot.append(_att_from_ps(
-                    bd[T].values.astype(float),
-                    bd[Y].values.astype(float),
-                    bps,
-                ))
+                bps = _propensity_scores(bd, T, adjustment_set)
+                boot.append(_att_from_ps(T_arr[idx], Y_arr[idx], bps))
             except Exception:
                 # Degenerate sample or logit failure — skip this replicate.
                 continue
