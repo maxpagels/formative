@@ -6,6 +6,7 @@ have ``self._dag`` set) and returns a formatted multi-line string.  The
 result's ``executive_summary()`` method calls the appropriate function here.
 """
 from __future__ import annotations
+from datetime import datetime
 
 _SEP = "━" * 66
 
@@ -20,6 +21,10 @@ def _fmt_p(p: float) -> str:
 
 def _fmt_ci(lo: float, hi: float) -> str:
     return f"[{lo:.4f}, {hi:.4f}]"
+
+
+def _fmt_timestamp() -> str:
+    return datetime.now().strftime("%Y-%m-%d  %H:%M")
 
 
 def _list_vars(names: list[str]) -> str:
@@ -53,7 +58,7 @@ def _pluralize(n: int, singular: str, plural: str) -> str:
 def _dag_section(dag, treatment: str, outcome: str, adjustment_set: set[str]) -> str:
     adj = sorted(adjustment_set)
     lines = [
-        "CAUSAL STRUCTURE (DAG)",
+        "CAUSAL STRUCTURE",
         "The following directed causal relationships were assumed:",
     ]
     for cause, effect in dag.edges:
@@ -63,16 +68,16 @@ def _dag_section(dag, treatment: str, outcome: str, adjustment_set: set[str]) ->
     if adj:
         n = len(adj)
         lines.append(
-            f"The backdoor criterion identifies {_list_vars(adj)} as "
-            f"{_pluralize(n, 'a confounder', 'confounders')} "
-            f"— {_pluralize(n, 'a common cause', 'common causes')} of both {treatment} and "
-            f"{outcome} that must be held constant. "
+            f"The causal diagram identifies {_list_vars(adj)} as "
+            f"{_pluralize(n, 'a variable', 'variables')} that influence{_pluralize(n, 's', '')} "
+            f"both {treatment} and {outcome} and must be held constant to isolate the effect. "
             f"{_pluralize(n, 'It is', 'They are')} included as "
             f"{_pluralize(n, 'a control variable', 'control variables')}."
         )
     else:
         lines.append(
-            f"No confounders of {treatment} and {outcome} were identified in the DAG."
+            f"No variables that influence both {treatment} and {outcome} were "
+            f"identified in the causal diagram."
         )
     return "\n".join(lines)
 
@@ -84,16 +89,16 @@ def _assumptions_section(assumptions: list) -> str:
 
     if n_u == n:
         intro = (
-            f"All {n} required assumptions are untestable from the data alone "
-            f"and must be justified on substantive grounds."
+            f"All {n} required assumptions cannot be verified from the data alone "
+            f"and must be justified based on subject-matter knowledge."
         )
     elif n_t == n:
-        intro = f"All {n} required assumptions can be empirically checked in the data."
+        intro = f"All {n} required assumptions can be checked empirically in the data."
     else:
         intro = (
-            f"{n_u} of the {n} required assumptions {_pluralize(n_u, 'is', 'are')} untestable "
-            f"and must be justified on substantive grounds; "
-            f"{n_t} can be checked in the data."
+            f"{n_u} of the {n} required assumptions {_pluralize(n_u, 'cannot', 'cannot')} be "
+            f"verified from the data alone and must be justified based on subject-matter "
+            f"knowledge; {n_t} can be checked empirically."
         )
 
     lines = ["ASSUMPTIONS", intro, ""]
@@ -115,22 +120,26 @@ def explain_ols(result) -> str:
         bias_dir = "upward" if bias > 0 else "downward"
         bias_lines = [
             "",
-            f"For comparison, the unadjusted (naive) estimate was "
+            f"For comparison, the unadjusted estimate (ignoring shared causes) was "
             f"{result.unadjusted_effect:.4f}. The difference of {abs(bias):.4f} "
-            f"reflects {bias_dir} confounding bias that is removed by "
-            f"controlling for {_list_vars(adj)}.",
+            f"reflects {bias_dir} bias that is removed by "
+            f"holding {_list_vars(adj)} constant.",
         ]
 
     blocks = [
-        "\n".join([_SEP, f"Executive Summary — OLS Observational Regression",
-                   f"  {T} → {Y}", _SEP]),
+        "\n".join([_SEP,
+                   f"Executive Summary — OLS Observational Regression",
+                   f"  {T} → {Y}",
+                   f"  Generated: {_fmt_timestamp()}",
+                   _SEP]),
 
         "\n".join([
             "METHOD",
-            f"Ordinary Least Squares (OLS) regression estimates the causal effect of "
-            f"{T} on {Y} by adjusting for confounders identified from the DAG via the "
-            f"backdoor criterion. This approach is valid when all relevant confounders "
-            f"are observed and the relationship between variables is approximately linear.",
+            f"Standard regression estimates the causal effect of {T} on {Y} by "
+            f"holding constant variables identified in the causal diagram that "
+            f"influence both {T} and {Y}. This approach is valid when all such "
+            f"variables are measured and the relationship between variables is "
+            f"approximately linear.",
         ]),
 
         _dag_section(result._dag, T, Y, result._adjustment_set),
@@ -139,7 +148,7 @@ def explain_ols(result) -> str:
         "\n".join([
             "RESULT",
             (
-                f"Controlling for {_list_vars(adj)}, {_effect_phrase(result.effect, T, Y)} "
+                f"Holding {_list_vars(adj)} constant, {_effect_phrase(result.effect, T, Y)} "
                 if adj else
                 f"{_effect_phrase(result.effect, T, Y).capitalize()} "
             ) + f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}).",
@@ -148,10 +157,11 @@ def explain_ols(result) -> str:
 
         "\n".join([
             "CAVEATS",
-            f"This estimate is only as credible as the DAG. Confounders not declared "
-            f"in the DAG cannot be detected or adjusted for, and their presence will "
-            f"bias the result in an unknown direction. The estimate should not be "
-            f"interpreted causally if any untestable assumption is likely violated.",
+            f"This estimate is only as credible as the causal diagram. Variables that "
+            f"influence both {T} and {Y} but are not included in the diagram cannot be "
+            f"detected or controlled for, and their presence will bias the result in an "
+            f"unknown direction. The estimate should not be interpreted as causal if "
+            f"any untestable assumption is likely violated.",
         ]),
 
         _SEP,
@@ -169,23 +179,28 @@ def explain_iv(result) -> str:
 
     bias_lines = [
         "",
-        f"The unadjusted (naive) OLS estimate was {result.unadjusted_effect:.4f}. "
-        f"The difference of {abs(bias):.4f} reflects the confounding bias that "
-        f"IV corrects for by isolating only the variation in {T} driven by {Z}.",
+        f"The unadjusted estimate (ignoring hidden common causes) was "
+        f"{result.unadjusted_effect:.4f}. The difference of {abs(bias):.4f} reflects "
+        f"the bias that the instrumental variable approach corrects for by using only "
+        f"the variation in {T} driven by {Z}.",
     ]
 
     blocks = [
-        "\n".join([_SEP, f"Executive Summary — Instrumental Variables (2SLS)",
-                   f"  {T} → {Y}  |  instrument: {Z}", _SEP]),
+        "\n".join([_SEP,
+                   f"Executive Summary — Instrumental Variables (2SLS)",
+                   f"  {T} → {Y}  |  instrument: {Z}",
+                   f"  Generated: {_fmt_timestamp()}",
+                   _SEP]),
 
         "\n".join([
             "METHOD",
-            f"Two-Stage Least Squares (2SLS) uses {Z} as an instrument to isolate "
-            f"exogenous variation in {T}, bypassing the need to observe all confounders. "
-            f"In the first stage, {Z} predicts {T}. In the second stage, only the "
-            f"variation in {T} attributable to {Z} is used to estimate the effect on {Y}. "
-            f"The result is a Local Average Treatment Effect (LATE): the causal effect "
-            f"for units whose treatment status is moved by the instrument (compliers).",
+            f"Instrumental Variables (IV) uses {Z} as a lever that shifts {T} without "
+            f"directly affecting {Y}. By isolating only the part of {T}'s variation "
+            f"driven by {Z}, the method sidesteps hidden common causes that would "
+            f"otherwise distort a simple comparison. In the first stage, {Z} predicts "
+            f"{T}. In the second stage, only that predicted variation is used to "
+            f"estimate the effect on {Y}. The result applies specifically to units "
+            f"whose treatment status was changed by {Z}.",
         ]),
 
         _dag_section(result._dag, T, Y, result._adjustment_set),
@@ -193,7 +208,7 @@ def explain_iv(result) -> str:
 
         "\n".join([
             "RESULT",
-            f"Among compliers (units whose {T} is affected by {Z}), "
+            f"Among units whose {T} was shifted by {Z}, "
             f"{_effect_phrase(result.effect, T, Y)}{controls_note} "
             f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, "
             f"{_fmt_p(result.pvalue)}).",
@@ -202,12 +217,13 @@ def explain_iv(result) -> str:
 
         "\n".join([
             "CAVEATS",
-            f"The exclusion restriction — that {Z} affects {Y} only through {T} — "
-            f"is untestable and must be defended on substantive grounds. "
-            f"Likewise, {Z} must be independent of unobserved confounders of {T} and {Y}. "
-            f"If the instrument is weak (low first-stage F-statistic), 2SLS estimates "
-            f"become unreliable and may be more biased than OLS. "
-            f"The LATE applies only to compliers and may not generalise to the full population.",
+            f"The key assumption — that {Z} affects {Y} only through {T} and not "
+            f"through any other path — cannot be tested and must be defended on "
+            f"substantive grounds. {Z} must also be unrelated to any hidden factors "
+            f"that affect both {T} and {Y}. If {Z} is only weakly related to {T}, "
+            f"the IV estimate can be unreliable. The estimated effect applies only "
+            f"to units whose treatment was moved by {Z} and may not reflect the "
+            f"effect across the full population.",
         ]),
 
         _SEP,
@@ -220,16 +236,18 @@ def explain_rct(result) -> str:
     lo, hi = result.conf_int
 
     blocks = [
-        "\n".join([_SEP, f"Executive Summary — Randomized Controlled Trial",
-                   f"  {T} → {Y}  |  estimand: ATE", _SEP]),
+        "\n".join([_SEP,
+                   f"Executive Summary — Randomized Controlled Trial",
+                   f"  {T} → {Y}  |  estimand: average effect across all units",
+                   f"  Generated: {_fmt_timestamp()}",
+                   _SEP]),
 
         "\n".join([
             "METHOD",
-            f"Because {T} was randomly assigned, the Average Treatment Effect (ATE) "
-            f"is estimated directly as the difference in mean {Y} between treated and "
-            f"control units, equivalent to a simple OLS regression of {Y} on {T}. "
-            f"Randomisation eliminates confounding, so no covariate adjustment is needed "
-            f"or appropriate.",
+            f"Because {T} was randomly assigned, the average causal effect is estimated "
+            f"directly as the difference in mean {Y} between treated and control units. "
+            f"Random assignment means treated and control groups are comparable on "
+            f"everything except treatment, so no additional adjustments are needed.",
         ]),
 
         _dag_section(result._dag, T, Y, set()),
@@ -238,16 +256,17 @@ def explain_rct(result) -> str:
         "\n".join([
             "RESULT",
             f"{_effect_phrase(result.effect, T, Y).capitalize()} "
-            f"(ATE = {result.effect:.4f}, 95% CI: {_fmt_ci(lo, hi)}, "
+            f"(average effect = {result.effect:.4f}, 95% CI: {_fmt_ci(lo, hi)}, "
             f"SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}).",
         ]),
 
         "\n".join([
             "CAVEATS",
             f"This estimate is only valid if treatment was truly randomly assigned. "
-            f"Non-compliance, attrition, or interference between units can invalidate "
-            f"the causal interpretation even in a well-designed RCT. "
-            f"The ATE is an average across all units and may mask heterogeneous effects.",
+            f"Non-compliance (some units not following their assigned treatment), "
+            f"drop-out, or units influencing each other can undermine the causal "
+            f"interpretation even in a well-designed trial. The estimate is an average "
+            f"across all units and may mask variation in how different groups respond.",
         ]),
 
         _SEP,
@@ -261,46 +280,51 @@ def explain_did(result) -> str:
     baseline_bias = result.naive_diff - result.effect
 
     blocks = [
-        "\n".join([_SEP, f"Executive Summary — Difference-in-Differences",
-                   f"  ({G} \u00d7 {T}) \u2192 {Y}  |  estimand: ATT", _SEP]),
+        "\n".join([_SEP,
+                   f"Executive Summary — Difference-in-Differences",
+                   f"  ({G} \u00d7 {T}) \u2192 {Y}  |  estimand: effect on the treated group",
+                   f"  Generated: {_fmt_timestamp()}",
+                   _SEP]),
 
         "\n".join([
             "METHOD",
-            f"Difference-in-Differences (DiD) estimates the Average Treatment Effect "
-            f"on the Treated (ATT) by comparing how {Y} changed over time for the "
-            f"treated group ({G} = 1) versus the control group ({G} = 0). Any time "
-            f"trend common to both groups cancels out, isolating the treatment effect. "
-            f"Estimated via OLS with group and time main effects plus their interaction: "
-            f"{Y} ~ {G} + {T} + {G}:{T}. The coefficient on {G}:{T} is the DiD estimate.",
+            f"Difference-in-Differences estimates the effect of treatment on the "
+            f"treated group by comparing how {Y} changed over time for the treated "
+            f"group ({G} = 1) versus the control group ({G} = 0). Any trend that "
+            f"affected both groups equally cancels out, leaving only the treatment "
+            f"effect. The estimate is the interaction term in a regression of {Y} "
+            f"on group, time period, and their combination ({G}:{T}).",
         ]),
 
         "\n".join([
-            "CAUSAL STRUCTURE (DAG)",
+            "CAUSAL STRUCTURE",
             "The following directed causal relationships were assumed:",
             *[f"  \u2022 {cause} \u2192 {effect}" for cause, effect in result._dag.edges],
             "",
-            f"Identification in DiD comes from the panel design (parallel trends), "
-            f"not from controlling for observed confounders via the backdoor criterion.",
+            f"Identification here comes from the panel design — specifically the "
+            f"assumption that both groups would have followed the same trend without "
+            f"treatment — rather than from controlling for observed variables.",
         ]),
 
         _assumptions_section(result.assumptions),
 
         "\n".join([
             "RESULT",
-            f"The DiD estimate is {result.effect:.4f} "
+            f"The estimated treatment effect is {result.effect:.4f} "
             f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}). "
-            f"The naive post-period difference (treated minus control) was {result.naive_diff:.4f}; "
-            f"DiD removes {abs(baseline_bias):.4f} of baseline trend "
-            f"({'upward' if baseline_bias > 0 else 'downward'} bias in the naive comparison).",
+            f"The simple post-period difference (treated minus control) was {result.naive_diff:.4f}; "
+            f"the method removes {abs(baseline_bias):.4f} of pre-existing trend "
+            f"({'upward' if baseline_bias > 0 else 'downward'} bias in the simple comparison).",
         ]),
 
         "\n".join([
             "CAVEATS",
-            f"Parallel trends — that treated and control groups would have followed "
-            f"the same trajectory absent treatment — is the central untestable assumption. "
-            f"If the groups were on different pre-treatment trends, the DiD estimate will "
-            f"be biased even with panel data. Pre-trend tests (if multiple pre-periods are "
-            f"available) can partially assess this, but they cannot confirm it.",
+            f"The central assumption — that treated and control groups would have "
+            f"followed the same trajectory without treatment — cannot be tested "
+            f"directly. If the groups were already on different paths before treatment, "
+            f"the estimate will be biased even with panel data. Pre-treatment trend "
+            f"checks (where multiple pre-periods are available) can offer partial "
+            f"reassurance but cannot confirm the assumption.",
         ]),
 
         _SEP,
@@ -316,18 +340,21 @@ def explain_matching(result) -> str:
     bias = result.unadjusted_effect - result.effect
 
     blocks = [
-        "\n".join([_SEP, f"Executive Summary — Propensity Score Matching",
-                   f"  {T} → {Y}  |  estimand: ATT", _SEP]),
+        "\n".join([_SEP,
+                   f"Executive Summary — Propensity Score Matching",
+                   f"  {T} → {Y}  |  estimand: effect on those who received treatment",
+                   f"  Generated: {_fmt_timestamp()}",
+                   _SEP]),
 
         "\n".join([
             "METHOD",
-            f"Propensity Score Matching (PSM) estimates the Average Treatment Effect "
-            f"on the Treated (ATT): the causal effect of {T} for units that actually "
-            f"received it. Each treated unit is matched to its nearest control unit by "
-            f"propensity score (estimated probability of treatment given {_list_vars(adj) if adj else 'covariates'}), "
-            f"using 1-to-1 nearest-neighbour matching with replacement. "
-            f"Standard errors and confidence intervals are computed via bootstrap "
-            f"({_BOOTSTRAP_N} replicates).",
+            f"Propensity Score Matching estimates the effect of {T} specifically for "
+            f"units that received it. Each treated unit is paired with the most similar "
+            f"untreated unit based on their estimated likelihood of receiving treatment "
+            f"given {_list_vars(adj) if adj else 'the available covariates'}. "
+            f"This creates a comparison group that resembles the treated group on "
+            f"observed characteristics. Standard errors are computed by repeating the "
+            f"matching procedure on {_BOOTSTRAP_N} resampled datasets.",
         ]),
 
         _dag_section(result._dag, T, Y, result._adjustment_set),
@@ -336,22 +363,21 @@ def explain_matching(result) -> str:
         "\n".join([
             "RESULT",
             f"{_binary_effect_phrase(result.effect, T, Y).capitalize()} "
-            f"(ATT = {result.effect:.4f}, 95% CI: {_fmt_ci(lo, hi)}, "
+            f"(estimated effect = {result.effect:.4f}, 95% CI: {_fmt_ci(lo, hi)}, "
             f"SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}).",
             "",
-            f"The unmatched (naive) mean difference was {result.unadjusted_effect:.4f}. "
-            f"The difference of {abs(bias):.4f} is the estimated confounding bias "
-            f"removed by matching on {_list_vars(adj) if adj else 'propensity score'}.",
+            f"The raw unmatched mean difference was {result.unadjusted_effect:.4f}. "
+            f"The difference of {abs(bias):.4f} is the estimated bias removed "
+            f"by matching on {_list_vars(adj) if adj else 'the propensity score'}.",
         ]),
 
         "\n".join([
             "CAVEATS",
-            f"Conditional independence — no unobserved confounders given the matched "
-            f"variables — is untestable and is the central assumption of this approach. "
-            f"Matching can only balance observed covariates; unobserved differences "
-            f"between treated and control units that affect {Y} will still bias the ATT. "
-            f"The ATT estimates the effect for those who were treated and may not "
-            f"generalise to the untreated population.",
+            f"Matching can only balance variables that are observed and included. "
+            f"If there are unobserved differences between treated and untreated units "
+            f"that affect {Y}, those will still bias the estimate. The result reflects "
+            f"the effect for those who were treated and may not apply to the untreated "
+            f"population.",
         ]),
 
         _SEP,
