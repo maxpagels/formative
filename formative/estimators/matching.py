@@ -6,6 +6,14 @@ import statsmodels.formula.api as smf
 
 from ..dag import DAG
 from .._exceptions import IdentificationError
+from ..refutations._check import Assumption
+
+MATCHING_ASSUMPTIONS: list[Assumption] = [
+    Assumption("Conditional independence: no unobserved confounders given matched variables", testable=False),
+    Assumption("Common support: overlap exists in characteristics between groups", testable=True),
+    Assumption("Correct specification of the matching variables", testable=False),
+    Assumption("Stable Unit Treatment Value Assumption (SUTVA)", testable=False),
+]
 
 _BOOTSTRAP_N    = 500
 _BOOTSTRAP_SEED = 42
@@ -73,6 +81,7 @@ class MatchingResult:
         treatment: str,
         outcome: str,
         adjustment_set: set[str],
+        dag,
     ) -> None:
         self._att = att
         self._unadjusted_effect = unadjusted_effect
@@ -80,6 +89,7 @@ class MatchingResult:
         self._treatment = treatment
         self._outcome = outcome
         self._adjustment_set = adjustment_set
+        self._dag = dag
 
     @property
     def effect(self) -> float:
@@ -121,6 +131,16 @@ class MatchingResult:
         """Full array of per-bootstrap ATT values, for diagnostics."""
         return self._bootstrap_atts.copy()
 
+    @property
+    def assumptions(self) -> list[Assumption]:
+        """Modelling assumptions required for a causal interpretation."""
+        return list(MATCHING_ASSUMPTIONS)
+
+    def executive_summary(self) -> str:
+        """Narrative explanation of the method, DAG, assumptions, and result."""
+        from .._explain import explain_matching
+        return explain_matching(self)
+
     def summary(self) -> str:
         lo, hi = self.conf_int
         adj = sorted(self._adjustment_set)
@@ -151,10 +171,14 @@ class MatchingResult:
             f"  p-value              : {self.pvalue:>10.4f}",
             "",
             "  Matching: 1-to-1 nearest-neighbour on propensity score (with replacement)",
-            "  Interpretation assumes the DAG correctly captures all",
-            "  confounding. Unmodelled confounders will bias this estimate.",
             "",
+            "  Assumptions",
+            "  " + "┄" * 48,
         ]
+        for a in MATCHING_ASSUMPTIONS:
+            tag = "  testable  " if a.testable else " untestable "
+            lines.append(f"  [{tag}]  {a.name}")
+        lines.append("")
         return "\n".join(lines)
 
     def refute(self, data: pd.DataFrame):
@@ -348,4 +372,5 @@ class PropensityScoreMatching:
             treatment=T,
             outcome=Y,
             adjustment_set=adjustment_set,
+            dag=self._dag,
         )

@@ -62,4 +62,5 @@ print()
 
 result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
 print(result.summary())
+print(result.executive_summary())
 print(f"job_type in adjustment set: {'job_type' in result.adjustment_set}  (expected: False)")

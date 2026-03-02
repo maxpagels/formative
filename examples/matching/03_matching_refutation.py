@@ -33,6 +33,7 @@ result = PropensityScoreMatching(
 
 print("=== Original estimate ===")
 print(result.summary())
+print(result.executive_summary())
 
 print("=== Refutation report ===")
 report = result.refute(df)

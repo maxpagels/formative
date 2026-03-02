@@ -7,6 +7,14 @@ from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
 from ..dag import DAG
 from .._exceptions import IdentificationError
+from ..refutations._check import Assumption
+
+IV_ASSUMPTIONS: list[Assumption] = [
+    Assumption("Relevance: the instrument strongly affects treatment", testable=True),
+    Assumption("Exclusion restriction: instrument only affects outcome through treatment", testable=False),
+    Assumption("Independence: instrument is uncorrelated with unobserved confounders", testable=False),
+    Assumption("Monotonicity: instrument affects treatment in same direction for everyone", testable=False),
+]
 
 
 class IVResult:
@@ -26,6 +34,7 @@ class IVResult:
         outcome: str,
         instrument: str,
         adjustment_set: set[str],
+        dag,
     ) -> None:
         self._result = result
         self._unadjusted = unadjusted_result
@@ -33,6 +42,7 @@ class IVResult:
         self._outcome = outcome
         self._instrument = instrument
         self._adjustment_set = adjustment_set
+        self._dag = dag
 
     @property
     def effect(self) -> float:
@@ -74,6 +84,16 @@ class IVResult:
     def statsmodels_unadjusted_result(self):
         """The underlying unadjusted OLS result, for full diagnostics."""
         return self._unadjusted
+
+    @property
+    def assumptions(self) -> list[Assumption]:
+        """Modelling assumptions required for a causal interpretation."""
+        return list(IV_ASSUMPTIONS)
+
+    def executive_summary(self) -> str:
+        """Narrative explanation of the method, DAG, assumptions, and result."""
+        from .._explain import explain_iv
+        return explain_iv(self)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -132,12 +152,13 @@ class IVResult:
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
             "",
-            "  Validity relies on the instrument being relevant (correlated",
-            "  with treatment) and satisfying the exclusion restriction",
-            "  (affecting outcome only through treatment). The DAG checks",
-            "  structural validity but cannot verify these empirically.",
-            "",
+            "  Assumptions",
+            "  " + "┄" * 48,
         ]
+        for a in IV_ASSUMPTIONS:
+            tag = "  testable  " if a.testable else " untestable "
+            lines.append(f"  [{tag}]  {a.name}")
+        lines.append("")
         return "\n".join(lines)
 
     def __repr__(self) -> str:
@@ -298,4 +319,4 @@ class IV2SLS:
         result = model.fit()
         unadjusted_result = smf.ols(f"{Y} ~ {T}", data=data).fit()
 
-        return IVResult(result, unadjusted_result, T, Y, Z, adjustment_set)
+        return IVResult(result, unadjusted_result, T, Y, Z, adjustment_set, self._dag)

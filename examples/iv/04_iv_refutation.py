@@ -42,6 +42,7 @@ result_strong = IV2SLS(
     dag, treatment="education", outcome="income", instrument="proximity"
 ).fit(df_strong)
 print(result_strong.summary())
+print(result_strong.executive_summary())
 print(result_strong.refute(df_strong).summary())
 
 # ── Weak instrument ────────────────────────────────────────────────────────

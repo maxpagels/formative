@@ -1,5 +1,15 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class Assumption:
+    """A single modelling assumption, with a testability flag."""
+
+    name: str
+    testable: bool
+
 
 class RefutationCheck:
     """Result of a single refutation check."""
