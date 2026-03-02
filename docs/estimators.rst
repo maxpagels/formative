@@ -36,3 +36,15 @@ MatchingResult
 
 .. autoclass:: formative.MatchingResult
    :members:
+
+RCT
+---
+
+.. autoclass:: formative.RCT
+   :members:
+
+RCTResult
+---------
+
+.. autoclass:: formative.RCTResult
+   :members:

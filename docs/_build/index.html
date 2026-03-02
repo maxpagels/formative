@@ -86,8 +86,8 @@ estimation more accessible, because any attempt to understand the world causally
 <h2>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h2>
 <p>Every analysis in formative follows three steps:</p>
 <p><strong>1. Encode your causal assumptions as a DAG</strong></p>
-<p>Before any data is touched, you declare which variables cause which. This
-makes your identification assumptions explicit and machine-readable.</p>
+<p>Before any data is touched, you declare which variables are assumed to cause which.
+This makes your identification assumptions explicit and machine-readable.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAG</span>
 
 <span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
@@ -120,15 +120,20 @@ identification given the DAG, an error is raised before estimation runs.</p>
   95% CI               : [1.8905, 2.0381]
   p-value              :     0.0000
 
-  Validity relies on the instrument being relevant (correlated
-  with treatment) and satisfying the exclusion restriction
-  (affecting outcome only through treatment). The DAG checks
-  structural validity but cannot verify these empirically.
+  Assumptions
+  ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+  [  testable  ]  Relevance: the instrument strongly affects treatment
+  [ untestable ]  Exclusion restriction: instrument only affects outcome through treatment
+  [ untestable ]  Independence: instrument is uncorrelated with unobserved confounders
+  [ untestable ]  Monotonicity: instrument affects treatment in same direction for everyone
+  [ untestable ]  Stable Unit Treatment Value Assumption (SUTVA)
 </pre></div>
 </div>
 <p><strong>3. Refute</strong></p>
 <p>Once you have a result, run statistical checks that probe whether its
-assumptions hold in the data. Each check returns a clear pass or fail.</p>
+assumptions hold in the data. Each check returns a clear pass or fail
+but remember, no set of tests can guarantee validity. Use them as diagnostics,
+not proof. Causal inference is a judgment call, not a mathematical certainty.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">refute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
 </pre></div>
@@ -155,11 +160,19 @@ assumptions hold in the data. Each check returns a clear pass or fail.</p>
 <li class="toctree-l2"><a class="reference internal" href="estimators.html#olsresult">OLSResult</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estimators.html#iv2sls">IV2SLS</a></li>
 <li class="toctree-l2"><a class="reference internal" href="estimators.html#ivresult">IVResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#propensityscorematching">PropensityScoreMatching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#matchingresult">MatchingResult</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#rct">RCT</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html#rctresult">RCTResult</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="refutations.html#olsrefutationreport">OLSRefutationReport</a></li>
 <li class="toctree-l2"><a class="reference internal" href="refutations.html#ivrefutationreport">IVRefutationReport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="refutations.html#matchingrefutationreport">MatchingRefutationReport</a></li>
+<li class="toctree-l2"><a class="reference internal" href="refutations.html#rctrefutationreport">RCTRefutationReport</a></li>
 <li class="toctree-l2"><a class="reference internal" href="refutations.html#refutationcheck">RefutationCheck</a></li>
+<li class="toctree-l2"><a class="reference internal" href="refutations.html#assumption">Assumption</a></li>
 </ul>
 </li>
 </ul>

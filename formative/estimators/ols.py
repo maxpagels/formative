@@ -12,6 +12,7 @@ OLS_ASSUMPTIONS: list[Assumption] = [
     Assumption("Correct functional form for control variables", testable=False),
     Assumption("No reverse causality", testable=False),
     Assumption("No measurement error in key variables", testable=False),
+    Assumption("Stable Unit Treatment Value Assumption (SUTVA)", testable=False),
 ]
 
 
@@ -92,6 +93,7 @@ class OLSResult:
         return explain_ols(self)
 
     def summary(self) -> str:
+        """Concise tabular summary of the ATE estimate, confidence interval, and assumptions."""
         lo, hi = self.conf_int
         adj = sorted(self._adjustment_set)
         bias = self.unadjusted_effect - self.effect
@@ -123,8 +125,7 @@ class OLSResult:
             "  " + "┄" * 48,
         ]
         for a in OLS_ASSUMPTIONS:
-            tag = "  testable  " if a.testable else " untestable "
-            lines.append(f"  [{tag}]  {a.name}")
+            lines.append(f"  {a.fmt_tag()}  {a.name}")
         lines.append("")
         return "\n".join(lines)
 

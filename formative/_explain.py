@@ -15,8 +15,6 @@ _SEP = "━" * 66
 def _fmt_p(p: float) -> str:
     if p < 0.001:
         return "p < 0.001"
-    if p < 0.01:
-        return f"p = {p:.3f}"
     return f"p = {p:.3f}"
 
 
@@ -48,6 +46,10 @@ def _binary_effect_phrase(effect: float, treatment: str, outcome: str) -> str:
 
 # ── Section builders ───────────────────────────────────────────────────────────
 
+def _pluralize(n: int, singular: str, plural: str) -> str:
+    return singular if n == 1 else plural
+
+
 def _dag_section(dag, treatment: str, outcome: str, adjustment_set: set[str]) -> str:
     adj = sorted(adjustment_set)
     lines = [
@@ -60,14 +62,13 @@ def _dag_section(dag, treatment: str, outcome: str, adjustment_set: set[str]) ->
     lines.append("")
     if adj:
         n = len(adj)
-        var_str = _list_vars(adj)
-        confounder_s = "a confounder" if n == 1 else "confounders"
-        control_s = "a control variable" if n == 1 else "control variables"
         lines.append(
-            f"The backdoor criterion identifies {var_str} as {confounder_s} "
-            f"— {'a common cause' if n == 1 else 'common causes'} of both {treatment} and "
+            f"The backdoor criterion identifies {_list_vars(adj)} as "
+            f"{_pluralize(n, 'a confounder', 'confounders')} "
+            f"— {_pluralize(n, 'a common cause', 'common causes')} of both {treatment} and "
             f"{outcome} that must be held constant. "
-            f"{'It is' if n == 1 else 'They are'} included as {control_s}."
+            f"{_pluralize(n, 'It is', 'They are')} included as "
+            f"{_pluralize(n, 'a control variable', 'control variables')}."
         )
     else:
         lines.append(
@@ -90,15 +91,14 @@ def _assumptions_section(assumptions: list) -> str:
         intro = f"All {n} required assumptions can be empirically checked in the data."
     else:
         intro = (
-            f"{n_u} of the {n} required assumptions {'is' if n_u == 1 else 'are'} untestable "
+            f"{n_u} of the {n} required assumptions {_pluralize(n_u, 'is', 'are')} untestable "
             f"and must be justified on substantive grounds; "
-            f"{n_t} {'can' if n_t == 1 else 'can'} be checked in the data."
+            f"{n_t} can be checked in the data."
         )
 
     lines = ["ASSUMPTIONS", intro, ""]
     for a in assumptions:
-        tag = "[  testable  ]" if a.testable else "[ untestable ]"
-        lines.append(f"  {tag}  {a.name}")
+        lines.append(f"  {a.fmt_tag()}  {a.name}")
     return "\n".join(lines)
 
 
@@ -138,12 +138,11 @@ def explain_ols(result) -> str:
 
         "\n".join([
             "RESULT",
-            f"Controlling for {_list_vars(adj)}, {_effect_phrase(result.effect, T, Y)} "
-            f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, "
-            f"{_fmt_p(result.pvalue)})." if adj else
-            f"{_effect_phrase(result.effect, T, Y).capitalize()} "
-            f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, "
-            f"{_fmt_p(result.pvalue)}).",
+            (
+                f"Controlling for {_list_vars(adj)}, {_effect_phrase(result.effect, T, Y)} "
+                if adj else
+                f"{_effect_phrase(result.effect, T, Y).capitalize()} "
+            ) + f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}).",
             *bias_lines,
         ]),
 
@@ -209,6 +208,46 @@ def explain_iv(result) -> str:
             f"If the instrument is weak (low first-stage F-statistic), 2SLS estimates "
             f"become unreliable and may be more biased than OLS. "
             f"The LATE applies only to compliers and may not generalise to the full population.",
+        ]),
+
+        _SEP,
+    ]
+    return "\n\n".join(blocks)
+
+
+def explain_rct(result) -> str:
+    T, Y = result._treatment, result._outcome
+    lo, hi = result.conf_int
+
+    blocks = [
+        "\n".join([_SEP, f"Executive Summary — Randomized Controlled Trial",
+                   f"  {T} → {Y}  |  estimand: ATE", _SEP]),
+
+        "\n".join([
+            "METHOD",
+            f"Because {T} was randomly assigned, the Average Treatment Effect (ATE) "
+            f"is estimated directly as the difference in mean {Y} between treated and "
+            f"control units, equivalent to a simple OLS regression of {Y} on {T}. "
+            f"Randomisation eliminates confounding, so no covariate adjustment is needed "
+            f"or appropriate.",
+        ]),
+
+        _dag_section(result._dag, T, Y, set()),
+        _assumptions_section(result.assumptions),
+
+        "\n".join([
+            "RESULT",
+            f"{_effect_phrase(result.effect, T, Y).capitalize()} "
+            f"(ATE = {result.effect:.4f}, 95% CI: {_fmt_ci(lo, hi)}, "
+            f"SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}).",
+        ]),
+
+        "\n".join([
+            "CAVEATS",
+            f"This estimate is only valid if treatment was truly randomly assigned. "
+            f"Non-compliance, attrition, or interference between units can invalidate "
+            f"the causal interpretation even in a well-designed RCT. "
+            f"The ATE is an average across all units and may mask heterogeneous effects.",
         ]),
 
         _SEP,

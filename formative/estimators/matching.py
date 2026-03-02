@@ -142,6 +142,7 @@ class MatchingResult:
         return explain_matching(self)
 
     def summary(self) -> str:
+        """Concise tabular summary of the ATT estimate, confidence interval, and assumptions."""
         lo, hi = self.conf_int
         adj = sorted(self._adjustment_set)
         bias = self.unadjusted_effect - self.effect
@@ -176,8 +177,7 @@ class MatchingResult:
             "  " + "┄" * 48,
         ]
         for a in MATCHING_ASSUMPTIONS:
-            tag = "  testable  " if a.testable else " untestable "
-            lines.append(f"  [{tag}]  {a.name}")
+            lines.append(f"  {a.fmt_tag()}  {a.name}")
         lines.append("")
         return "\n".join(lines)
 

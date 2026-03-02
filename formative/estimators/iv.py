@@ -14,6 +14,7 @@ IV_ASSUMPTIONS: list[Assumption] = [
     Assumption("Exclusion restriction: instrument only affects outcome through treatment", testable=False),
     Assumption("Independence: instrument is uncorrelated with unobserved confounders", testable=False),
     Assumption("Monotonicity: instrument affects treatment in same direction for everyone", testable=False),
+    Assumption("Stable Unit Treatment Value Assumption (SUTVA)", testable=False),
 ]
 
 
@@ -135,6 +136,7 @@ class IVResult:
         )
 
     def summary(self) -> str:
+        """Concise tabular summary of the LATE estimate, confidence interval, and assumptions."""
         lo, hi = self.conf_int
         adj = sorted(self._adjustment_set)
         bias = self.unadjusted_effect - self.effect
@@ -156,8 +158,7 @@ class IVResult:
             "  " + "┄" * 48,
         ]
         for a in IV_ASSUMPTIONS:
-            tag = "  testable  " if a.testable else " untestable "
-            lines.append(f"  [{tag}]  {a.name}")
+            lines.append(f"  {a.fmt_tag()}  {a.name}")
         lines.append("")
         return "\n".join(lines)
 

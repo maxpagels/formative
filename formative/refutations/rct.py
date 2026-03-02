@@ -14,16 +14,15 @@ def _check_random_common_cause(
     data: pd.DataFrame,
     treatment: str,
     outcome: str,
-    adjustment_set: set[str],
     original_effect: float,
     original_se: float,
 ) -> RefutationCheck:
     """
     Add a random noise column as an extra control and re-run OLS.
 
-    Because the column is pure noise (orthogonal to treatment and outcome),
-    the estimate should not move by more than one standard error. A larger
-    shift indicates the estimate is sensitive to spurious controls.
+    Under randomisation, the ATE is independent of any additional covariate,
+    so the estimate should not move by more than one standard error. A larger
+    shift suggests something other than randomisation is driving the result.
     """
     rng = np.random.default_rng(_RCC_SEED)
 
@@ -33,9 +32,9 @@ def _check_random_common_cause(
 
     augmented = data.assign(**{col: rng.normal(size=len(data))})
 
-    controls = sorted(adjustment_set | {col})
-    rhs = " + ".join([treatment] + controls)
-    new_effect = float(smf.ols(f"{outcome} ~ {rhs}", data=augmented).fit().params[treatment])
+    new_effect = float(
+        smf.ols(f"{outcome} ~ {treatment} + {col}", data=augmented).fit().params[treatment]
+    )
 
     shift = abs(new_effect - original_effect)
     passed = shift <= original_se
@@ -45,22 +44,21 @@ def _check_random_common_cause(
     else:
         detail = (
             f"estimate shifted by {shift:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"Adding a random common cause destabilised the estimate."
+            f"Adding a random covariate destabilised the estimate — "
+            f"verify that treatment was truly randomised."
         )
     return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
 
 
-class OLSRefutationReport:
+class RCTRefutationReport:
     """
-    Results of refutation checks run against an OLS estimation.
+    Results of refutation checks run against an RCT estimation.
 
-    Obtain via ``OLSResult.refute(data)``.
+    Obtain via ``RCTResult.refute(data)``.
 
     Example::
 
-        result = OLSObservational(
-            dag, treatment="education", outcome="income"
-        ).fit(df)
+        result = RCT(dag, treatment="treatment", outcome="outcome").fit(df)
         report = result.refute(df)
         print(report.summary())
     """
@@ -93,7 +91,7 @@ class OLSRefutationReport:
     def summary(self) -> str:
         lines = [
             "",
-            f"OLS Refutation Report: {self._treatment} → {self._outcome}",
+            f"RCT Refutation Report: {self._treatment} → {self._outcome}",
             "─" * 50,
         ]
         for check in self._checks:
