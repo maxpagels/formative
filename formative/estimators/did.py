@@ -42,7 +42,10 @@ class DiDResult:
         self._outcome = outcome
         self._naive_diff = naive_diff
         self._dag = dag
-        self._interaction = f"{group}:{time}"
+
+    @property
+    def _interaction(self) -> str:
+        return f"{self._group}:{self._time}"
 
     @property
     def effect(self) -> float:

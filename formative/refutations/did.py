@@ -12,6 +12,34 @@ _PLACEBO_TIME_SEED = 22222
 _RCC_COL = "_rcc"
 
 
+def _placebo_permutation(
+    data: pd.DataFrame,
+    group: str,
+    time: str,
+    outcome: str,
+    permute_var: str,
+    seed: int,
+    original_se: float,
+    check_name: str,
+    axis_label: str,
+    fail_suffix: str,
+) -> RefutationCheck:
+    rng = np.random.default_rng(seed)
+    augmented = data.assign(**{permute_var: rng.permutation(data[permute_var].values)})
+    placebo_effect = float(
+        smf.ols(f"{outcome} ~ {group} * {time}", data=augmented).fit().params[f"{group}:{time}"]
+    )
+    passed = abs(placebo_effect) <= original_se
+    if passed:
+        detail = (
+            f"placebo estimate = {placebo_effect:.4f}  (≤ 1 SE = {original_se:.4f})  "
+            f"Permuting {axis_label} labels yields near-zero effect, as expected."
+        )
+    else:
+        detail = f"placebo estimate = {placebo_effect:.4f}  (> 1 SE = {original_se:.4f})  {fail_suffix}"
+    return RefutationCheck(name=check_name, passed=passed, detail=detail)
+
+
 def _check_placebo_group(
     data: pd.DataFrame,
     group: str,
@@ -27,27 +55,14 @@ def _check_placebo_group(
     should be close to zero.  A placebo estimate larger than one standard
     error of the original suggests the result may be spurious.
     """
-    rng = np.random.default_rng(_PLACEBO_SEED)
-
-    augmented = data.assign(**{group: rng.permutation(data[group].values)})
-
-    result = smf.ols(f"{outcome} ~ {group} * {time}", data=augmented).fit()
-    interaction = f"{group}:{time}"
-    placebo_effect = float(result.params[interaction])
-
-    passed = abs(placebo_effect) <= original_se
-    if passed:
-        detail = (
-            f"placebo estimate = {placebo_effect:.4f}  (≤ 1 SE = {original_se:.4f})  "
-            f"Permuting group labels yields near-zero effect, as expected."
-        )
-    else:
-        detail = (
-            f"placebo estimate = {placebo_effect:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"A randomly permuted group produced a large effect — the original "
-            f"result may be spurious or driven by chance differences between groups."
-        )
-    return RefutationCheck(name="Placebo group", passed=passed, detail=detail)
+    return _placebo_permutation(
+        data, group, time, outcome, group, _PLACEBO_SEED, original_se,
+        check_name="Placebo group", axis_label="group",
+        fail_suffix=(
+            "A randomly permuted group produced a large effect — the original "
+            "result may be spurious or driven by chance differences between groups."
+        ),
+    )
 
 
 def _check_placebo_time(
@@ -67,27 +82,14 @@ def _check_placebo_time(
     estimate suggests the result may be driven by something other than the
     timing of treatment.
     """
-    rng = np.random.default_rng(_PLACEBO_TIME_SEED)
-
-    augmented = data.assign(**{time: rng.permutation(data[time].values)})
-
-    result = smf.ols(f"{outcome} ~ {group} * {time}", data=augmented).fit()
-    interaction = f"{group}:{time}"
-    placebo_effect = float(result.params[interaction])
-
-    passed = abs(placebo_effect) <= original_se
-    if passed:
-        detail = (
-            f"placebo estimate = {placebo_effect:.4f}  (≤ 1 SE = {original_se:.4f})  "
-            f"Permuting time labels yields near-zero effect, as expected."
-        )
-    else:
-        detail = (
-            f"placebo estimate = {placebo_effect:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"A randomly permuted time produced a large effect — the original "
-            f"result may not be specific to the treatment period."
-        )
-    return RefutationCheck(name="Placebo time", passed=passed, detail=detail)
+    return _placebo_permutation(
+        data, group, time, outcome, time, _PLACEBO_TIME_SEED, original_se,
+        check_name="Placebo time", axis_label="time",
+        fail_suffix=(
+            "A randomly permuted time produced a large effect — the original "
+            "result may not be specific to the treatment period."
+        ),
+    )
 
 
 def _check_random_common_cause(
