@@ -47,42 +47,27 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimands.html">Estimands: ATE, ATT, and LATE</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Refutations</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#olsrefutationreport">OLSRefutationReport</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#formative.OLSRefutationReport"><code class="docutils literal notranslate"><span class="pre">OLSRefutationReport</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#formative.OLSRefutationReport.checks"><code class="docutils literal notranslate"><span class="pre">OLSRefutationReport.checks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#formative.OLSRefutationReport.passed"><code class="docutils literal notranslate"><span class="pre">OLSRefutationReport.passed</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#formative.OLSRefutationReport.failed_checks"><code class="docutils literal notranslate"><span class="pre">OLSRefutationReport.failed_checks</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#formative.OLSRefutationReport"><code class="docutils literal notranslate"><span class="pre">OLSRefutationReport</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#ivrefutationreport">IVRefutationReport</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#formative.IVRefutationReport"><code class="docutils literal notranslate"><span class="pre">IVRefutationReport</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#formative.IVRefutationReport.checks"><code class="docutils literal notranslate"><span class="pre">IVRefutationReport.checks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#formative.IVRefutationReport.passed"><code class="docutils literal notranslate"><span class="pre">IVRefutationReport.passed</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#formative.IVRefutationReport.failed_checks"><code class="docutils literal notranslate"><span class="pre">IVRefutationReport.failed_checks</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#formative.IVRefutationReport"><code class="docutils literal notranslate"><span class="pre">IVRefutationReport</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#matchingrefutationreport">MatchingRefutationReport</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#formative.MatchingRefutationReport"><code class="docutils literal notranslate"><span class="pre">MatchingRefutationReport</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#formative.MatchingRefutationReport.checks"><code class="docutils literal notranslate"><span class="pre">MatchingRefutationReport.checks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#formative.MatchingRefutationReport.passed"><code class="docutils literal notranslate"><span class="pre">MatchingRefutationReport.passed</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#formative.MatchingRefutationReport.failed_checks"><code class="docutils literal notranslate"><span class="pre">MatchingRefutationReport.failed_checks</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#formative.MatchingRefutationReport"><code class="docutils literal notranslate"><span class="pre">MatchingRefutationReport</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#rctrefutationreport">RCTRefutationReport</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#formative.RCTRefutationReport"><code class="docutils literal notranslate"><span class="pre">RCTRefutationReport</span></code></a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#formative.RCTRefutationReport.checks"><code class="docutils literal notranslate"><span class="pre">RCTRefutationReport.checks</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#formative.RCTRefutationReport.passed"><code class="docutils literal notranslate"><span class="pre">RCTRefutationReport.passed</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#formative.RCTRefutationReport.failed_checks"><code class="docutils literal notranslate"><span class="pre">RCTRefutationReport.failed_checks</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#formative.RCTRefutationReport"><code class="docutils literal notranslate"><span class="pre">RCTRefutationReport</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="#didrefutationreport">DiDRefutationReport</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#formative.DiDRefutationReport"><code class="docutils literal notranslate"><span class="pre">DiDRefutationReport</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#refutationcheck">RefutationCheck</a><ul>
@@ -93,6 +78,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#formative.Assumption"><code class="docutils literal notranslate"><span class="pre">Assumption</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#formative.Assumption.name"><code class="docutils literal notranslate"><span class="pre">Assumption.name</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#formative.Assumption.testable"><code class="docutils literal notranslate"><span class="pre">Assumption.testable</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#formative.Assumption.fmt_tag"><code class="docutils literal notranslate"><span class="pre">Assumption.fmt_tag()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -154,24 +140,6 @@ to get a report back.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.OLSRefutationReport.checks">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.OLSRefutationReport.checks" title="Link to this definition"></a></dt>
-<dd><p>All checks, in the order they were run.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.OLSRefutationReport.passed">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">passed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.OLSRefutationReport.passed" title="Link to this definition"></a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every check passed.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.OLSRefutationReport.failed_checks">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">failed_checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.OLSRefutationReport.failed_checks" title="Link to this definition"></a></dt>
-<dd><p>Only the checks that did not pass.</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -201,24 +169,6 @@ in <code class="docutils literal notranslate"><span class="pre">.checks</span></
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.IVRefutationReport.checks">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.IVRefutationReport.checks" title="Link to this definition"></a></dt>
-<dd><p>All checks, in the order they were run.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.IVRefutationReport.passed">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">passed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.IVRefutationReport.passed" title="Link to this definition"></a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every check passed.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.IVRefutationReport.failed_checks">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">failed_checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.IVRefutationReport.failed_checks" title="Link to this definition"></a></dt>
-<dd><p>Only the checks that did not pass.</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -248,24 +198,6 @@ estimation.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.MatchingRefutationReport.checks">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.MatchingRefutationReport.checks" title="Link to this definition"></a></dt>
-<dd><p>All checks, in the order they were run.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.MatchingRefutationReport.passed">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">passed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.MatchingRefutationReport.passed" title="Link to this definition"></a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every check passed.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.MatchingRefutationReport.failed_checks">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">failed_checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.MatchingRefutationReport.failed_checks" title="Link to this definition"></a></dt>
-<dd><p>Only the checks that did not pass.</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -291,24 +223,32 @@ estimation.</p>
 </ul>
 </dd>
 </dl>
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.RCTRefutationReport.checks">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.RCTRefutationReport.checks" title="Link to this definition"></a></dt>
-<dd><p>All checks, in the order they were run.</p>
 </dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.RCTRefutationReport.passed">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">passed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.RCTRefutationReport.passed" title="Link to this definition"></a></dt>
-<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every check passed.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="formative.RCTRefutationReport.failed_checks">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">failed_checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.RCTRefutationReport.failed_checks" title="Link to this definition"></a></dt>
-<dd><p>Only the checks that did not pass.</p>
-</dd></dl>
-
+</section>
+<section id="didrefutationreport">
+<h2>DiDRefutationReport<a class="headerlink" href="#didrefutationreport" title="Link to this heading"></a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="formative.DiDRefutationReport">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.</span></span><span class="sig-name descname"><span class="pre">DiDRefutationReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.DiDRefutationReport" title="Link to this definition"></a></dt>
+<dd><p>Results of refutation checks run against a DiD estimation.</p>
+<p>Obtain via <code class="docutils literal notranslate"><span class="pre">DiDResult.refute(data)</span></code>.</p>
+<p>Example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">DiD</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;group&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;outcome&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">report</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">refute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>checks</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="#formative.RefutationCheck" title="formative.refutations._check.RefutationCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">RefutationCheck</span></code></a>]</span>)</p></li>
+<li><p><strong>group</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>time</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>outcome</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -358,6 +298,17 @@ checked in the data or must be justified on substantive grounds.</p>
 <dt class="sig sig-object py" id="formative.Assumption.testable">
 <span class="sig-name descname"><span class="pre">testable</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.Assumption.testable" title="Link to this definition"></a></dt>
 <dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the assumption can be empirically checked; <code class="docutils literal notranslate"><span class="pre">False</span></code> if it rests on domain knowledge.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.Assumption.fmt_tag">
+<span class="sig-name descname"><span class="pre">fmt_tag</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.Assumption.fmt_tag" title="Link to this definition"></a></dt>
+<dd><p>Return a fixed-width bracketed testability label for use in summary output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
 </dd></dl>
 
 </dd></dl>
