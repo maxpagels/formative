@@ -40,3 +40,4 @@ print()
 
 result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
 print(result.summary())
+print(result.executive_summary())

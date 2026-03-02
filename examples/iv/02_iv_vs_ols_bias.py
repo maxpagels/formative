@@ -38,3 +38,4 @@ result = IV2SLS(
 ).fit(df)
 
 print(result.summary())
+print(result.executive_summary())

@@ -34,6 +34,7 @@ class IVResult:
         outcome: str,
         instrument: str,
         adjustment_set: set[str],
+        dag,
     ) -> None:
         self._result = result
         self._unadjusted = unadjusted_result
@@ -41,6 +42,7 @@ class IVResult:
         self._outcome = outcome
         self._instrument = instrument
         self._adjustment_set = adjustment_set
+        self._dag = dag
 
     @property
     def effect(self) -> float:
@@ -87,6 +89,11 @@ class IVResult:
     def assumptions(self) -> list[Assumption]:
         """Modelling assumptions required for a causal interpretation."""
         return list(IV_ASSUMPTIONS)
+
+    def executive_summary(self) -> str:
+        """Narrative explanation of the method, DAG, assumptions, and result."""
+        from .._explain import explain_iv
+        return explain_iv(self)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -312,4 +319,4 @@ class IV2SLS:
         result = model.fit()
         unadjusted_result = smf.ols(f"{Y} ~ {T}", data=data).fit()
 
-        return IVResult(result, unadjusted_result, T, Y, Z, adjustment_set)
+        return IVResult(result, unadjusted_result, T, Y, Z, adjustment_set, self._dag)

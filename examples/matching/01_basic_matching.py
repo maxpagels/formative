@@ -31,3 +31,4 @@ result = PropensityScoreMatching(
 ).fit(df)
 
 print(result.summary())
+print(result.executive_summary())

@@ -81,6 +81,7 @@ class MatchingResult:
         treatment: str,
         outcome: str,
         adjustment_set: set[str],
+        dag,
     ) -> None:
         self._att = att
         self._unadjusted_effect = unadjusted_effect
@@ -88,6 +89,7 @@ class MatchingResult:
         self._treatment = treatment
         self._outcome = outcome
         self._adjustment_set = adjustment_set
+        self._dag = dag
 
     @property
     def effect(self) -> float:
@@ -133,6 +135,11 @@ class MatchingResult:
     def assumptions(self) -> list[Assumption]:
         """Modelling assumptions required for a causal interpretation."""
         return list(MATCHING_ASSUMPTIONS)
+
+    def executive_summary(self) -> str:
+        """Narrative explanation of the method, DAG, assumptions, and result."""
+        from .._explain import explain_matching
+        return explain_matching(self)
 
     def summary(self) -> str:
         lo, hi = self.conf_int
@@ -365,4 +372,5 @@ class PropensityScoreMatching:
             treatment=T,
             outcome=Y,
             adjustment_set=adjustment_set,
+            dag=self._dag,
         )

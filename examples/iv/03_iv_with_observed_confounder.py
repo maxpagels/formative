@@ -61,4 +61,5 @@ result = IV2SLS(
 ).fit(df)
 
 print(result.summary())
+print(result.executive_summary())
 print(f"adjustment_set: {result.adjustment_set}  (socioeconomic_status controlled, ability handled by IV)")

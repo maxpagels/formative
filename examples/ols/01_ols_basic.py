@@ -34,3 +34,4 @@ print()
 
 result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
 print(result.summary())
+print(result.executive_summary())

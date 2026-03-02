@@ -31,12 +31,14 @@ class OLSResult:
         treatment: str,
         outcome: str,
         adjustment_set: set[str],
+        dag,
     ) -> None:
         self._adjusted = adjusted_result
         self._unadjusted = unadjusted_result
         self._treatment = treatment
         self._outcome = outcome
         self._adjustment_set = adjustment_set
+        self._dag = dag
 
     @property
     def effect(self) -> float:
@@ -83,6 +85,11 @@ class OLSResult:
     def assumptions(self) -> list[Assumption]:
         """Modelling assumptions required for a causal interpretation."""
         return list(OLS_ASSUMPTIONS)
+
+    def executive_summary(self) -> str:
+        """Narrative explanation of the method, DAG, assumptions, and result."""
+        from .._explain import explain_ols
+        return explain_ols(self)
 
     def summary(self) -> str:
         lo, hi = self.conf_int
@@ -282,4 +289,5 @@ class OLSObservational:
             self._treatment,
             self._outcome,
             adjustment_set,
+            self._dag,
         )

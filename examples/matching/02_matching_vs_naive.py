@@ -34,6 +34,7 @@ result = PropensityScoreMatching(
 
 # ── 3. Compare estimates ──────────────────────────────────────────────────────
 print(result.summary())
+print(result.executive_summary())
 print(f"True ATT            : {TRUE_ATT:.4f}")
 print(f"ATT estimate        : {result.effect:.4f}  (bias: {result.effect - TRUE_ATT:+.4f})")
 print(f"Unadjusted estimate : {result.unadjusted_effect:.4f}  (bias: {result.unadjusted_effect - TRUE_ATT:+.4f})")
