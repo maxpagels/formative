@@ -48,3 +48,15 @@ RCTResult
 
 .. autoclass:: formative.RCTResult
    :members:
+
+DiD
+---
+
+.. autoclass:: formative.DiD
+   :members:
+
+DiDResult
+---------
+
+.. autoclass:: formative.DiDResult
+   :members:

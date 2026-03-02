@@ -55,13 +55,18 @@ Changing `_RCC_SEED` or `_PLACEBO_SEED` to 42 causes the generated noise to coll
 - `formative/estimators/ols.py` — `OLSObservational`, `OLSResult` (includes `refute()`)
 - `formative/estimators/iv.py` — `IV2SLS`, `IVResult` (includes `refute()`)
 - `formative/estimators/matching.py` — `PropensityScoreMatching`, `MatchingResult` (includes `refute()`); also exports `_propensity_scores`, `_att_from_ps` for use by refutations
-- `formative/refutations/_check.py` — `RefutationCheck`
+- `formative/estimators/rct.py` — `RCT`, `RCTResult` (includes `refute()`)
+- `formative/estimators/did.py` — `DiD`, `DiDResult` (includes `refute()`)
+- `formative/refutations/_check.py` — `Assumption`, `RefutationCheck`, `RefutationReport` (base)
 - `formative/refutations/ols.py` — `OLSRefutationReport`, `_check_random_common_cause`
 - `formative/refutations/iv.py` — `IVRefutationReport`, `_check_first_stage_f`, `_check_random_common_cause`
 - `formative/refutations/matching.py` — `MatchingRefutationReport`, `_check_placebo_treatment`, `_check_random_common_cause`
+- `formative/refutations/rct.py` — `RCTRefutationReport`, `_check_random_common_cause`
+- `formative/refutations/did.py` — `DiDRefutationReport`, `_check_placebo_group`, `_check_random_common_cause`
+- `formative/_explain.py` — narrative rendering for all estimators (`explain_ols`, `explain_iv`, `explain_matching`, `explain_rct`, `explain_did`)
 - `formative/__init__.py` — public API
-- `tests/test_dag.py`, `tests/test_ols.py`, `tests/test_iv.py`, `tests/test_matching.py`, `tests/test_ols_refutation.py`, `tests/test_iv_refutation.py`, `tests/test_matching_refutation.py`
-- `examples/ols/`, `examples/iv/`, `examples/matching/` — runnable examples
+- `tests/test_dag.py`, `tests/test_ols.py`, `tests/test_iv.py`, `tests/test_matching.py`, `tests/test_rct.py`, `tests/test_did.py`, `tests/test_ols_refutation.py`, `tests/test_iv_refutation.py`, `tests/test_matching_refutation.py`
+- `examples/ols/`, `examples/iv/`, `examples/matching/`, `examples/rct/`, `examples/did/` — runnable examples
 
 **Adding a new estimator:** follow `OLSObservational`/`IV2SLS` — `__init__` validates DAG, `fit()` calls `_identify()`, raises `IdentificationError` where appropriate, returns a result object. Export from `formative/__init__.py`. Add a `refute()` method to the result and a corresponding module under `formative/refutations/`.
 
@@ -71,8 +76,8 @@ Changing `_RCC_SEED` or `_PLACEBO_SEED` to 42 causes the generated noise to coll
 
 The long-term goal is for `formative` to cover all methods in the causal inference decision tree at https://www.maxpagels.com/prototypes/causal-wizard. Remaining methods to add:
 
-- **RCT** (Randomized Controlled Trial) — treatment is randomised, no confounding adjustment needed
-- **DiD** (Difference-in-Differences) — panel/repeated-measures data with a treatment group and control group
+- **RCT** (Randomized Controlled Trial) — ✓ implemented as `RCT` in `formative/estimators/rct.py`
+- **DiD** (Difference-in-Differences) — ✓ implemented as `DiD` in `formative/estimators/did.py`
 - **RD** (Regression Discontinuity) — treatment assigned by a threshold on a running variable
 - **IV** (Instrumental Variables) — ✓ implemented as `IV2SLS` in `formative/estimators/iv.py`
 - **Matching** — ✓ implemented as `PropensityScoreMatching` in `formative/estimators/matching.py`

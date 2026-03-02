@@ -255,6 +255,59 @@ def explain_rct(result) -> str:
     return "\n\n".join(blocks)
 
 
+def explain_did(result) -> str:
+    G, T, Y = result._group, result._time, result._outcome
+    lo, hi = result.conf_int
+    baseline_bias = result.naive_diff - result.effect
+
+    blocks = [
+        "\n".join([_SEP, f"Executive Summary — Difference-in-Differences",
+                   f"  ({G} \u00d7 {T}) \u2192 {Y}  |  estimand: ATT", _SEP]),
+
+        "\n".join([
+            "METHOD",
+            f"Difference-in-Differences (DiD) estimates the Average Treatment Effect "
+            f"on the Treated (ATT) by comparing how {Y} changed over time for the "
+            f"treated group ({G} = 1) versus the control group ({G} = 0). Any time "
+            f"trend common to both groups cancels out, isolating the treatment effect. "
+            f"Estimated via OLS with group and time main effects plus their interaction: "
+            f"{Y} ~ {G} + {T} + {G}:{T}. The coefficient on {G}:{T} is the DiD estimate.",
+        ]),
+
+        "\n".join([
+            "CAUSAL STRUCTURE (DAG)",
+            "The following directed causal relationships were assumed:",
+            *[f"  \u2022 {cause} \u2192 {effect}" for cause, effect in result._dag.edges],
+            "",
+            f"Identification in DiD comes from the panel design (parallel trends), "
+            f"not from controlling for observed confounders via the backdoor criterion.",
+        ]),
+
+        _assumptions_section(result.assumptions),
+
+        "\n".join([
+            "RESULT",
+            f"The DiD estimate is {result.effect:.4f} "
+            f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}). "
+            f"The naive post-period difference (treated minus control) was {result.naive_diff:.4f}; "
+            f"DiD removes {abs(baseline_bias):.4f} of baseline trend "
+            f"({'upward' if baseline_bias > 0 else 'downward'} bias in the naive comparison).",
+        ]),
+
+        "\n".join([
+            "CAVEATS",
+            f"Parallel trends — that treated and control groups would have followed "
+            f"the same trajectory absent treatment — is the central untestable assumption. "
+            f"If the groups were on different pre-treatment trends, the DiD estimate will "
+            f"be biased even with panel data. Pre-trend tests (if multiple pre-periods are "
+            f"available) can partially assess this, but they cannot confirm it.",
+        ]),
+
+        _SEP,
+    ]
+    return "\n\n".join(blocks)
+
+
 def explain_matching(result) -> str:
     from .estimators.matching import _BOOTSTRAP_N
     T, Y = result._treatment, result._outcome

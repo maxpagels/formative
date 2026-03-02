@@ -3,7 +3,8 @@ from .estimators.ols import OLSObservational, OLSResult
 from .estimators.iv import IV2SLS, IVResult
 from .estimators.matching import PropensityScoreMatching, MatchingResult
 from .estimators.rct import RCT, RCTResult
-from .refutations import OLSRefutationReport, IVRefutationReport, MatchingRefutationReport, RCTRefutationReport, RefutationCheck, RefutationReport
+from .estimators.did import DiD, DiDResult
+from .refutations import OLSRefutationReport, IVRefutationReport, MatchingRefutationReport, RCTRefutationReport, DiDRefutationReport, RefutationCheck, RefutationReport
 from .refutations._check import Assumption
 
 __all__ = [
@@ -12,6 +13,7 @@ __all__ = [
     "IV2SLS", "IVResult",
     "PropensityScoreMatching", "MatchingResult",
     "RCT", "RCTResult",
-    "OLSRefutationReport", "IVRefutationReport", "MatchingRefutationReport", "RCTRefutationReport", "RefutationCheck", "RefutationReport",
+    "DiD", "DiDResult",
+    "OLSRefutationReport", "IVRefutationReport", "MatchingRefutationReport", "RCTRefutationReport", "DiDRefutationReport", "RefutationCheck", "RefutationReport",
     "Assumption",
 ]
