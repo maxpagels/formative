@@ -141,4 +141,4 @@ broader population, LATE ≈ ATE. If not, the LATE may be very different from th
 **LATE vs ATE vs ATT:** LATE is the narrowest estimand. It applies only to the complier
 subpopulation, which is typically latent (you cannot directly observe who the compliers are).
 Whether the LATE generalises depends on how similar compliers are to the rest of the
-population — a substantive question that cannot be answered from the data alone.
+population. This cannot be answered from the data alone.
