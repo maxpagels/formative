@@ -60,3 +60,15 @@ DiDResult
 
 .. autoclass:: formative.DiDResult
    :members:
+
+RDD
+---
+
+.. autoclass:: formative.RDD
+   :members:
+
+RDDResult
+---------
+
+.. autoclass:: formative.RDDResult
+   :members:

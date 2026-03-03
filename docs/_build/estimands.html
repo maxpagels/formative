@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Estimands: ATE, ATT, and LATE &mdash; formative  documentation</title>
+  <title>Estimands: ATE, ATT, LATE etc. &mdash; formative  documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -49,10 +49,11 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Estimands: ATE, ATT, and LATE</a><ul>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Estimands: ATE, ATT, LATE etc.</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#ate-average-treatment-effect">ATE: Average Treatment Effect</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#att-average-treatment-effect-on-the-treated">ATT: Average Treatment Effect on the Treated</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#late-local-average-treatment-effect">LATE: Local Average Treatment Effect</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#late-at-the-cutoff-local-average-treatment-effect-at-the-cutoff">LATE at the cutoff: Local Average Treatment Effect at the cutoff</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="wizard.html">Choosing an estimator</a></li>
@@ -74,7 +75,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Estimands: ATE, ATT, and LATE</li>
+      <li class="breadcrumb-item active">Estimands: ATE, ATT, LATE etc.</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/estimands.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -84,10 +85,10 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="estimands-ate-att-and-late">
-<h1>Estimands: ATE, ATT, and LATE<a class="headerlink" href="#estimands-ate-att-and-late" title="Link to this heading"></a></h1>
+  <section id="estimands-ate-att-late-etc">
+<h1>Estimands: ATE, ATT, LATE etc.<a class="headerlink" href="#estimands-ate-att-late-etc" title="Link to this heading"></a></h1>
 <p>Every causal estimator targets a specific <em>estimand</em>. Choosing the wrong estimator for your question gives a valid answer to the wrong
-question. The three estimands formative works with are ATE, ATT, and LATE. One method can only target one estimand.</p>
+question. The four estimands formative works with are ATE, ATT, LATE, and LATE at the cutoff. One method can only target one estimand.</p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 20.0%" />
@@ -112,6 +113,10 @@ question. The three estimands formative works with are ATE, ATT, and LATE. One m
 <tr class="row-even"><td><p><strong>LATE</strong></p></td>
 <td><p>Local Average Treatment Effect</p></td>
 <td><p><a class="reference internal" href="estimators.html#formative.IV2SLS" title="formative.IV2SLS"><code class="xref py py-class docutils literal notranslate"><span class="pre">IV2SLS</span></code></a></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>LATE at the cutoff</strong></p></td>
+<td><p>Local Average Treatment Effect at the cutoff</p></td>
+<td><p><a class="reference internal" href="estimators.html#formative.RDD" title="formative.RDD"><code class="xref py py-class docutils literal notranslate"><span class="pre">RDD</span></code></a></p></td>
 </tr>
 </tbody>
 </table>
@@ -213,6 +218,41 @@ and monotonicity.</p></li>
 subpopulation, which is typically latent (you cannot directly observe who the compliers are).
 Whether the LATE generalises depends on how similar compliers are to the rest of the
 population. This cannot be answered from the data alone.</p>
+</section>
+<hr class="docutils" />
+<section id="late-at-the-cutoff-local-average-treatment-effect-at-the-cutoff">
+<h2>LATE at the cutoff: Local Average Treatment Effect at the cutoff<a class="headerlink" href="#late-at-the-cutoff-local-average-treatment-effect-at-the-cutoff" title="Link to this heading"></a></h2>
+<p><strong>What it answers:</strong> Among units just at the threshold of the running variable, what is
+the effect of crossing from one side to the other?</p>
+<div class="math notranslate nohighlight">
+\[\text{LATE at cutoff} = \lim_{\epsilon \to 0^+} \mathbb{E}[Y(1) - Y(0) \mid c \le X &lt; c + \epsilon] - \mathbb{E}[Y(1) - Y(0) \mid c - \epsilon &lt; X &lt; c]\]</div>
+<p>More intuitively: as the running variable <span class="math notranslate nohighlight">\(X\)</span> approaches the cutoff <span class="math notranslate nohighlight">\(c\)</span> from
+either side, what is the jump in expected outcome?</p>
+<p>RDD identifies this by fitting separate linear regressions on each side of the cutoff and
+measuring the discontinuous jump at <span class="math notranslate nohighlight">\(c\)</span>. Crucially, treatment is assigned deterministically
+by the rule <span class="math notranslate nohighlight">\(X \ge c\)</span>, so near the cutoff, units on either side are effectively comparable —
+they differ only in whether they just cleared the threshold. This local exchangeability is what
+makes identification possible without randomisation.</p>
+<p><strong>When it makes sense:</strong> When treatment is assigned by a threshold rule on a continuous running
+variable — test score cutoffs, income eligibility limits, age thresholds — and you want to
+know the causal effect for units near that threshold.</p>
+<p><strong>The key limitation:</strong> The estimate is <em>local</em>. It applies only to units near the cutoff,
+not to units far from it. Whether the effect generalises to the rest of the distribution depends
+on how much treatment effects vary with the running variable, which cannot be tested from the
+data alone. If the running variable is a test score and the cutoff is the 60th percentile,
+the LATE at the cutoff says nothing about the effect for units at the 30th or 90th percentile.</p>
+<p><strong>LATE at the cutoff vs LATE (IV):</strong> Both are “local” effects, but in different senses.
+IV’s LATE is local to compliers — a latent subpopulation defined by their response to the
+instrument. RDD’s LATE at the cutoff is local to a <em>region</em> of the running variable — units
+near the threshold. If the bandwidth is wide, more units are included but the local
+exchangeability assumption becomes harder to justify. If the bandwidth is narrow, the
+assumption is more defensible but the estimate has higher variance.</p>
+<p><strong>Methods that estimate LATE at the cutoff:</strong></p>
+<ul class="simple">
+<li><p><strong>RDD</strong> — fits a local linear regression on both sides of the cutoff. The coefficient on
+the treatment indicator gives the jump in outcome at the threshold, controlling for the
+slope of the running variable separately on each side.</p></li>
+</ul>
 </section>
 </section>
 
