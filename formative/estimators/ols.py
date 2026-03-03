@@ -164,7 +164,7 @@ class OLSResult:
 
 class OLSObservational:
     """
-    Observational OLS estimator with DAG-based confounder identification.
+    Observational Ordinary Least Squares (OLS) estimator with DAG-based confounder identification.
 
     Given a DAG encoding your causal assumptions, this estimator:
 
