@@ -14,5 +14,8 @@ __pycache__/
 *.pyc
 *.pyo
 
+# Docs build output
+docs/_build/
+
 # Claude
 .claude/
