@@ -82,6 +82,11 @@ and theory. That is what makes causal inference an exciting but challenging ende
      [ untestable ]  Monotonicity: instrument affects treatment in same direction for everyone
      [ untestable ]  Stable Unit Treatment Value Assumption (SUTVA)
 
+It is not uncommon to have challenges communicating the need for proper causal estimation and associated
+assumptions to non-technical stakeholders. ``executive_summary()`` gives you a more plain-english
+summary of the result, with as little technical language as possible. This is useful for communicating
+results to non-technical audiences.
+
 **3. Refute**
 
 Once you have a result, run statistical checks that probe whether its
@@ -113,5 +118,6 @@ and seeing if the estimate changes. The full list of refutations depends on the 
 
    dag
    estimands
+   wizard
    estimators
    refutations
