@@ -64,3 +64,6 @@ print(result_bw.summary())
 # ── Refutation ─────────────────────────────────────────────────────────────────
 report = result.refute(df)
 print(report.summary())
+
+# --- Executive summary ---------------------------------------------------------
+print(result.executive_summary())
