@@ -1,8 +1,8 @@
-Estimands: ATE, ATT, and LATE
+Estimands: ATE, ATT, LATE etc.
 ==============================
 
 Every causal estimator targets a specific *estimand*. Choosing the wrong estimator for your question gives a valid answer to the wrong
-question. The three estimands formative works with are ATE, ATT, and LATE. One method can only target one estimand.
+question. The four estimands formative works with are ATE, ATT, LATE, and LATE at the cutoff. One method can only target one estimand.
 
 .. list-table::
    :header-rows: 1
@@ -20,6 +20,9 @@ question. The three estimands formative works with are ATE, ATT, and LATE. One m
    * - **LATE**
      - Local Average Treatment Effect
      - :class:`~formative.IV2SLS`
+   * - **LATE at the cutoff**
+     - Local Average Treatment Effect at the cutoff
+     - :class:`~formative.RDD`
 
 ----
 
@@ -124,13 +127,15 @@ was the effect of treatment?
 
 IV estimation with an instrument :math:`Z` isolates only the variation in treatment caused
 by :math:`Z`. Only "compliers" — units who take treatment when
-:math:`Z = 1` and not when :math:`Z = 0` — contribute to the estimate. That is why IV
-recovers LATE, not ATE. In order to get ATE, you would need to know the treatment effect for
-never-takers and always-takers too, which is not possible without additional assumptions.
+:math:`Z = 1` and not when :math:`Z = 0` — contribute to the estimate.
 
 **When it makes sense:** When a clean instrument is available and you are willing to
 interpret the result as the effect for compliers. If compliers are representative of the
 broader population, LATE ≈ ATE. If not, the LATE may be very different from the ATE.
+
+That is why IV is said to recover LATE, not ATE. In order to get ATE, you would need to know
+the treatment effect for never-takers and always-takers too, which is not possible without
+additional assumptions.
 
 **Methods that estimate LATE:**
 
@@ -141,4 +146,48 @@ broader population, LATE ≈ ATE. If not, the LATE may be very different from th
 **LATE vs ATE vs ATT:** LATE is the narrowest estimand. It applies only to the complier
 subpopulation, which is typically latent (you cannot directly observe who the compliers are).
 Whether the LATE generalises depends on how similar compliers are to the rest of the
-population — a substantive question that cannot be answered from the data alone.
+population. This cannot be answered from the data alone.
+
+----
+
+LATE at the cutoff: Local Average Treatment Effect at the cutoff
+-----------------------------------------------------------------
+
+**What it answers:** Among units just at the threshold of the running variable, what is
+the effect of crossing from one side to the other?
+
+.. math::
+
+   \text{LATE at cutoff} = \lim_{\epsilon \to 0^+} \mathbb{E}[Y(1) - Y(0) \mid c \le X < c + \epsilon] - \mathbb{E}[Y(1) - Y(0) \mid c - \epsilon < X < c]
+
+More intuitively: as the running variable :math:`X` approaches the cutoff :math:`c` from
+either side, what is the jump in expected outcome?
+
+RDD identifies this by fitting separate linear regressions on each side of the cutoff and
+measuring the discontinuous jump at :math:`c`. Crucially, treatment is assigned deterministically
+by the rule :math:`X \ge c`, so near the cutoff, units on either side are effectively comparable —
+they differ only in whether they just cleared the threshold. This local exchangeability is what
+makes identification possible without randomisation.
+
+**When it makes sense:** When treatment is assigned by a threshold rule on a continuous running
+variable — test score cutoffs, income eligibility limits, age thresholds — and you want to
+know the causal effect for units near that threshold.
+
+**The key limitation:** The estimate is *local*. It applies only to units near the cutoff,
+not to units far from it. Whether the effect generalises to the rest of the distribution depends
+on how much treatment effects vary with the running variable, which cannot be tested from the
+data alone. If the running variable is a test score and the cutoff is the 60th percentile,
+the LATE at the cutoff says nothing about the effect for units at the 30th or 90th percentile.
+
+**LATE at the cutoff vs LATE (IV):** Both are "local" effects, but in different senses.
+IV's LATE is local to compliers — a latent subpopulation defined by their response to the
+instrument. RDD's LATE at the cutoff is local to a *region* of the running variable — units
+near the threshold. If the bandwidth is wide, more units are included but the local
+exchangeability assumption becomes harder to justify. If the bandwidth is narrow, the
+assumption is more defensible but the estimate has higher variance.
+
+**Methods that estimate LATE at the cutoff:**
+
+- **RDD** — fits a local linear regression on both sides of the cutoff. The coefficient on
+  the treatment indicator gives the jump in outcome at the threshold, controlling for the
+  slope of the running variable separately on each side.

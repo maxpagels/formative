@@ -332,6 +332,72 @@ def explain_did(result) -> str:
     return "\n\n".join(blocks)
 
 
+def explain_rdd(result) -> str:
+    R, T, Y = result._running_var, result._treatment, result._outcome
+    lo, hi = result.conf_int
+    bw_label = f"{result.bandwidth:.4f}" if result.bandwidth is not None else "all observations"
+    bias = result.unadjusted_effect - result.effect
+    bias_dir = "upward" if bias > 0 else "downward"
+
+    blocks = [
+        "\n".join([_SEP,
+                   f"Executive Summary — Regression Discontinuity Design",
+                   f"  {R} \u2192 {T} \u2192 {Y}  |  cutoff: {result.cutoff}",
+                   f"  Generated: {_fmt_timestamp()}",
+                   _SEP]),
+
+        "\n".join([
+            "METHOD",
+            f"Regression Discontinuity Design exploits the fact that treatment ({T}) "
+            f"is assigned sharply when {R} crosses {result.cutoff}. Units just above "
+            f"and just below the threshold are locally comparable — they differ "
+            f"essentially at random with respect to the threshold rule. The jump in "
+            f"{Y} at the cutoff therefore identifies the causal effect of {T} for "
+            f"units near the threshold. Identification is achieved by fitting a local "
+            f"linear regression that allows different slopes on each side of the cutoff "
+            f"and reading off the discontinuous jump as the treatment effect.",
+        ]),
+
+        "\n".join([
+            "CAUSAL STRUCTURE",
+            "The following directed causal relationships were assumed:",
+            *[f"  \u2022 {cause} \u2192 {effect}" for cause, effect in result._dag.edges],
+            "",
+            f"Identification comes from the threshold rule — {R} crossing {result.cutoff} "
+            f"determines {T} — rather than from controlling for observed confounders. "
+            f"The bandwidth ({bw_label}) restricts estimation to observations close "
+            f"enough to the cutoff for the local comparability assumption to hold.",
+        ]),
+
+        _assumptions_section(result.assumptions),
+
+        "\n".join([
+            "RESULT",
+            f"The estimated LATE at the cutoff is {result.effect:.4f} "
+            f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, "
+            f"{_fmt_p(result.pvalue)}), based on {result.n_obs:,} observations. "
+            f"The naive mean difference (above minus below cutoff) was "
+            f"{result.unadjusted_effect:.4f}; the local linear regression removes "
+            f"{abs(bias):.4f} of {bias_dir} bias introduced by the slope of {R} "
+            f"on {Y}.",
+        ]),
+
+        "\n".join([
+            "CAVEATS",
+            f"The LATE applies only to units near the cutoff and may not generalise "
+            f"to the wider population. The continuity assumption — that potential "
+            f"outcomes change smoothly at the cutoff — cannot be tested; if units "
+            f"can manipulate which side of the threshold they fall on, the local "
+            f"comparability breaks down. The estimate is also sensitive to the choice "
+            f"of bandwidth and functional form (linear vs higher-order polynomial) "
+            f"used for the local regression.",
+        ]),
+
+        _SEP,
+    ]
+    return "\n\n".join(blocks)
+
+
 def explain_matching(result) -> str:
     from .estimators.matching import _BOOTSTRAP_N
     T, Y = result._treatment, result._outcome

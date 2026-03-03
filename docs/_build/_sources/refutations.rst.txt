@@ -35,6 +35,12 @@ DiDRefutationReport
 .. autoclass:: formative.DiDRefutationReport
    :members:
 
+RDDRefutationReport
+-------------------
+
+.. autoclass:: formative.RDDRefutationReport
+   :members:
+
 RefutationCheck
 ---------------
 

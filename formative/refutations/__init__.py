@@ -3,6 +3,7 @@ from .iv import IVRefutationReport
 from .matching import MatchingRefutationReport
 from .rct import RCTRefutationReport
 from .did import DiDRefutationReport
+from .rdd import RDDRefutationReport
 from ._check import RefutationCheck, RefutationReport
 
-__all__ = ["OLSRefutationReport", "IVRefutationReport", "MatchingRefutationReport", "RCTRefutationReport", "DiDRefutationReport", "RefutationCheck"]
+__all__ = ["OLSRefutationReport", "IVRefutationReport", "MatchingRefutationReport", "RCTRefutationReport", "DiDRefutationReport", "RDDRefutationReport", "RefutationCheck"]
