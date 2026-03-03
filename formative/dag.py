@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from ._exceptions import GraphError
 
 
@@ -66,8 +67,7 @@ class DAG:
         if self._has_cycle():
             self._edges.pop()
             raise GraphError(
-                f"Asserting '{cause}' → '{effect}' would create a cycle. "
-                f"Causal graphs must be acyclic (DAGs)."
+                f"Asserting '{cause}' → '{effect}' would create a cycle. Causal graphs must be acyclic (DAGs)."
             )
 
     # ── Graph properties ──────────────────────────────────────────────────────

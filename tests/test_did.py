@@ -2,8 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from formative import DAG, DiD, DiDResult
-
+from formative import DAG, DiD
 
 RNG = np.random.default_rng(42)
 N = 1_000
@@ -20,13 +19,7 @@ def make_data(true_att=TRUE_ATT):
     """
     group = RNG.integers(0, 2, size=N).astype(float)
     time = RNG.integers(0, 2, size=N).astype(float)
-    outcome = (
-        2.0
-        + 1.5 * group
-        + 3.0 * time
-        + true_att * group * time
-        + RNG.normal(size=N)
-    )
+    outcome = 2.0 + 1.5 * group + 3.0 * time + true_att * group * time + RNG.normal(size=N)
     return pd.DataFrame({"group": group, "time": time, "outcome": outcome})
 
 

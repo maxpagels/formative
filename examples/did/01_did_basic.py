@@ -24,13 +24,13 @@ N = 1_000
 TRUE_ATT = 4.0
 
 group = RNG.integers(0, 2, size=N).astype(float)
-time  = RNG.integers(0, 2, size=N).astype(float)
+time = RNG.integers(0, 2, size=N).astype(float)
 
 # DGP satisfies parallel trends by construction
 outcome = (
-    3.0                        # intercept
-    + 2.0 * group              # baseline group difference
-    + 1.5 * time               # common time trend
+    3.0  # intercept
+    + 2.0 * group  # baseline group difference
+    + 1.5 * time  # common time trend
     + TRUE_ATT * group * time  # treatment effect (ATT)
     + RNG.normal(size=N)
 )

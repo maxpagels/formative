@@ -5,7 +5,6 @@ from formative import DAG, PropensityScoreMatching
 from formative.refutations._check import RefutationCheck
 from formative.refutations.matching import MatchingRefutationReport
 
-
 N = 1_000
 
 
@@ -19,10 +18,10 @@ def make_dag():
 def make_data():
     """Fixed seed so every call returns the same dataframe."""
     rng = np.random.default_rng(42)
-    ability   = rng.normal(size=N)
+    ability = rng.normal(size=N)
     ps_latent = 0.5 * ability + rng.normal(scale=0.5, size=N)
     education = (ps_latent > np.median(ps_latent)).astype(float)
-    income    = 2.0 * education + 0.8 * ability + rng.normal(size=N)
+    income = 2.0 * education + 0.8 * ability + rng.normal(size=N)
     return pd.DataFrame({"ability": ability, "education": education, "income": income})
 
 
@@ -31,10 +30,8 @@ class TestMatchingRefutationReport:
 
     @classmethod
     def setup_class(cls):
-        cls.df     = make_data()
-        cls.result = PropensityScoreMatching(
-            make_dag(), treatment="education", outcome="income"
-        ).fit(cls.df)
+        cls.df = make_data()
+        cls.result = PropensityScoreMatching(make_dag(), treatment="education", outcome="income").fit(cls.df)
         cls.report = cls.result.refute(cls.df)
 
     def test_refute_returns_report(self):
@@ -51,7 +48,7 @@ class TestMatchingRefutationReport:
     def test_placebo_att_much_smaller_than_original(self):
         # Permuting labels should eliminate the real 2.0 effect almost entirely.
         placebo = next(c for c in self.report.checks if c.name == "Placebo treatment")
-        assert abs(self.result.effect) > 1.0   # original ATT is large
+        assert abs(self.result.effect) > 1.0  # original ATT is large
         assert "placebo ATT" in placebo.detail  # check ran and reported a value
 
     def test_rcc_detail_reports_shift(self):

@@ -34,12 +34,7 @@ week = RNG.uniform(0, 200, size=N)
 
 # DGP: baseline injuries decline slowly over time (−0.02 per week);
 # crossing the regulation cutoff drops injuries by 5
-injuries = (
-    20.0
-    - 0.02 * week
-    + TRUE_LATE * (week >= CUTOFF).astype(float)
-    + RNG.normal(scale=1.0, size=N)
-)
+injuries = 20.0 - 0.02 * week + TRUE_LATE * (week >= CUTOFF).astype(float) + RNG.normal(scale=1.0, size=N)
 
 # Treatment is NOT in the dataframe — RDD derives it from the threshold rule
 df = pd.DataFrame({"week": week, "injuries": injuries})

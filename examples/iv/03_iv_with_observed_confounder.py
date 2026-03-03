@@ -26,29 +26,21 @@ from formative import DAG, IV2SLS
 RNG = np.random.default_rng(0)
 N = 5_000
 
-proximity            = RNG.normal(size=N)
-ability              = RNG.normal(size=N)   # unobserved
-socioeconomic_status = RNG.normal(size=N)   # observed confounder
-education = (
-    0.5 * proximity
-    + 0.4 * ability
-    + 0.3 * socioeconomic_status
-    + RNG.normal(size=N)
-)
-income = (
-    2.0 * education
-    + 0.8 * ability
-    + 0.5 * socioeconomic_status
-    + RNG.normal(size=N)
-)
+proximity = RNG.normal(size=N)
+ability = RNG.normal(size=N)  # unobserved
+socioeconomic_status = RNG.normal(size=N)  # observed confounder
+education = 0.5 * proximity + 0.4 * ability + 0.3 * socioeconomic_status + RNG.normal(size=N)
+income = 2.0 * education + 0.8 * ability + 0.5 * socioeconomic_status + RNG.normal(size=N)
 
 # ability is not collected
-df = pd.DataFrame({
-    "proximity":            proximity,
-    "socioeconomic_status": socioeconomic_status,
-    "education":            education,
-    "income":               income,
-})
+df = pd.DataFrame(
+    {
+        "proximity": proximity,
+        "socioeconomic_status": socioeconomic_status,
+        "education": education,
+        "income": income,
+    }
+)
 
 dag = DAG()
 dag.assume("proximity").causes("education")
@@ -56,9 +48,7 @@ dag.assume("ability").causes("education", "income")
 dag.assume("socioeconomic_status").causes("education", "income")
 dag.assume("education").causes("income")
 
-result = IV2SLS(
-    dag, treatment="education", outcome="income", instrument="proximity"
-).fit(df)
+result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
 
 print(result.summary())
 print(result.executive_summary())

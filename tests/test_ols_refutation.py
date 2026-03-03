@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
-import pytest
 
 from formative import DAG, OLSObservational
-
 
 RNG = np.random.default_rng(42)
 N = 2_000
@@ -17,9 +15,9 @@ def make_dag():
 
 
 def make_data(true_effect=2.0):
-    ability   = RNG.normal(size=N)
+    ability = RNG.normal(size=N)
     education = 0.5 * ability + RNG.normal(size=N)
-    income    = true_effect * education + 0.8 * ability + RNG.normal(size=N)
+    income = true_effect * education + 0.8 * ability + RNG.normal(size=N)
     return pd.DataFrame({"ability": ability, "education": education, "income": income})
 
 

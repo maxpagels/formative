@@ -75,9 +75,7 @@ def _check_random_common_cause(
     Z_mat = sm.add_constant(augmented[[instrument] + controls], prepend=True)
     Z_mat.columns = X.columns
 
-    new_effect = float(
-        _IV2SLS(endog=augmented[outcome], exog=X, instrument=Z_mat).fit().params[treatment]
-    )
+    new_effect = float(_IV2SLS(endog=augmented[outcome], exog=X, instrument=Z_mat).fit().params[treatment])
 
     shift = abs(new_effect - original_effect)
     passed = shift <= original_se

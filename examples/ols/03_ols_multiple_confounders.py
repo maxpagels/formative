@@ -30,24 +30,20 @@ RNG = np.random.default_rng(0)
 N = 2_000
 
 parental_income = RNG.normal(size=N)
-region          = RNG.integers(0, 3, size=N).astype(float)
-education       = 0.4 * parental_income + 0.3 * region + RNG.normal(size=N)
-job_type        = 0.6 * education + RNG.normal(size=N)
-income          = (
-    1.2 * education
-    + 0.8 * job_type
-    + 0.5 * parental_income
-    + 0.4 * region
-    + RNG.normal(size=N)
-)
+region = RNG.integers(0, 3, size=N).astype(float)
+education = 0.4 * parental_income + 0.3 * region + RNG.normal(size=N)
+job_type = 0.6 * education + RNG.normal(size=N)
+income = 1.2 * education + 0.8 * job_type + 0.5 * parental_income + 0.4 * region + RNG.normal(size=N)
 
-df = pd.DataFrame({
-    "parental_income": parental_income,
-    "region":          region,
-    "education":       education,
-    "job_type":        job_type,
-    "income":          income,
-})
+df = pd.DataFrame(
+    {
+        "parental_income": parental_income,
+        "region": region,
+        "education": education,
+        "job_type": job_type,
+        "income": income,
+    }
+)
 
 dag = DAG()
 dag.assume("parental_income").causes("education", "income")

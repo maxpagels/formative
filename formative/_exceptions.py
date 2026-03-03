@@ -6,9 +6,11 @@ class IdentificationError(Exception):
     be additional unobserved confounders not represented in the DAG at all —
     formative has no way to detect those.
     """
+
     pass
 
 
 class GraphError(Exception):
     """Raised when the DAG is structurally invalid."""
+
     pass

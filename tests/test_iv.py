@@ -3,8 +3,7 @@ import pandas as pd
 import pytest
 
 from formative import DAG
-from formative.estimators.iv import IV2SLS, IVResult
-
+from formative.estimators.iv import IV2SLS
 
 RNG = np.random.default_rng(42)
 N = 5_000  # larger sample — IV needs more data for precision
@@ -85,44 +84,34 @@ class TestIV2SLSEstimation:
         """IV should recover the true effect even with an unobserved confounder."""
         dag = make_dag()
         df = make_iv_data(true_effect=2.0)  # ability unobserved
-        result = IV2SLS(
-            dag, treatment="education", outcome="income", instrument="proximity"
-        ).fit(df)
+        result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
         assert abs(result.effect - 2.0) < 0.2
 
     def test_unobserved_confounder_does_not_raise(self):
         """IV handles unobserved confounders — no IdentificationError expected."""
         dag = make_dag()
         df = make_iv_data()  # ability absent from df
-        result = IV2SLS(
-            dag, treatment="education", outcome="income", instrument="proximity"
-        ).fit(df)
+        result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
         assert result.adjustment_set == set()
 
     def test_observed_confounder_included_as_control(self):
         """If ability is observed it should appear in the adjustment set."""
         dag = make_dag()
         df = make_iv_data(include_ability=True)
-        result = IV2SLS(
-            dag, treatment="education", outcome="income", instrument="proximity"
-        ).fit(df)
+        result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
         assert "ability" in result.adjustment_set
 
     def test_instrument_not_in_adjustment_set(self):
         """The instrument itself must never appear in the adjustment set."""
         dag = make_dag()
         df = make_iv_data()
-        result = IV2SLS(
-            dag, treatment="education", outcome="income", instrument="proximity"
-        ).fit(df)
+        result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
         assert "proximity" not in result.adjustment_set
 
     def test_result_has_expected_attributes(self):
         dag = make_dag()
         df = make_iv_data()
-        result = IV2SLS(
-            dag, treatment="education", outcome="income", instrument="proximity"
-        ).fit(df)
+        result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
         lo, hi = result.conf_int
         assert lo < result.effect < hi
         assert result.std_err > 0
@@ -134,9 +123,7 @@ class TestIV2SLSEstimation:
         """With an unobserved confounder, naive OLS overestimates the true effect."""
         dag = make_dag()
         df = make_iv_data(true_effect=2.0)
-        result = IV2SLS(
-            dag, treatment="education", outcome="income", instrument="proximity"
-        ).fit(df)
+        result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
         assert abs(result.effect - 2.0) < 0.2
         assert abs(result.unadjusted_effect - 2.0) > 0.1
         assert result.unadjusted_effect > result.effect

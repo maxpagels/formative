@@ -30,11 +30,7 @@ CUTOFF = 0.0
 score = RNG.uniform(-1, 1, size=N)
 
 # DGP: score affects outcome directly (slope = 1.0); treatment adds 2.0
-outcome = (
-    1.0 * score
-    + TRUE_LATE * (score >= CUTOFF).astype(float)
-    + RNG.normal(scale=0.3, size=N)
-)
+outcome = 1.0 * score + TRUE_LATE * (score >= CUTOFF).astype(float) + RNG.normal(scale=0.3, size=N)
 
 # Treatment is NOT in the dataframe — RDD derives it from the threshold rule
 df = pd.DataFrame({"score": score, "outcome": outcome})
@@ -47,16 +43,16 @@ print(dag)
 print()
 
 # ── Full-sample RDD ────────────────────────────────────────────────────────────
-result = RDD(dag, treatment="treatment", running_var="score",
-             cutoff=CUTOFF, outcome="outcome").fit(df)
+result = RDD(dag, treatment="treatment", running_var="score", cutoff=CUTOFF, outcome="outcome").fit(df)
 
 print(result.summary())
 print(result.executive_summary())
 print(result.statsmodels_result.summary())
 
 # ── Bandwidth-restricted RDD ───────────────────────────────────────────────────
-result_bw = RDD(dag, treatment="treatment", running_var="score",
-                cutoff=CUTOFF, outcome="outcome", bandwidth=0.5).fit(df)
+result_bw = RDD(dag, treatment="treatment", running_var="score", cutoff=CUTOFF, outcome="outcome", bandwidth=0.5).fit(
+    df
+)
 
 print("\n--- With bandwidth = 0.5 ---")
 print(result_bw.summary())

@@ -21,7 +21,7 @@ N = 3_000
 TRUE_ATE = 3.0
 
 treatment = RNG.integers(0, 2, size=N).astype(float)
-outcome   = TRUE_ATE * treatment + RNG.normal(size=N)
+outcome = TRUE_ATE * treatment + RNG.normal(size=N)
 
 df = pd.DataFrame({"treatment": treatment, "outcome": outcome})
 

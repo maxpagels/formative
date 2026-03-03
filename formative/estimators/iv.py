@@ -6,7 +6,6 @@ import statsmodels.formula.api as smf
 from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
 from ..dag import DAG
-from .._exceptions import IdentificationError
 from ..refutations._check import Assumption
 
 IV_ASSUMPTIONS: list[Assumption] = [
@@ -94,6 +93,7 @@ class IVResult:
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
         from .._explain import explain_iv
+
         return explain_iv(self)
 
     def refute(self, data: pd.DataFrame):
@@ -124,8 +124,13 @@ class IVResult:
         checks = [
             _check_first_stage_f(data, self._treatment, self._instrument, controls),
             _check_random_common_cause(
-                data, self._treatment, self._outcome, self._instrument,
-                self._adjustment_set, self.effect, self.std_err,
+                data,
+                self._treatment,
+                self._outcome,
+                self._instrument,
+                self._adjustment_set,
+                self.effect,
+                self.std_err,
             ),
         ]
         return IVRefutationReport(
@@ -197,9 +202,7 @@ class IV2SLS:
         print(result.summary())
     """
 
-    def __init__(
-        self, dag: DAG, treatment: str, outcome: str, instrument: str
-    ) -> None:
+    def __init__(self, dag: DAG, treatment: str, outcome: str, instrument: str) -> None:
         self._dag = dag
         self._treatment = treatment
         self._outcome = outcome
@@ -213,10 +216,7 @@ class IV2SLS:
 
         for label, var in [("Treatment", T), ("Outcome", Y), ("Instrument", Z)]:
             if var not in nodes:
-                raise ValueError(
-                    f"{label} '{var}' is not a node in the DAG. "
-                    f"Known nodes: {sorted(nodes)}"
-                )
+                raise ValueError(f"{label} '{var}' is not a node in the DAG. Known nodes: {sorted(nodes)}")
 
         if T == Y:
             raise ValueError("Treatment and outcome must be different variables.")

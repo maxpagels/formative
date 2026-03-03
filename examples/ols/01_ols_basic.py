@@ -19,9 +19,9 @@ from formative import DAG, OLSObservational
 RNG = np.random.default_rng(0)
 N = 2_000
 
-ability    = RNG.normal(size=N)
-education  = 0.5 * ability + RNG.normal(size=N)
-income     = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
+ability = RNG.normal(size=N)
+education = 0.5 * ability + RNG.normal(size=N)
+income = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
 
 df = pd.DataFrame({"ability": ability, "education": education, "income": income})
 

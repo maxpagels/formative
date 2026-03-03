@@ -5,7 +5,6 @@ import pytest
 from formative import DAG, OLSObservational
 from formative._exceptions import IdentificationError
 
-
 RNG = np.random.default_rng(42)
 N = 1_000
 

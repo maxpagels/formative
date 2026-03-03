@@ -13,6 +13,12 @@ dependencies = [
 ]
 
 [dependency-groups]
-dev  = ["pytest>=9,<10", "pytest-cov"]
+dev  = ["pytest>=9,<10", "pytest-cov", "ruff>=0.9"]
 docs = ["sphinx>=9,<10", "sphinx-rtd-theme>=3,<4", "sphinx-copybutton>=0.5,<0.6", "sphinx-autodoc-typehints>=3,<4"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I"]  # pycodestyle, pyflakes, isort
 

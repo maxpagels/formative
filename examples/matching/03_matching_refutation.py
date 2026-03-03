@@ -10,16 +10,17 @@ is stable and not spurious.
 
 import numpy as np
 import pandas as pd
+
 from formative import DAG, PropensityScoreMatching
 
 RNG = np.random.default_rng(2)
 N = 3_000
 
 # ── 1. Well-specified data (checks should pass) ───────────────────────────────
-ability   = RNG.normal(size=N)
+ability = RNG.normal(size=N)
 ps_latent = 0.5 * ability + RNG.normal(scale=0.5, size=N)
 education = (ps_latent > np.median(ps_latent)).astype(float)
-income    = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
+income = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
 
 df = pd.DataFrame({"ability": ability, "education": education, "income": income})
 
@@ -27,9 +28,7 @@ dag = DAG()
 dag.assume("ability").causes("education", "income")
 dag.assume("education").causes("income")
 
-result = PropensityScoreMatching(
-    dag, treatment="education", outcome="income"
-).fit(df)
+result = PropensityScoreMatching(dag, treatment="education", outcome="income").fit(df)
 
 print("=== Original estimate ===")
 print(result.summary())

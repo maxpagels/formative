@@ -26,9 +26,7 @@ def _placebo_permutation(
 ) -> RefutationCheck:
     rng = np.random.default_rng(seed)
     augmented = data.assign(**{permute_var: rng.permutation(data[permute_var].values)})
-    placebo_effect = float(
-        smf.ols(f"{outcome} ~ {group} * {time}", data=augmented).fit().params[f"{group}:{time}"]
-    )
+    placebo_effect = float(smf.ols(f"{outcome} ~ {group} * {time}", data=augmented).fit().params[f"{group}:{time}"])
     passed = abs(placebo_effect) <= original_se
     if passed:
         detail = (
@@ -56,8 +54,15 @@ def _check_placebo_group(
     error of the original suggests the result may be spurious.
     """
     return _placebo_permutation(
-        data, group, time, outcome, group, _PLACEBO_SEED, original_se,
-        check_name="Placebo group", axis_label="group",
+        data,
+        group,
+        time,
+        outcome,
+        group,
+        _PLACEBO_SEED,
+        original_se,
+        check_name="Placebo group",
+        axis_label="group",
         fail_suffix=(
             "A randomly permuted group produced a large effect — the original "
             "result may be spurious or driven by chance differences between groups."
@@ -83,8 +88,15 @@ def _check_placebo_time(
     timing of treatment.
     """
     return _placebo_permutation(
-        data, group, time, outcome, time, _PLACEBO_TIME_SEED, original_se,
-        check_name="Placebo time", axis_label="time",
+        data,
+        group,
+        time,
+        outcome,
+        time,
+        _PLACEBO_TIME_SEED,
+        original_se,
+        check_name="Placebo time",
+        axis_label="time",
         fail_suffix=(
             "A randomly permuted time produced a large effect — the original "
             "result may not be specific to the treatment period."
