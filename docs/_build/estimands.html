@@ -195,12 +195,13 @@ was the effect of treatment?</p>
 \[\text{LATE} = \mathbb{E}[Y(1) - Y(0) \mid \text{complier}]\]</div>
 <p>IV estimation with an instrument <span class="math notranslate nohighlight">\(Z\)</span> isolates only the variation in treatment caused
 by <span class="math notranslate nohighlight">\(Z\)</span>. Only “compliers” — units who take treatment when
-<span class="math notranslate nohighlight">\(Z = 1\)</span> and not when <span class="math notranslate nohighlight">\(Z = 0\)</span> — contribute to the estimate. That is why IV
-recovers LATE, not ATE. In order to get ATE, you would need to know the treatment effect for
-never-takers and always-takers too, which is not possible without additional assumptions.</p>
+<span class="math notranslate nohighlight">\(Z = 1\)</span> and not when <span class="math notranslate nohighlight">\(Z = 0\)</span> — contribute to the estimate.</p>
 <p><strong>When it makes sense:</strong> When a clean instrument is available and you are willing to
 interpret the result as the effect for compliers. If compliers are representative of the
 broader population, LATE ≈ ATE. If not, the LATE may be very different from the ATE.</p>
+<p>That is why IV is said to recover LATE, not ATE. In order to get ATE, you would need to know
+the treatment effect for never-takers and always-takers too, which is not possible without
+additional assumptions.</p>
 <p><strong>Methods that estimate LATE:</strong></p>
 <ul class="simple">
 <li><p><strong>IV / 2SLS</strong> — the Wald estimator (reduced form divided by first stage) identifies the
@@ -210,7 +211,7 @@ and monotonicity.</p></li>
 <p><strong>LATE vs ATE vs ATT:</strong> LATE is the narrowest estimand. It applies only to the complier
 subpopulation, which is typically latent (you cannot directly observe who the compliers are).
 Whether the LATE generalises depends on how similar compliers are to the rest of the
-population — a substantive question that cannot be answered from the data alone.</p>
+population. This cannot be answered from the data alone.</p>
 </section>
 </section>
 

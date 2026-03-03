@@ -124,13 +124,15 @@ was the effect of treatment?
 
 IV estimation with an instrument :math:`Z` isolates only the variation in treatment caused
 by :math:`Z`. Only "compliers" — units who take treatment when
-:math:`Z = 1` and not when :math:`Z = 0` — contribute to the estimate. That is why IV
-recovers LATE, not ATE. In order to get ATE, you would need to know the treatment effect for
-never-takers and always-takers too, which is not possible without additional assumptions.
+:math:`Z = 1` and not when :math:`Z = 0` — contribute to the estimate.
 
 **When it makes sense:** When a clean instrument is available and you are willing to
 interpret the result as the effect for compliers. If compliers are representative of the
 broader population, LATE ≈ ATE. If not, the LATE may be very different from the ATE.
+
+That is why IV is said to recover LATE, not ATE. In order to get ATE, you would need to know
+the treatment effect for never-takers and always-takers too, which is not possible without
+additional assumptions.
 
 **Methods that estimate LATE:**
 
