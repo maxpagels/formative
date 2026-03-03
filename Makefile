@@ -1,7 +1,7 @@
 .PHONY: build-docs test lint fmt check
 
 build-docs:
-	uv run --group docs sphinx-build -b html docs docs/_build
+	uv run --group docs sphinx-build -W -b html docs docs/_build
 
 test:
 	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=88
