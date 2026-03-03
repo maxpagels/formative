@@ -17,9 +17,9 @@ from formative._exceptions import IdentificationError
 RNG = np.random.default_rng(0)
 N = 2_000
 
-ability    = RNG.normal(size=N)
-education  = 0.5 * ability + RNG.normal(size=N)
-income     = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
+ability = RNG.normal(size=N)
+education = 0.5 * ability + RNG.normal(size=N)
+income = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
 
 # ability is not included in the dataframe — we never collected it
 df = pd.DataFrame({"education": education, "income": income})
@@ -29,7 +29,8 @@ dag.assume("ability").causes("education", "income")
 dag.assume("education").causes("income")
 
 # For reference: naive OLS ignoring the confounder
-import statsmodels.formula.api as smf
+import statsmodels.formula.api as smf  # noqa: E402
+
 naive = smf.ols("income ~ education", data=df).fit()
 print(f"Naive OLS estimate (biased): {naive.params['education']:.4f}  (true effect: 2.0)")
 print()

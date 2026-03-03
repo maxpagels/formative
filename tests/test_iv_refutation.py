@@ -1,11 +1,7 @@
 import numpy as np
 import pandas as pd
-import pytest
 
 from formative import DAG, IV2SLS
-from formative.refutations._check import RefutationCheck
-from formative.refutations.iv import IVRefutationReport
-
 
 RNG = np.random.default_rng(42)
 N = 5_000
@@ -22,18 +18,18 @@ def make_dag():
 def make_strong_instrument_data():
     """proximity has a strong effect on education (F >> 10)."""
     proximity = RNG.normal(size=N)
-    ability   = RNG.normal(size=N)
+    ability = RNG.normal(size=N)
     education = 0.5 * proximity + 0.5 * ability + RNG.normal(size=N)
-    income    = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
+    income = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
     return pd.DataFrame({"proximity": proximity, "education": education, "income": income})
 
 
 def make_weak_instrument_data():
     """proximity barely moves education (F < 10)."""
     proximity = RNG.normal(size=N)
-    ability   = RNG.normal(size=N)
+    ability = RNG.normal(size=N)
     education = 0.02 * proximity + 0.5 * ability + RNG.normal(size=N)
-    income    = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
+    income = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
     return pd.DataFrame({"proximity": proximity, "education": education, "income": income})
 
 

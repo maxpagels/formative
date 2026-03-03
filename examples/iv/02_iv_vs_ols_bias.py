@@ -22,9 +22,9 @@ RNG = np.random.default_rng(0)
 N = 5_000
 
 proximity = RNG.normal(size=N)
-ability   = RNG.normal(size=N)
+ability = RNG.normal(size=N)
 education = 0.5 * proximity + 0.5 * ability + RNG.normal(size=N)
-income    = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
+income = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
 
 df = pd.DataFrame({"proximity": proximity, "education": education, "income": income})
 
@@ -33,9 +33,7 @@ dag.assume("proximity").causes("education")
 dag.assume("ability").causes("education", "income")
 dag.assume("education").causes("income")
 
-result = IV2SLS(
-    dag, treatment="education", outcome="income", instrument="proximity"
-).fit(df)
+result = IV2SLS(dag, treatment="education", outcome="income", instrument="proximity").fit(df)
 
 print(result.summary())
 print(result.executive_summary())

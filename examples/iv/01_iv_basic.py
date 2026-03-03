@@ -22,10 +22,10 @@ from formative import DAG, IV2SLS
 RNG = np.random.default_rng(0)
 N = 5_000
 
-proximity = RNG.normal(size=N)          # instrument: exogenous
-ability   = RNG.normal(size=N)          # unobserved confounder
+proximity = RNG.normal(size=N)  # instrument: exogenous
+ability = RNG.normal(size=N)  # unobserved confounder
 education = 0.5 * proximity + 0.5 * ability + RNG.normal(size=N)
-income    = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
+income = 2.0 * education + 0.8 * ability + RNG.normal(size=N)
 
 # ability is not collected — unobserved confounder
 df = pd.DataFrame({"proximity": proximity, "education": education, "income": income})

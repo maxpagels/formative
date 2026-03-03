@@ -4,7 +4,6 @@ import pytest
 
 from formative import DAG, RCT
 
-
 RNG = np.random.default_rng(42)
 N = 2_000
 TRUE_ATE = 2.0

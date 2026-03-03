@@ -7,6 +7,7 @@ against a naive (unadjusted) mean difference.
 
 import numpy as np
 import pandas as pd
+
 from formative import DAG, PropensityScoreMatching
 
 RNG = np.random.default_rng(1)
@@ -16,10 +17,10 @@ TRUE_ATT = 2.0
 # ── 1. Simulate data with strong confounding ──────────────────────────────────
 # ability raises both the chance of getting education AND income directly,
 # so a naive comparison over-estimates the effect of education.
-ability   = RNG.normal(size=N)
-ps_latent = 0.8 * ability + RNG.normal(scale=0.5, size=N)   # strong PS link
+ability = RNG.normal(size=N)
+ps_latent = 0.8 * ability + RNG.normal(scale=0.5, size=N)  # strong PS link
 education = (ps_latent > np.median(ps_latent)).astype(float)
-income    = TRUE_ATT * education + 1.5 * ability + RNG.normal(size=N)
+income = TRUE_ATT * education + 1.5 * ability + RNG.normal(size=N)
 
 df = pd.DataFrame({"ability": ability, "education": education, "income": income})
 
@@ -28,9 +29,7 @@ dag = DAG()
 dag.assume("ability").causes("education", "income")
 dag.assume("education").causes("income")
 
-result = PropensityScoreMatching(
-    dag, treatment="education", outcome="income"
-).fit(df)
+result = PropensityScoreMatching(dag, treatment="education", outcome="income").fit(df)
 
 # ── 3. Compare estimates ──────────────────────────────────────────────────────
 print(result.summary())

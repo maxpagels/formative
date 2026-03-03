@@ -1,11 +1,9 @@
 import numpy as np
 import pandas as pd
-import pytest
 
 from formative import DAG, DiD
 from formative.refutations._check import RefutationCheck
 from formative.refutations.did import DiDRefutationReport
-
 
 N = 1_000
 TRUE_ATT = 3.0
@@ -26,13 +24,7 @@ def make_data(true_att=TRUE_ATT):
     rng = np.random.default_rng(42)
     group = rng.integers(0, 2, size=N).astype(float)
     time = rng.integers(0, 2, size=N).astype(float)
-    outcome = (
-        2.0
-        + 1.5 * group
-        + 3.0 * time
-        + true_att * group * time
-        + rng.normal(size=N)
-    )
+    outcome = 2.0 + 1.5 * group + 3.0 * time + true_att * group * time + rng.normal(size=N)
     return pd.DataFrame({"group": group, "time": time, "outcome": outcome})
 
 

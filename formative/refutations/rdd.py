@@ -132,5 +132,6 @@ class RDDRefutationReport(RefutationReport):
 
     def _header_lines(self) -> list[str]:
         return [
-            f"RDD Refutation Report: {self._running_var} \u2192 {self._treatment} \u2192 {self._outcome}  |  cutoff: {self._cutoff}"
+            f"RDD Refutation Report: {self._running_var} → {self._treatment} → {self._outcome}"
+            f"  |  cutoff: {self._cutoff}"
         ]

@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ..dag import DAG
 from .._exceptions import IdentificationError
+from ..dag import DAG
 from ..refutations._check import Assumption
 
 MATCHING_ASSUMPTIONS: list[Assumption] = [
@@ -15,11 +15,12 @@ MATCHING_ASSUMPTIONS: list[Assumption] = [
     Assumption("Stable Unit Treatment Value Assumption (SUTVA)", testable=False),
 ]
 
-_BOOTSTRAP_N    = 500
+_BOOTSTRAP_N = 500
 _BOOTSTRAP_SEED = 42
 
 
 # ── Private helpers (also imported by formative/refutations/matching.py) ──────
+
 
 def _propensity_scores(
     data: pd.DataFrame,
@@ -62,6 +63,7 @@ def _att_from_ps(
 
 
 # ── Result ─────────────────────────────────────────────────────────────────────
+
 
 class MatchingResult:
     """
@@ -118,6 +120,7 @@ class MatchingResult:
     def pvalue(self) -> float:
         """Two-sided p-value for the ATT (``H0: ATT = 0``), via z-test."""
         import scipy.stats as _st
+
         z = abs(self._att) / self.std_err
         return float(2.0 * _st.norm.sf(z))
 
@@ -139,6 +142,7 @@ class MatchingResult:
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
         from .._explain import explain_matching
+
         return explain_matching(self)
 
     def summary(self) -> str:
@@ -150,7 +154,7 @@ class MatchingResult:
         lines = [
             "",
             f"PSM Causal Effect: {self._treatment} → {self._outcome}",
-            f"  Estimand: ATT (average treatment effect on the treated)",
+            "  Estimand: ATT (average treatment effect on the treated)",
             "─" * 54,
         ]
 
@@ -202,14 +206,23 @@ class MatchingResult:
             _check_placebo_treatment,
             _check_random_common_cause,
         )
+
         checks = [
             _check_placebo_treatment(
-                data, self._treatment, self._outcome,
-                self._adjustment_set, self.effect, self.std_err,
+                data,
+                self._treatment,
+                self._outcome,
+                self._adjustment_set,
+                self.effect,
+                self.std_err,
             ),
             _check_random_common_cause(
-                data, self._treatment, self._outcome,
-                self._adjustment_set, self.effect, self.std_err,
+                data,
+                self._treatment,
+                self._outcome,
+                self._adjustment_set,
+                self.effect,
+                self.std_err,
             ),
         ]
         return MatchingRefutationReport(
@@ -223,6 +236,7 @@ class MatchingResult:
 
 
 # ── Estimator ──────────────────────────────────────────────────────────────────
+
 
 class PropensityScoreMatching:
     """
@@ -262,10 +276,7 @@ class PropensityScoreMatching:
         nodes = self._dag.nodes
         for label, var in [("Treatment", self._treatment), ("Outcome", self._outcome)]:
             if var not in nodes:
-                raise ValueError(
-                    f"{label} '{var}' is not a node in the DAG. "
-                    f"Known nodes: {sorted(nodes)}"
-                )
+                raise ValueError(f"{label} '{var}' is not a node in the DAG. Known nodes: {sorted(nodes)}")
         if self._treatment == self._outcome:
             raise ValueError("Treatment and outcome must be different variables.")
 
@@ -274,12 +285,12 @@ class PropensityScoreMatching:
         T, Y = self._treatment, self._outcome
 
         treatment_ancestors = dag.ancestors(T)
-        outcome_ancestors   = dag.ancestors(Y)
+        outcome_ancestors = dag.ancestors(Y)
         treatment_descendants = dag.descendants(T)
 
         confounders = (treatment_ancestors & outcome_ancestors) - treatment_descendants
-        observed    = {c for c in confounders if c in data_columns}
-        missing     = {c for c in confounders if c not in data_columns}
+        observed = {c for c in confounders if c in data_columns}
+        missing = {c for c in confounders if c not in data_columns}
         return observed, missing
 
     def fit(self, data: pd.DataFrame) -> MatchingResult:
@@ -308,15 +319,9 @@ class PropensityScoreMatching:
 
         t_vals = set(data[self._treatment].dropna().unique())
         if not t_vals <= {0, 1, 0.0, 1.0}:
-            raise ValueError(
-                f"Treatment '{self._treatment}' must be binary (0/1). "
-                f"Found values: {sorted(t_vals)}"
-            )
+            raise ValueError(f"Treatment '{self._treatment}' must be binary (0/1). Found values: {sorted(t_vals)}")
         if not ({0, 1} <= {int(v) for v in t_vals}):
-            raise ValueError(
-                f"Treatment '{self._treatment}' must contain both 0 and 1. "
-                f"Found only: {t_vals}"
-            )
+            raise ValueError(f"Treatment '{self._treatment}' must contain both 0 and 1. Found only: {t_vals}")
 
         adjustment_set, missing = self._identify(data_columns)
 
@@ -335,29 +340,27 @@ class PropensityScoreMatching:
         T, Y = self._treatment, self._outcome
 
         # Unadjusted estimate: naive mean difference, no matching.
-        unadjusted = (
-            data.loc[data[T] == 1, Y].mean() - data.loc[data[T] == 0, Y].mean()
-        )
+        unadjusted = data.loc[data[T] == 1, Y].mean() - data.loc[data[T] == 0, Y].mean()
 
         # Pre-convert once; reuse numpy arrays throughout.
         T_arr = data[T].values.astype(float)
         Y_arr = data[Y].values.astype(float)
 
         # Point estimate ATT.
-        ps  = _propensity_scores(data, T, adjustment_set)
+        ps = _propensity_scores(data, T, adjustment_set)
         att = _att_from_ps(T_arr, Y_arr, ps)
 
         # Bootstrap SE and CI.
         # Use a minimal DataFrame (treatment + confounders only) to avoid
         # copying unneeded columns on every iteration.
-        rng     = np.random.default_rng(_BOOTSTRAP_SEED)
-        n       = len(data)
+        rng = np.random.default_rng(_BOOTSTRAP_SEED)
+        n = len(data)
         ps_cols = sorted({T} | adjustment_set)
         ps_data = data[ps_cols]
-        boot    = []
+        boot = []
         for _ in range(_BOOTSTRAP_N):
             idx = rng.integers(0, n, size=n)
-            bd  = ps_data.iloc[idx].reset_index(drop=True)
+            bd = ps_data.iloc[idx].reset_index(drop=True)
             try:
                 bps = _propensity_scores(bd, T, adjustment_set)
                 boot.append(_att_from_ps(T_arr[idx], Y_arr[idx], bps))

@@ -8,8 +8,7 @@ from ..refutations._check import Assumption
 
 DID_ASSUMPTIONS: list[Assumption] = [
     Assumption(
-        "Parallel trends: treated and control groups would have followed "
-        "the same trend absent treatment",
+        "Parallel trends: treated and control groups would have followed the same trend absent treatment",
         testable=False,
     ),
     Assumption("No anticipation: treatment does not affect outcomes before it begins", testable=False),
@@ -86,6 +85,7 @@ class DiDResult:
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
         from .._explain import explain_did
+
         return explain_did(self)
 
     def summary(self) -> str:
@@ -95,7 +95,7 @@ class DiDResult:
         lines = [
             "",
             f"DiD Causal Effect: ({self._group} \u00d7 {self._time}) \u2192 {self._outcome}",
-            f"  Estimand: ATT (average treatment effect on the treated)",
+            "  Estimand: ATT (average treatment effect on the treated)",
             "\u2500" * 54,
             f"  DiD estimate         : {self.effect:>10.4f}",
             f"  Naive post-diff      : {self._naive_diff:>10.4f}  (treated post \u2212 control post)",
@@ -139,18 +139,31 @@ class DiDResult:
             _check_placebo_time,
             _check_random_common_cause,
         )
+
         checks = [
             _check_placebo_group(
-                data, self._group, self._time, self._outcome,
-                self.effect, self.std_err,
+                data,
+                self._group,
+                self._time,
+                self._outcome,
+                self.effect,
+                self.std_err,
             ),
             _check_placebo_time(
-                data, self._group, self._time, self._outcome,
-                self.effect, self.std_err,
+                data,
+                self._group,
+                self._time,
+                self._outcome,
+                self.effect,
+                self.std_err,
             ),
             _check_random_common_cause(
-                data, self._group, self._time, self._outcome,
-                self.effect, self.std_err,
+                data,
+                self._group,
+                self._time,
+                self._outcome,
+                self.effect,
+                self.std_err,
             ),
         ]
         return DiDRefutationReport(
@@ -212,10 +225,7 @@ class DiD:
             ("Outcome", self._outcome),
         ]:
             if var not in nodes:
-                raise ValueError(
-                    f"{label} '{var}' is not a node in the DAG. "
-                    f"Known nodes: {sorted(nodes)}"
-                )
+                raise ValueError(f"{label} '{var}' is not a node in the DAG. Known nodes: {sorted(nodes)}")
         if len({self._group, self._time, self._outcome}) < 3:
             raise ValueError("Group, time, and outcome must be different variables.")
 
@@ -245,9 +255,7 @@ class DiD:
         for label, var in [("Group", self._group), ("Time", self._time)]:
             vals = set(data[var].dropna().unique())
             if not vals <= {0, 1, 0.0, 1.0}:
-                raise ValueError(
-                    f"{label} '{var}' must be binary (0/1). Found: {sorted(vals)}"
-                )
+                raise ValueError(f"{label} '{var}' must be binary (0/1). Found: {sorted(vals)}")
 
         G, T, Y = self._group, self._time, self._outcome
 

@@ -110,6 +110,7 @@ class RDDResult:
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
         from .._explain import explain_rdd
+
         return explain_rdd(self)
 
     def summary(self) -> str:
@@ -118,8 +119,9 @@ class RDDResult:
         bw_label = f"{self._bandwidth:.4f}" if self._bandwidth is not None else "all data"
         lines = [
             "",
-            f"RDD Causal Effect: {self._running_var} \u2192 {self._treatment} \u2192 {self._outcome}  |  cutoff: {self._cutoff:.4f}",
-            f"  Estimand: LATE at the cutoff",
+            f"RDD Causal Effect: {self._running_var} → {self._treatment} → {self._outcome}"
+            f"  |  cutoff: {self._cutoff:.4f}",
+            "  Estimand: LATE at the cutoff",
             f"  Bandwidth: {bw_label}",
             "\u2500" * 54,
             f"  LATE at cutoff        : {self.effect:>10.4f}",
@@ -161,14 +163,23 @@ class RDDResult:
             _check_placebo_cutoff,
             _check_random_common_cause,
         )
+
         checks = [
             _check_placebo_cutoff(
-                data, self._running_var, self._treatment, self._outcome,
+                data,
+                self._running_var,
+                self._treatment,
+                self._outcome,
                 self._cutoff,
             ),
             _check_random_common_cause(
-                data, self._running_var, self._treatment, self._outcome,
-                self._cutoff, self.effect, self.std_err,
+                data,
+                self._running_var,
+                self._treatment,
+                self._outcome,
+                self._cutoff,
+                self.effect,
+                self.std_err,
             ),
         ]
         return RDDRefutationReport(
@@ -242,14 +253,9 @@ class RDD:
             ("Outcome", self._outcome),
         ]:
             if var not in nodes:
-                raise ValueError(
-                    f"{label} '{var}' is not a node in the DAG. "
-                    f"Known nodes: {sorted(nodes)}"
-                )
+                raise ValueError(f"{label} '{var}' is not a node in the DAG. Known nodes: {sorted(nodes)}")
         if len({self._running_var, self._treatment, self._outcome}) < 3:
-            raise ValueError(
-                "Running variable, treatment, and outcome must be different variables."
-            )
+            raise ValueError("Running variable, treatment, and outcome must be different variables.")
         if self._running_var not in self._dag.ancestors(self._treatment):
             raise ValueError(
                 f"Running variable '{self._running_var}' must be an ancestor of "

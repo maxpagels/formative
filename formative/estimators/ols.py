@@ -3,8 +3,8 @@ from __future__ import annotations
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ..dag import DAG
 from .._exceptions import IdentificationError
+from ..dag import DAG
 from ..refutations._check import Assumption
 
 OLS_ASSUMPTIONS: list[Assumption] = [
@@ -90,6 +90,7 @@ class OLSResult:
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
         from .._explain import explain_ols
+
         return explain_ols(self)
 
     def summary(self) -> str:
@@ -148,8 +149,12 @@ class OLSResult:
 
         checks = [
             _check_random_common_cause(
-                data, self._treatment, self._outcome,
-                self._adjustment_set, self.effect, self.std_err,
+                data,
+                self._treatment,
+                self._outcome,
+                self._adjustment_set,
+                self.effect,
+                self.std_err,
             ),
         ]
         return OLSRefutationReport(
@@ -164,7 +169,7 @@ class OLSResult:
 
 class OLSObservational:
     """
-    Observational OLS estimator with DAG-based confounder identification.
+    Observational Ordinary Least Squares (OLS) estimator with DAG-based confounder identification.
 
     Given a DAG encoding your causal assumptions, this estimator:
 
@@ -197,10 +202,7 @@ class OLSObservational:
         nodes = self._dag.nodes
         for label, var in [("Treatment", self._treatment), ("Outcome", self._outcome)]:
             if var not in nodes:
-                raise ValueError(
-                    f"{label} '{var}' is not a node in the DAG. "
-                    f"Known nodes: {sorted(nodes)}"
-                )
+                raise ValueError(f"{label} '{var}' is not a node in the DAG. Known nodes: {sorted(nodes)}")
         if self._treatment == self._outcome:
             raise ValueError("Treatment and outcome must be different variables.")
 

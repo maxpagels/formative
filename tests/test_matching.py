@@ -2,9 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from formative import DAG, PropensityScoreMatching, MatchingResult
+from formative import DAG, MatchingResult, PropensityScoreMatching
 from formative._exceptions import IdentificationError
-
 
 N = 1_000
 
@@ -19,10 +18,10 @@ def make_dag():
 def make_data(true_att=2.0):
     """Fixed seed so every call returns the same dataframe."""
     rng = np.random.default_rng(42)
-    ability   = rng.normal(size=N)
+    ability = rng.normal(size=N)
     ps_latent = 0.5 * ability + rng.normal(scale=0.5, size=N)
     education = (ps_latent > np.median(ps_latent)).astype(float)
-    income    = true_att * education + 0.8 * ability + rng.normal(size=N)
+    income = true_att * education + 0.8 * ability + rng.normal(size=N)
     return pd.DataFrame({"ability": ability, "education": education, "income": income})
 
 
@@ -74,10 +73,8 @@ class TestPropensityScoreMatchingEstimation:
 
     @classmethod
     def setup_class(cls):
-        cls.df     = make_data(true_att=2.0)
-        cls.result = PropensityScoreMatching(
-            make_dag(), treatment="education", outcome="income"
-        ).fit(cls.df)
+        cls.df = make_data(true_att=2.0)
+        cls.result = PropensityScoreMatching(make_dag(), treatment="education", outcome="income").fit(cls.df)
 
     def test_returns_matching_result(self):
         assert isinstance(self.result, MatchingResult)
@@ -122,9 +119,7 @@ class TestMatchingResultSummary:
 
     @classmethod
     def setup_class(cls):
-        cls.result = PropensityScoreMatching(
-            make_dag(), treatment="education", outcome="income"
-        ).fit(make_data())
+        cls.result = PropensityScoreMatching(make_dag(), treatment="education", outcome="income").fit(make_data())
 
     def test_summary_contains_att(self):
         summary = self.result.summary()
@@ -143,7 +138,7 @@ class TestMatchingNoConfounders:
         rng = np.random.default_rng(7)
         n = 200
         education = rng.choice([0, 1], size=n).astype(float)
-        income    = 1.5 * education + rng.normal(size=n)
+        income = 1.5 * education + rng.normal(size=n)
         df = pd.DataFrame({"education": education, "income": income})
         result = PropensityScoreMatching(dag, treatment="education", outcome="income").fit(df)
         assert isinstance(result, MatchingResult)

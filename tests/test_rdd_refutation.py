@@ -1,11 +1,9 @@
 import numpy as np
 import pandas as pd
-import pytest
 
 from formative import DAG, RDD
 from formative.refutations._check import RefutationCheck
 from formative.refutations.rdd import RDDRefutationReport
-
 
 N = 2_000
 TRUE_LATE = 2.0
@@ -22,11 +20,7 @@ def make_dag():
 def make_data(true_late=TRUE_LATE):
     rng = np.random.default_rng(42)
     score = rng.uniform(-1, 1, size=N)
-    outcome = (
-        1.0 * score
-        + true_late * (score >= CUTOFF).astype(float)
-        + rng.normal(scale=0.3, size=N)
-    )
+    outcome = 1.0 * score + true_late * (score >= CUTOFF).astype(float) + rng.normal(scale=0.3, size=N)
     return pd.DataFrame({"score": score, "outcome": outcome})
 
 
@@ -36,8 +30,9 @@ class TestRDDRefutationReport:
     @classmethod
     def setup_class(cls):
         cls.df = make_data()
-        cls.result = RDD(make_dag(), treatment="treatment", running_var="score",
-                         cutoff=CUTOFF, outcome="outcome").fit(cls.df)
+        cls.result = RDD(make_dag(), treatment="treatment", running_var="score", cutoff=CUTOFF, outcome="outcome").fit(
+            cls.df
+        )
         cls.report = cls.result.refute(cls.df)
 
     def test_refute_returns_report(self):
@@ -107,8 +102,9 @@ class TestRDDRefutationFail:
             + rng.normal(scale=0.1, size=N)
         )
         cls.df = pd.DataFrame({"score": score, "outcome": outcome})
-        cls.result = RDD(make_dag(), treatment="treatment", running_var="score",
-                         cutoff=CUTOFF, outcome="outcome").fit(cls.df)
+        cls.result = RDD(make_dag(), treatment="treatment", running_var="score", cutoff=CUTOFF, outcome="outcome").fit(
+            cls.df
+        )
         cls.report = cls.result.refute(cls.df)
 
     def test_placebo_cutoff_fails(self):

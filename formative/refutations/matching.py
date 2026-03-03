@@ -3,12 +3,12 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from ..estimators.matching import _att_from_ps, _propensity_scores
 from ._check import RefutationCheck, RefutationReport
-from ..estimators.matching import _propensity_scores, _att_from_ps
 
-_RCC_SEED     = 54321
+_RCC_SEED = 54321
 _PLACEBO_SEED = 99999
-_RCC_COL      = "_rcc"
+_RCC_COL = "_rcc"
 
 
 def _check_placebo_treatment(

@@ -32,9 +32,7 @@ def _check_random_common_cause(
 
     augmented = data.assign(**{col: rng.normal(size=len(data))})
 
-    new_effect = float(
-        smf.ols(f"{outcome} ~ {treatment} + {col}", data=augmented).fit().params[treatment]
-    )
+    new_effect = float(smf.ols(f"{outcome} ~ {treatment} + {col}", data=augmented).fit().params[treatment])
 
     shift = abs(new_effect - original_effect)
     passed = shift <= original_se

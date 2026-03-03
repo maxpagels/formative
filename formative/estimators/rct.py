@@ -68,6 +68,7 @@ class RCTResult:
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
         from .._explain import explain_rct
+
         return explain_rct(self)
 
     def summary(self) -> str:
@@ -76,7 +77,7 @@ class RCTResult:
         lines = [
             "",
             f"RCT Causal Effect: {self._treatment} → {self._outcome}",
-            f"  Estimand: ATE (average treatment effect)",
+            "  Estimand: ATE (average treatment effect)",
             "─" * 50,
             f"  ATE estimate         : {self.effect:>10.4f}",
             "",
@@ -112,8 +113,11 @@ class RCTResult:
 
         checks = [
             _check_random_common_cause(
-                data, self._treatment, self._outcome,
-                self.effect, self.std_err,
+                data,
+                self._treatment,
+                self._outcome,
+                self.effect,
+                self.std_err,
             ),
         ]
         return RCTRefutationReport(
@@ -160,10 +164,7 @@ class RCT:
 
         for label, var in [("Treatment", T), ("Outcome", Y)]:
             if var not in nodes:
-                raise ValueError(
-                    f"{label} '{var}' is not a node in the DAG. "
-                    f"Known nodes: {sorted(nodes)}"
-                )
+                raise ValueError(f"{label} '{var}' is not a node in the DAG. Known nodes: {sorted(nodes)}")
         if T == Y:
             raise ValueError("Treatment and outcome must be different variables.")
 
