@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "formative-ds"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Python library for causal effect estimation."
 readme = "README.md"
 requires-python = ">=3.11"
@@ -41,7 +41,7 @@ docs = ["sphinx>=9,<10", "sphinx-rtd-theme>=3,<4", "sphinx-copybutton>=0.5,<0.6"
 packages = ["formative"]
 
 [tool.bumpversion]
-current_version = "0.1.1"
+current_version = "0.1.2"
 commit = true
 tag = true
 tag_name = "v{new_version}"
