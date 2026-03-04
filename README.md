@@ -9,7 +9,7 @@ Python library for causal effect estimation. You declare your causal assumptions
 ## Installation
 
 ```bash
-pip install formative
+pip install formative-ds
 ```
 
 ## Docs
