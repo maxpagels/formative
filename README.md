@@ -4,7 +4,7 @@ Python library for causal effect estimation. You declare your causal assumptions
 
 ## Requirements
 
-- Python 3.11+
+- Python 3.10+
 
 ## Installation
 

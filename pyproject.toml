@@ -7,7 +7,7 @@ name = "formative-ds"
 version = "0.1.2"
 description = "A Python library for causal effect estimation."
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [{name = "Max Pagels"}]
 keywords = ["causal inference", "causal estimation", "econometrics", "statistics", "DAG"]
@@ -17,6 +17,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Mathematics",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
@@ -25,7 +26,7 @@ classifiers = [
 dependencies = [
     "numpy>=2,<3",
     "statsmodels>=0.14,<0.15",
-    "pandas>=3,<4",
+    "pandas>=2.1,<4",
 ]
 
 [project.urls]
@@ -35,7 +36,7 @@ Repository = "https://github.com/maxpagels/formative"
 
 [dependency-groups]
 dev  = ["pytest>=9,<10", "pytest-cov", "ruff>=0.9"]
-docs = ["sphinx>=9,<10", "sphinx-rtd-theme>=3,<4", "sphinx-copybutton>=0.5,<0.6", "sphinx-autodoc-typehints>=3,<4"]
+docs = ["sphinx>=7,<10", "sphinx-rtd-theme>=2,<4", "sphinx-copybutton>=0.5,<0.6", "sphinx-autodoc-typehints>=2,<4"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["formative"]
