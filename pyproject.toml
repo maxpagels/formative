@@ -22,16 +22,16 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
 ]
 
-[project.urls]
-Homepage = "https://getformative.dev"
-Documentation = "https://docs.getformative.dev"
-Repository = "https://github.com/maxpagels/formative"
-
 dependencies = [
     "numpy>=2,<3",
     "statsmodels>=0.14,<0.15",
     "pandas>=3,<4",
 ]
+
+[project.urls]
+Homepage = "https://getformative.dev"
+Documentation = "https://docs.getformative.dev"
+Repository = "https://github.com/maxpagels/formative"
 
 [dependency-groups]
 dev  = ["pytest>=9,<10", "pytest-cov", "ruff>=0.9"]
