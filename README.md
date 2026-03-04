@@ -48,6 +48,15 @@ uv sync --dev
 
 This creates a `.venv`, installs all dependencies, and installs the package in editable mode.
 
+### Releasing a new version
+
+```bash
+uvx bump-my-version bump patch   # 0.1.0 → 0.1.1 (bug fixes)
+uvx bump-my-version bump minor   # 0.1.0 → 0.2.0 (new features)
+uvx bump-my-version bump major   # 0.1.0 → 1.0.0 (breaking changes)
+git push --follow-tags            # triggers publish to PyPI
+```
+
 ### Running tests
 
 ```bash
