@@ -116,6 +116,7 @@ and seeing if the estimate changes. The full list of refutations depends on the 
    :maxdepth: 2
    :caption: Contents
 
+   motivation
    dag
    estimands
    wizard
