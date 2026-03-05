@@ -120,7 +120,7 @@ class DecisionReport:
         return self.summary()
 
 
-def decide(
+def _decide(
     effect: float,
     std_err: float,
     conf_int: tuple[float, float],

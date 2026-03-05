@@ -2,6 +2,20 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import numpy as np
+import pandas as pd
+
+_RCC_SEED = 54321
+
+
+def _add_random_column(data: pd.DataFrame, seed: int = _RCC_SEED) -> tuple[pd.DataFrame, str]:
+    """Return a copy of *data* with a random normal column added, plus the column name."""
+    rng = np.random.default_rng(seed)
+    col = "_rcc"
+    while col in data.columns:
+        col = "_" + col
+    return data.assign(**{col: rng.normal(size=len(data))}), col
+
 
 @dataclass(frozen=True)
 class Assumption:

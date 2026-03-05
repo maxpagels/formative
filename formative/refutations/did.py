@@ -4,12 +4,10 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ._check import RefutationCheck, RefutationReport
+from ._check import RefutationCheck, RefutationReport, _add_random_column
 
-_RCC_SEED = 54321
 _PLACEBO_SEED = 99999
 _PLACEBO_TIME_SEED = 22222
-_RCC_COL = "_rcc"
 
 
 def _placebo_permutation(
@@ -119,13 +117,7 @@ def _check_random_common_cause(
     the interaction coefficient should not move by more than one standard error.
     A larger shift indicates the estimate is sensitive to the model specification.
     """
-    rng = np.random.default_rng(_RCC_SEED)
-
-    col = _RCC_COL
-    while col in data.columns:
-        col = "_" + col
-
-    augmented = data.assign(**{col: rng.normal(size=len(data))})
+    augmented, col = _add_random_column(data)
 
     result = smf.ols(f"{outcome} ~ {group} * {time} + {col}", data=augmented).fit()
     interaction = f"{group}:{time}"

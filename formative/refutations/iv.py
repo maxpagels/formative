@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
-from ._check import RefutationCheck, RefutationReport
+from ._check import RefutationCheck, RefutationReport, _add_random_column
 
 _FIRST_STAGE_F_THRESHOLD = 10.0
-_RCC_SEED = 54321
-_RCC_COL = "_rcc"
 
 
 def _check_first_stage_f(
@@ -62,13 +59,7 @@ def _check_random_common_cause(
     outcome), the IV estimate should not move by more than one standard error.
     A larger shift indicates the estimate is sensitive to spurious controls.
     """
-    rng = np.random.default_rng(_RCC_SEED)
-
-    col = _RCC_COL
-    while col in data.columns:
-        col = "_" + col
-
-    augmented = data.assign(**{col: rng.normal(size=len(data))})
+    augmented, col = _add_random_column(data)
 
     controls = sorted(adjustment_set | {col})
     X = sm.add_constant(augmented[[treatment] + controls], prepend=True)
