@@ -1,13 +1,9 @@
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ._check import RefutationCheck, RefutationReport
-
-_RCC_SEED = 54321
-_RCC_COL = "_rcc"
+from ._check import RefutationCheck, RefutationReport, _add_random_column
 
 
 def _check_random_common_cause(
@@ -25,13 +21,7 @@ def _check_random_common_cause(
     the estimate should not move by more than one standard error. A larger
     shift indicates the estimate is sensitive to spurious controls.
     """
-    rng = np.random.default_rng(_RCC_SEED)
-
-    col = _RCC_COL
-    while col in data.columns:
-        col = "_" + col
-
-    augmented = data.assign(**{col: rng.normal(size=len(data))})
+    augmented, col = _add_random_column(data)
 
     controls = sorted(adjustment_set | {col})
     rhs = " + ".join([treatment] + controls)

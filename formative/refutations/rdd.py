@@ -1,12 +1,10 @@
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ._check import RefutationCheck, RefutationReport
+from ._check import RefutationCheck, RefutationReport, _add_random_column
 
-_RCC_SEED = 54321
 _PLACEBO_SEED = 99999
 
 
@@ -74,16 +72,13 @@ def _check_random_common_cause(
     standard error.  A larger shift indicates sensitivity to model
     specification.
     """
-    rng = np.random.default_rng(_RCC_SEED)
-
-    col = "_rcc"
-    while col in data.columns:
-        col = "_" + col
-
-    augmented = data.copy()
-    augmented[col] = rng.normal(size=len(data))
-    augmented["_rdd_r"] = augmented[running_var] - cutoff
-    augmented[treatment] = (augmented[running_var] >= cutoff).astype(float)
+    augmented, col = _add_random_column(data)
+    augmented = augmented.assign(
+        **{
+            "_rdd_r": augmented[running_var] - cutoff,
+            treatment: (augmented[running_var] >= cutoff).astype(float),
+        }
+    )
 
     result = smf.ols(
         f"{outcome} ~ {treatment} + _rdd_r + {treatment}:_rdd_r + {col}",

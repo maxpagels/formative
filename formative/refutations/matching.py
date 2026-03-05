@@ -4,11 +4,9 @@ import numpy as np
 import pandas as pd
 
 from ..estimators.matching import _att_from_ps, _propensity_scores
-from ._check import RefutationCheck, RefutationReport
+from ._check import RefutationCheck, RefutationReport, _add_random_column
 
-_RCC_SEED = 54321
 _PLACEBO_SEED = 99999
-_RCC_COL = "_rcc"
 
 
 def _check_placebo_treatment(
@@ -75,13 +73,7 @@ def _check_random_common_cause(
     not move by more than one standard error. A larger shift indicates the
     estimate is sensitive to the propensity model specification.
     """
-    rng = np.random.default_rng(_RCC_SEED)
-
-    col = _RCC_COL
-    while col in data.columns:
-        col = "_" + col
-
-    augmented = data.assign(**{col: rng.normal(size=len(data))})
+    augmented, col = _add_random_column(data)
 
     new_adjustment = adjustment_set | {col}
 

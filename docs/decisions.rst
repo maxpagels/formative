@@ -1,7 +1,7 @@
 Decisions
 =========
 
-Causal estimation answers "does X cause Y, and by how much?"m but practitioners
+Causal estimation answers "does X cause Y, and by how much?" but practitioners
 usually need to go one step further: *should we act on this estimate?*
 
 In formative, given a causal estimate and its uncertainty, you can run a decision

@@ -149,7 +149,7 @@ class OLSResult:
         DecisionReport
             Optimal decision, net benefit, CI, confidence, and robustness flag.
         """
-        from ..decision import decide as _decide
+        from ..decision import _decide
 
         return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
