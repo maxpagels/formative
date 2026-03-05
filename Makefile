@@ -1,6 +1,7 @@
 .PHONY: build-docs test lint fmt check
 
 build-docs:
+	rm -rf docs/_build
 	uv run --group docs sphinx-build -W -b html docs docs/_build
 
 test:

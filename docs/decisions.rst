@@ -23,7 +23,7 @@ that answers three questions:
    distributed around its point estimate with the reported standard error.
 3. **Is the decision robust?** ``robust`` is ``True`` when the optimal decision
    (treat vs. don't treat) is the same at both ends of the 95% confidence
-   interval. A fragile decision — one that flips within the CI — is a signal
+   interval. A fragile decision that flips within the CI is a signal
    that the estimate is too uncertain to act on without more data.
 
 Example
