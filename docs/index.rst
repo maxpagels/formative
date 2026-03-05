@@ -9,6 +9,12 @@ Causal estimation is full of statistical jargon, which hinders adoption. formati
 estimation more accessible, It is this author's opinion that attempting to do causal estimation is better than
 simply comparing averages or correlations.
 
+Install formative with pip:
+
+.. code-block:: bash
+
+   pip install formative-ds
+
 How it works
 ------------
 
