@@ -28,11 +28,13 @@ class RCTResult:
         treatment: str,
         outcome: str,
         dag,
+        n: int,
     ) -> None:
         self._result = result
         self._treatment = treatment
         self._outcome = outcome
         self._dag = dag
+        self._n = n
 
     @property
     def effect(self) -> float:
@@ -84,6 +86,7 @@ class RCTResult:
             f"  Std. error           : {self.std_err:>10.4f}",
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
+            f"  N                    : {self._n:>10}",
             "",
             "  Assumptions",
             "  " + "┄" * 48,
@@ -92,6 +95,26 @@ class RCTResult:
             lines.append(f"  {a.fmt_tag()}  {a.name}")
         lines.append("")
         return "\n".join(lines)
+
+    def decide(self, cost: float, benefit: float):
+        """
+        Compute a cost-benefit decision analysis from this causal estimate.
+
+        Parameters
+        ----------
+        cost : float
+            Cost per unit of treatment applied.
+        benefit : float
+            Benefit (revenue, utility, etc.) per unit increase in the outcome.
+
+        Returns
+        -------
+        DecisionReport
+            Optimal decision, net benefit, CI, confidence, and robustness flag.
+        """
+        from ..decision import decide as _decide
+
+        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -197,4 +220,4 @@ class RCT:
                 raise ValueError(f"{label} column '{var}' not found in dataframe.")
 
         result = smf.ols(f"{self._outcome} ~ {self._treatment}", data=data).fit()
-        return RCTResult(result, self._treatment, self._outcome, self._dag)
+        return RCTResult(result, self._treatment, self._outcome, self._dag, len(data))

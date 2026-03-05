@@ -34,6 +34,7 @@ class DiDResult:
         outcome: str,
         naive_diff: float,
         dag,
+        n: int,
     ) -> None:
         self._result = result
         self._group = group
@@ -41,6 +42,7 @@ class DiDResult:
         self._outcome = outcome
         self._naive_diff = naive_diff
         self._dag = dag
+        self._n = n
 
     @property
     def _interaction(self) -> str:
@@ -104,6 +106,7 @@ class DiDResult:
             f"  Std. error           : {self.std_err:>10.4f}",
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
+            f"  N                    : {self._n:>10}",
             "",
             "  Assumptions",
             "  " + "\u2504" * 48,
@@ -112,6 +115,26 @@ class DiDResult:
             lines.append(f"  {a.fmt_tag()}  {a.name}")
         lines.append("")
         return "\n".join(lines)
+
+    def decide(self, cost: float, benefit: float):
+        """
+        Compute a cost-benefit decision analysis from this causal estimate.
+
+        Parameters
+        ----------
+        cost : float
+            Cost per unit of treatment applied.
+        benefit : float
+            Benefit (revenue, utility, etc.) per unit increase in the outcome.
+
+        Returns
+        -------
+        DecisionReport
+            Optimal decision, net benefit, CI, confidence, and robustness flag.
+        """
+        from ..decision import decide as _decide
+
+        return _decide(self.effect, self.std_err, self.conf_int, self._group, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -265,4 +288,4 @@ class DiD:
 
         result = smf.ols(f"{Y} ~ {G} * {T}", data=data).fit()
 
-        return DiDResult(result, group=G, time=T, outcome=Y, naive_diff=naive_diff, dag=self._dag)
+        return DiDResult(result, group=G, time=T, outcome=Y, naive_diff=naive_diff, dag=self._dag, n=len(data))
