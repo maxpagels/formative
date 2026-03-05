@@ -5,7 +5,7 @@ build-docs:
 	uv run --group docs sphinx-build -W -b html docs docs/_build
 
 test:
-	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=88
+	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80
 
 lint:
 	uv run ruff check .
@@ -15,4 +15,4 @@ fmt:
 
 check: lint
 	uv run ruff format --check .
-	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=88
+	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80

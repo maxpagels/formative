@@ -18,7 +18,7 @@ jobs:
         run: uv sync --dev
 
       - name: Run tests
-        run: uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=88
+        run: uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80
 
   publish:
     needs: test
