@@ -117,6 +117,7 @@ and seeing if the estimate changes. The full list of refutations depends on the 
    :caption: Contents
 
    motivation
+   decisions
    dag
    estimands
    wizard

@@ -1,4 +1,5 @@
 from .dag import DAG
+from .decision import DecisionReport
 from .estimators.did import DiD, DiDResult
 from .estimators.iv import IV2SLS, IVResult
 from .estimators.matching import MatchingResult, PropensityScoreMatching
@@ -40,4 +41,5 @@ __all__ = [
     "RefutationCheck",
     "RefutationReport",
     "Assumption",
+    "DecisionReport",
 ]

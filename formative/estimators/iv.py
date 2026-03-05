@@ -35,6 +35,7 @@ class IVResult:
         instrument: str,
         adjustment_set: set[str],
         dag,
+        n: int,
     ) -> None:
         self._result = result
         self._unadjusted = unadjusted_result
@@ -43,6 +44,7 @@ class IVResult:
         self._instrument = instrument
         self._adjustment_set = adjustment_set
         self._dag = dag
+        self._n = n
 
     @property
     def effect(self) -> float:
@@ -95,6 +97,26 @@ class IVResult:
         from .._explain import explain_iv
 
         return explain_iv(self)
+
+    def decide(self, cost: float, benefit: float):
+        """
+        Compute a cost-benefit decision analysis from this causal estimate.
+
+        Parameters
+        ----------
+        cost : float
+            Cost per unit of treatment applied.
+        benefit : float
+            Benefit (revenue, utility, etc.) per unit increase in the outcome.
+
+        Returns
+        -------
+        DecisionReport
+            Optimal decision, net benefit, CI, confidence, and robustness flag.
+        """
+        from ..decision import decide as _decide
+
+        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -158,6 +180,7 @@ class IVResult:
             f"  Std. error           : {self.std_err:>10.4f}",
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
+            f"  N                    : {self._n:>10}",
             "",
             "  Assumptions",
             "  " + "┄" * 48,
@@ -320,4 +343,4 @@ class IV2SLS:
         result = model.fit()
         unadjusted_result = smf.ols(f"{Y} ~ {T}", data=data).fit()
 
-        return IVResult(result, unadjusted_result, T, Y, Z, adjustment_set, self._dag)
+        return IVResult(result, unadjusted_result, T, Y, Z, adjustment_set, self._dag, len(data))
