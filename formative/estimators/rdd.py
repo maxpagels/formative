@@ -140,6 +140,26 @@ class RDDResult:
         lines.append("")
         return "\n".join(lines)
 
+    def decide(self, cost: float, benefit: float):
+        """
+        Compute a cost-benefit decision analysis from this causal estimate.
+
+        Parameters
+        ----------
+        cost : float
+            Cost per unit of treatment applied.
+        benefit : float
+            Benefit (revenue, utility, etc.) per unit increase in the outcome.
+
+        Returns
+        -------
+        DecisionReport
+            Optimal decision, net benefit, CI, confidence, and robustness flag.
+        """
+        from ..decision import decide as _decide
+
+        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
+
     def refute(self, data: pd.DataFrame):
         """
         Run refutation checks against this RDD estimation.

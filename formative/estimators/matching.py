@@ -84,6 +84,7 @@ class MatchingResult:
         outcome: str,
         adjustment_set: set[str],
         dag,
+        n: int,
     ) -> None:
         self._att = att
         self._unadjusted_effect = unadjusted_effect
@@ -92,6 +93,7 @@ class MatchingResult:
         self._outcome = outcome
         self._adjustment_set = adjustment_set
         self._dag = dag
+        self._n = n
 
     @property
     def effect(self) -> float:
@@ -174,6 +176,7 @@ class MatchingResult:
             f"  Std. error           : {self.std_err:>10.4f}  (bootstrap, N={_BOOTSTRAP_N})",
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]  (bootstrap percentile)",
             f"  p-value              : {self.pvalue:>10.4f}",
+            f"  N                    : {self._n:>10}",
             "",
             "  Matching: 1-to-1 nearest-neighbour on propensity score (with replacement)",
             "",
@@ -184,6 +187,26 @@ class MatchingResult:
             lines.append(f"  {a.fmt_tag()}  {a.name}")
         lines.append("")
         return "\n".join(lines)
+
+    def decide(self, cost: float, benefit: float):
+        """
+        Compute a cost-benefit decision analysis from this causal estimate.
+
+        Parameters
+        ----------
+        cost : float
+            Cost per unit of treatment applied.
+        benefit : float
+            Benefit (revenue, utility, etc.) per unit increase in the outcome.
+
+        Returns
+        -------
+        DecisionReport
+            Optimal decision, net benefit, CI, confidence, and robustness flag.
+        """
+        from ..decision import decide as _decide
+
+        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -376,4 +399,5 @@ class PropensityScoreMatching:
             outcome=Y,
             adjustment_set=adjustment_set,
             dag=self._dag,
+            n=len(data),
         )
