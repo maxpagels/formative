@@ -73,10 +73,12 @@ def _check_random_common_cause(
     specification.
     """
     augmented, col = _add_random_column(data)
-    augmented = augmented.assign(**{
-        "_rdd_r": augmented[running_var] - cutoff,
-        treatment: (augmented[running_var] >= cutoff).astype(float),
-    })
+    augmented = augmented.assign(
+        **{
+            "_rdd_r": augmented[running_var] - cutoff,
+            treatment: (augmented[running_var] >= cutoff).astype(float),
+        }
+    )
 
     result = smf.ols(
         f"{outcome} ~ {treatment} + _rdd_r + {treatment}:_rdd_r + {col}",

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import pytest
-
 from formative.decision import DecisionReport, _decide
 
 # ---------------------------------------------------------------------------
@@ -49,6 +47,7 @@ MARGINAL = _decide(
 # _decide — net benefit arithmetic
 # ---------------------------------------------------------------------------
 
+
 class TestDecideNetBenefit:
     def test_net_benefit_positive(self):
         assert abs(POSITIVE.net_benefit - (3.0 * 15.0 - 8.0)) < 1e-9
@@ -65,6 +64,7 @@ class TestDecideNetBenefit:
 # ---------------------------------------------------------------------------
 # _decide — optimal decision
 # ---------------------------------------------------------------------------
+
 
 class TestDecideOptimal:
     def test_treat_when_positive(self):
@@ -83,6 +83,7 @@ class TestDecideOptimal:
 # _decide — robustness
 # ---------------------------------------------------------------------------
 
+
 class TestDecideRobust:
     def test_robust_when_ci_wholly_positive(self):
         assert POSITIVE.robust is True
@@ -97,6 +98,7 @@ class TestDecideRobust:
 # ---------------------------------------------------------------------------
 # _decide — p_beneficial
 # ---------------------------------------------------------------------------
+
 
 class TestDecidePBeneficial:
     def test_high_confidence_for_clear_positive(self):
@@ -122,6 +124,7 @@ class TestDecidePBeneficial:
 # _decide — metadata fields
 # ---------------------------------------------------------------------------
 
+
 class TestDecideFields:
     def test_treatment_and_outcome_stored(self):
         assert POSITIVE.treatment == TREATMENT
@@ -138,6 +141,7 @@ class TestDecideFields:
 # ---------------------------------------------------------------------------
 # value_of_information
 # ---------------------------------------------------------------------------
+
 
 class TestValueOfInformation:
     def test_already_confident_returns_no_data_needed(self):
@@ -163,6 +167,7 @@ class TestValueOfInformation:
 # ---------------------------------------------------------------------------
 # summary / __repr__
 # ---------------------------------------------------------------------------
+
 
 class TestSummary:
     def test_summary_contains_treatment_and_outcome(self):
