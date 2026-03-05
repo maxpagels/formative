@@ -45,6 +45,10 @@ estimator reads the DAG to determine which variables to control for (or
 how to use an instrument), then fits the model. If the data cannot support
 identification given the DAG, an error is raised before estimation runs.
 
+Choosing the right estimator for your causal question is crucial;
+not all methods are possible given your problem.
+See https://getformative.dev for an online wizard to help you choose.
+
 .. code-block:: python
 
    from formative import IV2SLS
