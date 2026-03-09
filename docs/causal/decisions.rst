@@ -117,5 +117,5 @@ valuable information.
 API reference
 -------------
 
-.. autoclass:: formative.DecisionReport
+.. autoclass:: formative.causal.DecisionReport
    :members:

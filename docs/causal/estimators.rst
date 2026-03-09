@@ -4,71 +4,71 @@ Estimators
 OLSObservational
 ----------------
 
-.. autoclass:: formative.OLSObservational
+.. autoclass:: formative.causal.OLSObservational
    :members:
 
 OLSResult
 ---------
 
-.. autoclass:: formative.OLSResult
+.. autoclass:: formative.causal.OLSResult
    :members:
 
 IV2SLS
 ------
 
-.. autoclass:: formative.IV2SLS
+.. autoclass:: formative.causal.IV2SLS
    :members:
 
 IVResult
 --------
 
-.. autoclass:: formative.IVResult
+.. autoclass:: formative.causal.IVResult
    :members:
 
 PropensityScoreMatching
 -----------------------
 
-.. autoclass:: formative.PropensityScoreMatching
+.. autoclass:: formative.causal.PropensityScoreMatching
    :members:
 
 MatchingResult
 --------------
 
-.. autoclass:: formative.MatchingResult
+.. autoclass:: formative.causal.MatchingResult
    :members:
 
 RCT
 ---
 
-.. autoclass:: formative.RCT
+.. autoclass:: formative.causal.RCT
    :members:
 
 RCTResult
 ---------
 
-.. autoclass:: formative.RCTResult
+.. autoclass:: formative.causal.RCTResult
    :members:
 
 DiD
 ---
 
-.. autoclass:: formative.DiD
+.. autoclass:: formative.causal.DiD
    :members:
 
 DiDResult
 ---------
 
-.. autoclass:: formative.DiDResult
+.. autoclass:: formative.causal.DiDResult
    :members:
 
 RDD
 ---
 
-.. autoclass:: formative.RDD
+.. autoclass:: formative.causal.RDD
    :members:
 
 RDDResult
 ---------
 
-.. autoclass:: formative.RDDResult
+.. autoclass:: formative.causal.RDDResult
    :members:

@@ -1,9 +1,9 @@
 DAG
 ===
 
-.. autoclass:: formative.DAG
+.. autoclass:: formative.causal.DAG
    :members:
    :special-members: __repr__
 
-.. autoclass:: formative.dag._Node
+.. autoclass:: formative.causal.dag._Node
    :members:
