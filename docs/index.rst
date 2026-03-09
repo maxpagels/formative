@@ -124,13 +124,18 @@ and seeing if the estimate changes. The full list of refutations depends on the 
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents
+   :caption: Causal Estimation
 
-   motivation
-   dag
-   estimands
-   wizard
-   estimators
-   refutations
-   decisions
-   game
+   causal/motivation
+   causal/dag
+   causal/estimands
+   causal/wizard
+   causal/estimators
+   causal/refutations
+   causal/decisions
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Game Theory
+
+   game/game
