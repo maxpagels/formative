@@ -1,29 +1,31 @@
-Game Theory
-===========
+Decision Rules
+==============
 
-formative includes a game theory module for analysing strategic decisions.
-It is designed to be usable without a background in game theory.
+All decision rules take the same input — a dict of ``{choice: {scenario: payoff}}`` —
+and return a solver with a ``.solve()`` method. They differ only in the attitude towards
+uncertainty they encode.
+
+.. code-block:: python
+
+   outcomes = {
+       "stocks": {"recession": -20, "stagnation":  5, "growth": 30},
+       "bonds":  {"recession":   5, "stagnation":  5, "growth":  7},
+       "cash":   {"recession":   2, "stagnation":  2, "growth":  2},
+   }
 
 Maximin
 -------
 
-The **maximin** rule answers a simple question: *which choice has the best worst case?*
+*Which choice has the best worst case?*
 
-For each option, identify the worst possible outcome across all scenarios. Then pick the
-option whose worst case is the least bad. This is useful when you are uncertain about the
-future and want a strategy that is robust regardless of what happens.
+Pessimistic. Assumes the worst scenario will occur and picks the choice that hurts least.
+Useful when downside protection matters more than upside.
 
 .. code-block:: python
 
    from formative.game import maximin
 
-   result = maximin({
-       "stocks": {"recession": -20, "stagnation":  5, "growth": 30},
-       "bonds":  {"recession":   5, "stagnation":  5, "growth":  7},
-       "cash":   {"recession":   2, "stagnation":  2, "growth":  2},
-   }).solve()
-
-   print(result)
+   print(maximin(outcomes).solve())
 
 .. code-block:: text
 
@@ -33,9 +35,106 @@ future and want a strategy that is robust regardless of what happens.
      cash    worst case: +2
    )
 
-Stocks offer the highest upside in a growth economy but expose you to a loss of 20 in a
-recession. Bonds guarantee at least 5 in every scenario — the best guaranteed floor of the
-three options. Cash is safer than stocks in a downturn but still dominated by bonds on the
-worst case.
+Bonds win: their worst case (recession, +5) is better than stocks (−20) or cash (+2).
 
-``maximin`` takes any dict of ``{choice: {scenario: payoff}}``.
+.. autoclass:: formative.game.Maximin
+   :members:
+
+.. autoclass:: formative.game.MaximinResult
+   :members:
+
+Maximax
+-------
+
+*Which choice has the best best case?*
+
+Optimistic. Assumes the best scenario will occur and picks accordingly.
+Appropriate when you can absorb losses and want to maximise upside.
+
+.. code-block:: python
+
+   from formative.game import maximax
+
+   print(maximax(outcomes).solve())
+
+.. code-block:: text
+
+   MaximaxResult(
+     stocks  best case: +30  ← chosen
+     bonds   best case: +7
+     cash    best case: +2
+   )
+
+Stocks win: their best case (growth, +30) is highest, even though they have the worst
+downside.
+
+.. autoclass:: formative.game.Maximax
+   :members:
+
+.. autoclass:: formative.game.MaximaxResult
+   :members:
+
+Minimax Regret
+--------------
+
+*Which choice do you regret the least in hindsight?*
+
+Regret in a given scenario is the gap between what you received and the best you could
+have received in that scenario. Minimax regret picks the choice where the worst-case
+regret is smallest — a middle ground between maximin and maximax.
+
+First, find the best available payoff in each scenario:
+recession = 5 (bonds), stagnation = 5 (stocks or bonds), growth = 30 (stocks).
+
+Then compute regret for every combination — how much you miss out on versus the best choice:
+
+.. list-table:: Regret table
+   :header-rows: 1
+   :stub-columns: 1
+
+   * -
+     - recession
+     - stagnation
+     - growth
+     - max regret
+   * - stocks
+     - 25
+     - 0
+     - 0
+     - 25
+   * - bonds
+     - 0
+     - 0
+     - 23
+     - **23** ← lowest
+   * - cash
+     - 3
+     - 3
+     - 28
+     - 28
+
+.. code-block:: python
+
+   from formative.game import minimax_regret
+
+   result = minimax_regret(outcomes).solve()
+   print(result)
+
+.. code-block:: text
+
+   MinimaxRegretResult(
+     stocks  max regret: +25
+     bonds   max regret: +23  ← chosen
+     cash    max regret: +28
+   )
+
+Stocks score zero regret in growth (they are the best there) but 25 in recession. Bonds
+score zero in recession and stagnation, but 23 in growth where stocks outperform them.
+Cash never comes close to the best option in any scenario, giving it the highest max
+regret of 28. Bonds minimise the worst-case regret.
+
+.. autoclass:: formative.game.MinimaxRegret
+   :members:
+
+.. autoclass:: formative.game.MinimaxRegretResult
+   :members:

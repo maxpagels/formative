@@ -10,7 +10,7 @@ class MaximinResult:
     choice : str
         The choice that maximises the worst-case payoff.
     guaranteed : float
-        The payoff guaranteed by that choice, no matter which scenario occurs.
+        Worst-case payoff of the chosen action.
     worst_cases : dict
         Worst-case payoff for every choice: {choice: float}.
     """
