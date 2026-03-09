@@ -76,5 +76,4 @@ Changing `_RCC_SEED` or `_PLACEBO_SEED` to 42 causes the generated noise to coll
 
 The long-term goal is for `formative` to cover all methods in the causal inference decision tree at https://www.maxpagels.com/prototypes/causal-wizard. Remaining methods to add:
 
-- **RD** (Regression Discontinuity) — treatment assigned by a threshold on a running variable
 - **Synthetic Control** — construct a weighted synthetic control unit from donor units
