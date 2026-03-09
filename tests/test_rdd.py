@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from formative import DAG, RDD
+from formative.causal import DAG, RDD
 
 N = 2_000
 TRUE_LATE = 2.0

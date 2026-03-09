@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from formative import DAG, OLSObservational
-from formative._exceptions import IdentificationError
+from formative.causal import DAG, OLSObservational
+from formative.causal._exceptions import IdentificationError
 
 RNG = np.random.default_rng(42)
 N = 1_000

@@ -20,7 +20,7 @@ The true LATE is 2.0.
 import numpy as np
 import pandas as pd
 
-from formative import DAG, RDD
+from formative.causal import DAG, RDD
 
 RNG = np.random.default_rng(42)
 N = 2_000

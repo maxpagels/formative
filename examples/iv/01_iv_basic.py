@@ -17,7 +17,7 @@ The true causal effect of education on income is 2.0.
 import numpy as np
 import pandas as pd
 
-from formative import DAG, IV2SLS
+from formative.causal import DAG, IV2SLS
 
 RNG = np.random.default_rng(0)
 N = 5_000

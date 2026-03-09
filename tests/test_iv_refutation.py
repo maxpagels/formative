@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from formative import DAG, IV2SLS
+from formative.causal import DAG, IV2SLS
 
 RNG = np.random.default_rng(42)
 N = 5_000

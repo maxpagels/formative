@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from formative import DAG, OLSObservational
+from formative.causal import DAG, OLSObservational
 
 RNG = np.random.default_rng(42)
 N = 2_000
