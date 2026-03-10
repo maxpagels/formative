@@ -1,4 +1,4 @@
-Decision Rules
+Decision rules
 ==============
 
 All decision rules take the same input — a dict of ``{choice: {scenario: payoff}}`` —
