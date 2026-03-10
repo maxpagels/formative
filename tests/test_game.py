@@ -91,12 +91,16 @@ class TestMinimaxRegret:
 
 class TestHurwicz:
     def test_alpha_zero_matches_maximin(self):
-        # alpha=0 → pure maximin → bonds (worst case 5)
-        assert hurwicz(OUTCOMES, alpha=0).solve().choice == "bonds"
+        h = hurwicz(OUTCOMES, alpha=0).solve()
+        m = maximin(OUTCOMES).solve()
+        assert h.choice == m.choice
+        assert h.scores == pytest.approx(m.worst_cases)
 
     def test_alpha_one_matches_maximax(self):
-        # alpha=1 → pure maximax → stocks (best case 30)
-        assert hurwicz(OUTCOMES, alpha=1).solve().choice == "stocks"
+        h = hurwicz(OUTCOMES, alpha=1).solve()
+        m = maximax(OUTCOMES).solve()
+        assert h.choice == m.choice
+        assert h.scores == pytest.approx(m.best_cases)
 
     def test_alpha_half(self):
         # stocks: 0.5*30 + 0.5*(-20) = 5
