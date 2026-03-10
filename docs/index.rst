@@ -36,4 +36,4 @@ under uncertainty or in strategic situations. :doc:`Get started <game/introducti
    :hidden:
 
    game/introduction
-   game/game
+   game/single_player

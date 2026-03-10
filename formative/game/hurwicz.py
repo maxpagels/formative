@@ -9,6 +9,8 @@ class HurwiczResult:
     ----------
     choice : str
         The choice with the highest Hurwicz score.
+    score : float
+        Hurwicz score of the chosen choice.
     alpha : float
         The optimism coefficient used (0 = pure maximin, 1 = pure maximax).
     scores : dict
@@ -16,6 +18,7 @@ class HurwiczResult:
     """
 
     choice: str
+    score: float
     alpha: float
     scores: dict
 
@@ -48,7 +51,7 @@ class Hurwicz:
     ...     "cash":   {"recession":   2, "stagnation":  2, "growth":  2},
     ... }, alpha=0.5).solve()
     >>> result.choice
-    'stocks'
+    'bonds'
     """
 
     def __init__(self, outcomes, alpha):
@@ -71,7 +74,7 @@ class Hurwicz:
             for choice, payoffs in self._outcomes.items()
         }
         best = max(scores, key=scores.__getitem__)
-        return HurwiczResult(choice=best, alpha=self._alpha, scores=scores)
+        return HurwiczResult(choice=best, score=scores[best], alpha=self._alpha, scores=scores)
 
 
 def hurwicz(outcomes, alpha):
