@@ -3,9 +3,9 @@ import pytest
 from formative.game import hurwicz, laplace, maximax, maximin, minimax_regret
 
 OUTCOMES = {
-    "stocks": {"recession": -20, "stagnation":  5, "growth": 30},
-    "bonds":  {"recession":   5, "stagnation":  5, "growth":  7},
-    "cash":   {"recession":   2, "stagnation":  2, "growth":  2},
+    "stocks": {"recession": -20, "stagnation": 5, "growth": 30},
+    "bonds": {"recession": 5, "stagnation": 5, "growth": 7},
+    "cash": {"recession": 2, "stagnation": 2, "growth": 2},
 }
 
 
@@ -66,15 +66,15 @@ class TestMinimaxRegret:
 
     def test_max_regret_value(self):
         r = minimax_regret(OUTCOMES).solve()
-        assert r.max_regrets["stocks"] == 25   # recession: 5 - (-20)
-        assert r.max_regrets["bonds"] == 23    # growth: 30 - 7
-        assert r.max_regrets["cash"] == 28     # growth: 30 - 2
+        assert r.max_regrets["stocks"] == 25  # recession: 5 - (-20)
+        assert r.max_regrets["bonds"] == 23  # growth: 30 - 7
+        assert r.max_regrets["cash"] == 28  # growth: 30 - 2
 
     def test_regret_table(self):
         r = minimax_regret(OUTCOMES).solve()
         assert r.regret_table["stocks"]["recession"] == 25  # 5 - (-20)
-        assert r.regret_table["bonds"]["recession"] == 0    # best in recession
-        assert r.regret_table["stocks"]["growth"] == 0      # best in growth
+        assert r.regret_table["bonds"]["recession"] == 0  # best in recession
+        assert r.regret_table["stocks"]["growth"] == 0  # best in growth
 
     def test_empty_raises(self):
         with pytest.raises(ValueError):
@@ -161,7 +161,7 @@ class TestLaplace:
 
 FLOAT_OUTCOMES = {
     "a": {"s1": -1.5, "s2": 2.5, "s3": 10.0},
-    "b": {"s1":  0.5, "s2": 0.5, "s3":  1.0},
+    "b": {"s1": 0.5, "s2": 0.5, "s3": 1.0},
 }
 
 

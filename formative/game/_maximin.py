@@ -60,10 +60,7 @@ class Maximin:
         -------
         MaximinResult
         """
-        worst_cases = {
-            choice: min(payoffs.values())
-            for choice, payoffs in self._outcomes.items()
-        }
+        worst_cases = {choice: min(payoffs.values()) for choice, payoffs in self._outcomes.items()}
         best = max(worst_cases, key=worst_cases.__getitem__)
         return MaximinResult(
             choice=best,

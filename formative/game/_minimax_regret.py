@@ -71,16 +71,10 @@ class MinimaxRegret:
         scenarios = list(next(iter(self._outcomes.values())).keys())
 
         # Best available payoff in each scenario across all choices
-        best_in_scenario = {
-            s: max(self._outcomes[c][s] for c in choices)
-            for s in scenarios
-        }
+        best_in_scenario = {s: max(self._outcomes[c][s] for c in choices) for s in scenarios}
 
         # Regret: how much you miss out on by not making the best choice
-        regret_table = {
-            c: {s: best_in_scenario[s] - self._outcomes[c][s] for s in scenarios}
-            for c in choices
-        }
+        regret_table = {c: {s: best_in_scenario[s] - self._outcomes[c][s] for s in scenarios} for c in choices}
 
         max_regrets = {c: max(regret_table[c].values()) for c in choices}
         best = min(max_regrets, key=max_regrets.__getitem__)

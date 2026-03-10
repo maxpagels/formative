@@ -60,10 +60,7 @@ class Maximax:
         -------
         MaximaxResult
         """
-        best_cases = {
-            choice: max(payoffs.values())
-            for choice, payoffs in self._outcomes.items()
-        }
+        best_cases = {choice: max(payoffs.values()) for choice, payoffs in self._outcomes.items()}
         best = max(best_cases, key=best_cases.__getitem__)
         return MaximaxResult(
             choice=best,

@@ -60,10 +60,7 @@ class Laplace:
         -------
         LaplaceResult
         """
-        averages = {
-            choice: sum(payoffs.values()) / len(payoffs)
-            for choice, payoffs in self._outcomes.items()
-        }
+        averages = {choice: sum(payoffs.values()) / len(payoffs) for choice, payoffs in self._outcomes.items()}
         best = max(averages, key=averages.__getitem__)
         return LaplaceResult(choice=best, average=averages[best], averages=averages)
 
