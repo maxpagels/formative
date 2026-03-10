@@ -21,26 +21,44 @@ make build-docs
 uv run --group docs sphinx-build -b html docs docs/_build
 ```
 
-## Architecture
+## Package structure
 
-`formative` is a causal inference library built around three layers: DAG, estimators, and refutations.
+`formative` has two independent submodules:
 
-**Layer 1 — DAG (`formative/dag.py`)**
+```
+formative/
+  causal/      — causal effect estimation
+  game/        — decision theory and game theory
+```
+
+Public imports:
+```python
+from formative.causal import DAG, OLSObservational, IV2SLS, ...
+from formative.game import maximin
+```
+
+---
+
+## formative.causal
+
+Built around three layers: DAG, estimators, and refutations.
+
+**Layer 1 — DAG (`formative/causal/dag.py`)**
 
 User builds a `DAG` by calling `dag.assume(node).causes(*effects)`. Edges are validated as acyclic on insertion (Kahn's algorithm). The DAG is the mandatory first input to every estimator.
 
-**Layer 2 — Estimators (`formative/estimators/`)**
+**Layer 2 — Estimators (`formative/causal/estimators/`)**
 
 Each estimator takes a `DAG` + `treatment`/`outcome` (and optionally an `instrument`) in `__init__`, validates the DAG structure, then at `.fit(df)` time:
 - Runs `_identify()` using the backdoor criterion (confounders = common ancestors of treatment and outcome, minus descendants of treatment) to find which variables to control for.
 - Raises `IdentificationError` if a DAG-declared confounder is absent from the data and cannot be handled (OLS); IV2SLS does not raise for unobserved confounders since the instrument handles them.
 - Fits the model and returns a result object holding both the main estimate and a plain unadjusted OLS estimate for comparison.
 
-**Layer 3 — Refutations (`formative/refutations/`)**
+**Layer 3 — Refutations (`formative/causal/refutations/`)**
 
 Called as `result.refute(df)` on a fitted result — always pass the same `df` used for `fit()`. Returns a report object (e.g. `IVRefutationReport`) containing a list of `RefutationCheck` objects, each with `name`, `passed`, and `detail`. Adding a new check means writing a `_check_*` function in the relevant refutations module and appending it to the list in `result.refute()`.
 
-Refutation checks are diagnostics, not proof — the library's philosophy (reflected in the docs) is that no set of tests can guarantee causal validity. Failing checks are signals to investigate, not hard blockers.
+Refutation checks are diagnostics, not proof — the library's philosophy is that no set of tests can guarantee causal validity. Failing checks are signals to investigate, not hard blockers.
 
 **Refutation seeds:** all refutation modules use isolated seeds to avoid collisions with test data (which is typically seeded at 42):
 - `_RCC_SEED = 54321` — random common cause column in all refutation modules
@@ -50,31 +68,57 @@ Refutation checks are diagnostics, not proof — the library's philosophy (refle
 Changing `_RCC_SEED` or `_PLACEBO_SEED` to 42 causes the generated noise to collide with instrument/treatment data generated from the same seed, producing a singular matrix in IV.
 
 **Package layout:**
-- `formative/dag.py` — `DAG` and `_Node`
-- `formative/_exceptions.py` — `IdentificationError`, `GraphError`
-- `formative/estimators/ols.py` — `OLSObservational`, `OLSResult` (includes `refute()`)
-- `formative/estimators/iv.py` — `IV2SLS`, `IVResult` (includes `refute()`)
-- `formative/estimators/matching.py` — `PropensityScoreMatching`, `MatchingResult` (includes `refute()`); also exports `_propensity_scores`, `_att_from_ps` for use by refutations
-- `formative/estimators/rct.py` — `RCT`, `RCTResult` (includes `refute()`)
-- `formative/estimators/did.py` — `DiD`, `DiDResult` (includes `refute()`)
-- `formative/refutations/_check.py` — `Assumption`, `RefutationCheck`, `RefutationReport` (base)
-- `formative/refutations/ols.py` — `OLSRefutationReport`, `_check_random_common_cause`
-- `formative/refutations/iv.py` — `IVRefutationReport`, `_check_first_stage_f`, `_check_random_common_cause`
-- `formative/refutations/matching.py` — `MatchingRefutationReport`, `_check_placebo_treatment`, `_check_random_common_cause`
-- `formative/refutations/rct.py` — `RCTRefutationReport`, `_check_random_common_cause`
-- `formative/refutations/did.py` — `DiDRefutationReport`, `_check_placebo_group`, `_check_random_common_cause`
-- `formative/_explain.py` — narrative rendering for all estimators (`explain_ols`, `explain_iv`, `explain_matching`, `explain_rct`, `explain_did`)
-- `formative/__init__.py` — public API
-- `tests/test_dag.py`, `tests/test_ols.py`, `tests/test_iv.py`, `tests/test_matching.py`, `tests/test_rct.py`, `tests/test_did.py`, `tests/test_ols_refutation.py`, `tests/test_iv_refutation.py`, `tests/test_matching_refutation.py`
-- `examples/ols/`, `examples/iv/`, `examples/matching/`, `examples/rct/`, `examples/did/` — runnable examples
+- `formative/causal/dag.py` — `DAG` and `_Node`
+- `formative/causal/_exceptions.py` — `IdentificationError`, `GraphError`
+- `formative/causal/estimators/ols.py` — `OLSObservational`, `OLSResult` (includes `refute()`)
+- `formative/causal/estimators/iv.py` — `IV2SLS`, `IVResult` (includes `refute()`)
+- `formative/causal/estimators/matching.py` — `PropensityScoreMatching`, `MatchingResult` (includes `refute()`); also exports `_propensity_scores`, `_att_from_ps` for use by refutations
+- `formative/causal/estimators/rct.py` — `RCT`, `RCTResult` (includes `refute()`)
+- `formative/causal/estimators/did.py` — `DiD`, `DiDResult` (includes `refute()`)
+- `formative/causal/estimators/rdd.py` — `RDD`, `RDDResult` (includes `refute()`)
+- `formative/causal/refutations/_check.py` — `Assumption`, `RefutationCheck`, `RefutationReport` (base)
+- `formative/causal/refutations/ols.py` — `OLSRefutationReport`, `_check_random_common_cause`
+- `formative/causal/refutations/iv.py` — `IVRefutationReport`, `_check_first_stage_f`, `_check_random_common_cause`
+- `formative/causal/refutations/matching.py` — `MatchingRefutationReport`, `_check_placebo_treatment`, `_check_random_common_cause`
+- `formative/causal/refutations/rct.py` — `RCTRefutationReport`, `_check_random_common_cause`
+- `formative/causal/refutations/did.py` — `DiDRefutationReport`, `_check_placebo_group`, `_check_random_common_cause`
+- `formative/causal/refutations/rdd.py` — `RDDRefutationReport`, `_check_placebo_cutoff`, `_check_random_common_cause`
+- `formative/causal/_explain.py` — narrative rendering for all estimators
+- `formative/causal/decision.py` — `DecisionReport` (cost-benefit analysis on a causal estimate)
+- `formative/causal/__init__.py` — public API for the causal submodule
 
-**Adding a new estimator:** follow `OLSObservational`/`IV2SLS` — `__init__` validates DAG, `fit()` calls `_identify()`, raises `IdentificationError` where appropriate, returns a result object. Export from `formative/__init__.py`. Add a `refute()` method to the result and a corresponding module under `formative/refutations/`.
+**Adding a new estimator:** follow `OLSObservational`/`IV2SLS` — `__init__` validates DAG, `fit()` calls `_identify()`, raises `IdentificationError` where appropriate, returns a result object. Export from `formative/causal/__init__.py`. Add a `refute()` method to the result and a corresponding module under `formative/causal/refutations/`.
 
 **Test pattern for bootstrap-heavy estimators:** matching tests use `setup_class` (not `setup_method`) so `.fit()` runs once per class rather than before every test method. With 500 bootstrap iterations this matters. Matching tests use N=1_000 — larger N causes bootstrap SE to widen while matching's inherent NN noise doesn't shrink at the same rate, which causes refutation checks to fail the 1 SE threshold even on well-specified data.
 
-## Planned estimators
+**Planned estimators:**
 
-The long-term goal is for `formative` to cover all methods in the causal inference decision tree at https://www.maxpagels.com/prototypes/causal-wizard. Remaining methods to add:
+The long-term goal is for `formative.causal` to cover all methods in the causal inference decision tree at https://www.maxpagels.com/prototypes/causal-wizard. Remaining methods to add:
 
-- **RD** (Regression Discontinuity) — treatment assigned by a threshold on a running variable
 - **Synthetic Control** — construct a weighted synthetic control unit from donor units
+
+---
+
+## formative.game
+
+Decision rules for choosing between options under uncertainty. Each rule is a standalone function that accepts `{choice: {scenario: payoff}}` and returns a solver object with a `.solve()` method.
+
+**API pattern:**
+```python
+from formative.game import maximin
+
+result = maximin({
+    "stocks": {"recession": -20, "stagnation": 5, "growth": 30},
+    "bonds":  {"recession":   5, "stagnation": 5, "growth":  7},
+}).solve()
+```
+
+**Package layout:**
+- `formative/game/_maximin.py` — `maximin`, `Maximin`, `MaximinResult`
+- `formative/game/_maximax.py` — `maximax`, `Maximax`, `MaximaxResult`
+- `formative/game/_minimax_regret.py` — `minimax_regret`, `MinimaxRegret`, `MinimaxRegretResult`
+- `formative/game/_hurwicz.py` — `hurwicz`, `Hurwicz`, `HurwiczResult`
+- `formative/game/_laplace.py` — `laplace`, `Laplace`, `LaplaceResult`
+- `formative/game/__init__.py` — public API for the game submodule
+
+**Adding a new decision rule:** follow the `maximin` pattern — a function that accepts `{choice: {scenario: payoff}}`, returns a solver class instance, and the solver has a `.solve()` method returning a result dataclass with a clear `__repr__`. Export from `formative/game/__init__.py`. Add a test file `tests/test_<rule>.py` and a docs page `docs/game/<rule>.rst`, then add the page to the game toctree in `docs/index.rst`.

@@ -11,7 +11,7 @@ is stable and not spurious.
 import numpy as np
 import pandas as pd
 
-from formative import DAG, PropensityScoreMatching
+from formative.causal import DAG, PropensityScoreMatching
 
 RNG = np.random.default_rng(2)
 N = 3_000

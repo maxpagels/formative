@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from formative import DAG, PropensityScoreMatching
-from formative.refutations._check import RefutationCheck
-from formative.refutations.matching import MatchingRefutationReport
+from formative.causal import DAG, PropensityScoreMatching
+from formative.causal.refutations._check import RefutationCheck
+from formative.causal.refutations.matching import MatchingRefutationReport
 
 N = 1_000
 

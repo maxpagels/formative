@@ -1,8 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from formative import DAG, RCT
-from formative.refutations.rct import RCTRefutationReport
+from formative.causal import DAG, RCT
+from formative.causal.refutations.rct import RCTRefutationReport
 
 RNG = np.random.default_rng(42)
 N = 2_000

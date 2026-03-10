@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-from formative import DAG, RDD
-from formative.refutations._check import RefutationCheck
-from formative.refutations.rdd import RDDRefutationReport
+from formative.causal import DAG, RDD
+from formative.causal.refutations._check import RefutationCheck
+from formative.causal.refutations.rdd import RDDRefutationReport
 
 N = 2_000
 TRUE_LATE = 2.0

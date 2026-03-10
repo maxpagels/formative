@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from formative import DAG, MatchingResult, PropensityScoreMatching
-from formative._exceptions import IdentificationError
+from formative.causal import DAG, MatchingResult, PropensityScoreMatching
+from formative.causal._exceptions import IdentificationError
 
 N = 1_000
 

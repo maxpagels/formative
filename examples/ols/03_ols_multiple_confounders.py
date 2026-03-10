@@ -24,7 +24,7 @@ True total effect of education on income: 1.68  (direct 1.2 + indirect 0.8×0.6)
 import numpy as np
 import pandas as pd
 
-from formative import DAG, OLSObservational
+from formative.causal import DAG, OLSObservational
 
 RNG = np.random.default_rng(0)
 N = 2_000

@@ -14,7 +14,7 @@ The true causal effect is 2.0.
 import numpy as np
 import pandas as pd
 
-from formative import DAG, RCT
+from formative.causal import DAG, RCT
 
 RNG = np.random.default_rng(0)
 N = 3_000

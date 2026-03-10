@@ -19,3 +19,6 @@ docs/_build/
 
 # Claude
 .claude/
+
+# macOS
+**/.DS_Store

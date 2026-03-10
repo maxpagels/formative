@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from formative.decision import DecisionReport, _decide
+from formative.causal.decision import DecisionReport, _decide
 
 # ---------------------------------------------------------------------------
 # Shared fixtures

@@ -5,7 +5,7 @@ build-backend = "hatchling.build"
 [project]
 name = "formative-ds"
 version = "0.2.1"
-description = "A Python library for causal effect estimation."
+description = "A Python library for quantitative reasoning."
 readme = "README.md"
 requires-python = ">=3.10"
 license = {text = "MIT"}

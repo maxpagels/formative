@@ -2,8 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from formative import DAG
-from formative.estimators.iv import IV2SLS
+from formative.causal import DAG
+from formative.causal.estimators.iv import IV2SLS
 
 RNG = np.random.default_rng(42)
 N = 5_000  # larger sample — IV needs more data for precision

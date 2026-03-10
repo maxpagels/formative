@@ -11,8 +11,8 @@ Compare the naive OLS estimate (biased) with the error message.
 import numpy as np
 import pandas as pd
 
-from formative import DAG, OLSObservational
-from formative._exceptions import IdentificationError
+from formative.causal import DAG, OLSObservational
+from formative.causal._exceptions import IdentificationError
 
 RNG = np.random.default_rng(0)
 N = 2_000

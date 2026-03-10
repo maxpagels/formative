@@ -1,6 +1,6 @@
 import pytest
 
-from formative import DAG
+from formative.causal import DAG
 
 
 class TestDAG:

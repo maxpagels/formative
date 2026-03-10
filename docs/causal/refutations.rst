@@ -8,47 +8,47 @@ to get a report back.
 OLSRefutationReport
 -------------------
 
-.. autoclass:: formative.OLSRefutationReport
+.. autoclass:: formative.causal.OLSRefutationReport
    :members:
 
 IVRefutationReport
 ------------------
 
-.. autoclass:: formative.IVRefutationReport
+.. autoclass:: formative.causal.IVRefutationReport
    :members:
 
 MatchingRefutationReport
 ------------------------
 
-.. autoclass:: formative.MatchingRefutationReport
+.. autoclass:: formative.causal.MatchingRefutationReport
    :members:
 
 RCTRefutationReport
 -------------------
 
-.. autoclass:: formative.RCTRefutationReport
+.. autoclass:: formative.causal.RCTRefutationReport
    :members:
 
 DiDRefutationReport
 -------------------
 
-.. autoclass:: formative.DiDRefutationReport
+.. autoclass:: formative.causal.DiDRefutationReport
    :members:
 
 RDDRefutationReport
 -------------------
 
-.. autoclass:: formative.RDDRefutationReport
+.. autoclass:: formative.causal.RDDRefutationReport
    :members:
 
 RefutationCheck
 ---------------
 
-.. autoclass:: formative.RefutationCheck
+.. autoclass:: formative.causal.RefutationCheck
    :members:
 
 Assumption
 ----------
 
-.. autoclass:: formative.Assumption
+.. autoclass:: formative.causal.Assumption
    :members:

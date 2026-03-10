@@ -17,7 +17,7 @@ The true ATT is 4.0.
 import numpy as np
 import pandas as pd
 
-from formative import DAG, DiD
+from formative.causal import DAG, DiD
 
 RNG = np.random.default_rng(42)
 N = 1_000

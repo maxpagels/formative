@@ -1,6 +1,6 @@
 # formative
 
-Python library for causal effect estimation. You declare your causal assumptions as a DAG before choosing an estimation method, making identification explicit rather than implicit.
+Python library for quantitative reasoning.
 
 ## Requirements
 
@@ -18,6 +18,8 @@ Comprehensive documentation is available at [docs.getformative.dev](https://docs
 
 ## Usage
 
+### Causal estimation
+
 ```python
 from formative import DAG, OLSObservational
 
@@ -34,7 +36,27 @@ result = OLSObservational(
 print(result.summary())
 ```
 
-Confounders declared in the DAG are controlled for automatically. If a confounder is absent from the dataframe, an `IdentificationError` is raised before any estimation runs. See online documentation at [docs.getformative.dev](https://docs.getformative.dev) for more examples and details.
+Confounders declared in the DAG are controlled for automatically. If a confounder is absent from the dataframe, an `IdentificationError` is raised before any estimation runs.
+
+### Decision rules
+
+```python
+from formative.game import maximin, maximax, hurwicz, laplace, minimax_regret
+
+outcomes = {
+    "stocks": {"recession": -20, "stagnation":  5, "growth": 30},
+    "bonds":  {"recession":   5, "stagnation":  5, "growth":  7},
+    "cash":   {"recession":   2, "stagnation":  2, "growth":  2},
+}
+
+maximin(outcomes).solve()        # safest choice (best worst case)
+maximax(outcomes).solve()        # most optimistic (best best case)
+hurwicz(outcomes, alpha=0.5).solve()  # blend of optimism and pessimism
+laplace(outcomes).solve()        # highest average payoff
+minimax_regret(outcomes).solve() # lowest worst-case regret
+```
+
+See online documentation at [docs.getformative.dev](https://docs.getformative.dev) for more examples and details.
 
 ## Local development
 
