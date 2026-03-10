@@ -2,13 +2,14 @@ Introduction
 ============
 
 Game theory, much like causal estimation, is difficult to learn. The best way to learn is to practice.
-formative includes a game module that aims to make using game theory in decision-making earier.
+formative includes a game module that aims to make using game theory in decision-making easier.
 
 Every analysis follows two steps.
 
 **1. Describe your options and their outcomes**
 
-Declare each possible choice and what it yields under each scenario.
+Declare each possible choice and what payoffs you estimate they will yield under each scenario.
+Negative payoffs represent losses, positive payoffs represent gains.
 
 .. code-block:: python
 
