@@ -1,8 +1,7 @@
 formative
 =========
 
-formative is a Python package for causal estimation and game theory, two intertwined fields of decision science. It is intended
-as a practical tool with minimal jargon for those who want to apply these methods to real-world problems.
+formative is a Python package for quantitative reasoning, intended as a practical tool with minimal jargon for those who want to apply these methods to real-world problems.
 
 Install with pip:
 

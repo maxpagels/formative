@@ -1,6 +1,6 @@
 # formative
 
-Python library for causal effect estimation and game theory.
+Python library for quantitative reasoning.
 
 ## Requirements
 
