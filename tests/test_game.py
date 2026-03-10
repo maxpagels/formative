@@ -1,6 +1,6 @@
 import pytest
 
-from formative.game import hurwicz, laplace, maximax, maximin, minimax_regret
+from formative.game import expected_value, hurwicz, laplace, maximax, maximin, minimax_regret
 
 OUTCOMES = {
     "stocks": {"recession": -20, "stagnation": 5, "growth": 30},
@@ -120,6 +120,10 @@ class TestHurwicz:
         r = hurwicz(OUTCOMES, alpha=0.3).solve()
         assert r.alpha == pytest.approx(0.3)
 
+    def test_score_matches_chosen_scores_entry(self):
+        r = hurwicz(OUTCOMES, alpha=0.5).solve()
+        assert r.score == pytest.approx(r.scores[r.choice])
+
     def test_empty_raises(self):
         with pytest.raises(ValueError):
             hurwicz({}, alpha=0.5)
@@ -161,6 +165,67 @@ class TestLaplace:
 
     def test_repr_marks_chosen(self):
         assert "← chosen" in repr(laplace(OUTCOMES).solve())
+
+
+PROBS = {"recession": 0.2, "stagnation": 0.5, "growth": 0.3}
+
+
+class TestExpectedValue:
+    def test_choice(self):
+        # stocks: 0.2*(-20) + 0.5*5 + 0.3*30 = -4 + 2.5 + 9 = 7.5
+        # bonds:  0.2*5    + 0.5*5 + 0.3*7  = 1 + 2.5 + 2.1 = 5.6
+        # cash:   0.2*2    + 0.5*2 + 0.3*2  = 2.0
+        assert expected_value(OUTCOMES, PROBS).solve().choice == "stocks"
+
+    def test_expected_values(self):
+        r = expected_value(OUTCOMES, PROBS).solve()
+        assert r.expected_values["stocks"] == pytest.approx(7.5)
+        assert r.expected_values["bonds"] == pytest.approx(5.6)
+        assert r.expected_values["cash"] == pytest.approx(2.0)
+
+    def test_expected_on_result(self):
+        r = expected_value(OUTCOMES, PROBS).solve()
+        assert r.expected == pytest.approx(7.5)
+
+    def test_probabilities_stored_on_result(self):
+        r = expected_value(OUTCOMES, PROBS).solve()
+        assert r.probabilities == PROBS
+
+    def test_equal_probs_matches_laplace(self):
+        equal = {s: 1 / 3 for s in ["recession", "stagnation", "growth"]}
+        ev = expected_value(OUTCOMES, equal).solve()
+        lap = laplace(OUTCOMES).solve()
+        assert ev.choice == lap.choice
+        for c in OUTCOMES:
+            assert ev.expected_values[c] == pytest.approx(lap.averages[c])
+
+    def test_empty_outcomes_raises(self):
+        with pytest.raises(ValueError):
+            expected_value({}, PROBS)
+
+    def test_empty_probabilities_raises(self):
+        with pytest.raises(ValueError):
+            expected_value(OUTCOMES, {})
+
+    def test_missing_scenario_raises(self):
+        with pytest.raises(ValueError):
+            expected_value(OUTCOMES, {"recession": 0.5, "stagnation": 0.5})
+
+    def test_probabilities_not_summing_to_one_raises(self):
+        with pytest.raises(ValueError):
+            expected_value(OUTCOMES, {"recession": 0.2, "stagnation": 0.5, "growth": 0.5})
+
+    def test_negative_probability_raises(self):
+        with pytest.raises(ValueError):
+            expected_value(OUTCOMES, {"recession": -0.1, "stagnation": 0.8, "growth": 0.3})
+
+    def test_repr_marks_chosen(self):
+        assert "← chosen" in repr(expected_value(OUTCOMES, PROBS).solve())
+
+    def test_single_choice(self):
+        r = expected_value({"only": {"good": 10, "bad": -2}}, {"good": 0.7, "bad": 0.3}).solve()
+        assert r.choice == "only"
+        assert r.expected == pytest.approx(0.7 * 10 + 0.3 * (-2))
 
 
 FLOAT_OUTCOMES = {

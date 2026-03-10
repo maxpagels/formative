@@ -226,3 +226,46 @@ average payoff.
 
 .. autoclass:: formative.game.LaplaceResult
    :members:
+
+Expected Value
+--------------
+
+*Which choice has the highest expected payoff given your probability beliefs?*
+
+When you have beliefs about how likely each scenario is, use those directly rather than
+assuming equal probability. The expected payoff of a choice is the probability-weighted
+sum of its payoffs across all scenarios.
+
+With probabilities recession=0.2, stagnation=0.5, growth=0.3:
+
+- stocks: 0.2 × (−20) + 0.5 × 5 + 0.3 × 30 = **+7.5** ← chosen
+- bonds:  0.2 × 5     + 0.5 × 5 + 0.3 × 7   = **+5.6**
+- cash:   0.2 × 2     + 0.5 × 2 + 0.3 × 2   = **+2.0**
+
+.. code-block:: python
+
+   from formative.game import expected_value
+
+   print(expected_value(outcomes, probabilities={
+       "recession": 0.2,
+       "stagnation": 0.5,
+       "growth": 0.3,
+   }).solve())
+
+.. code-block:: text
+
+   ExpectedValueResult(
+     stocks  E[payoff]: +7.5  ← chosen
+     bonds   E[payoff]: +5.6
+     cash    E[payoff]: +2
+   )
+
+Unlike the Laplace criterion, which treats all scenarios as equally likely, expected value
+lets you express a considered view. If you are uncertain about your probabilities, compare
+the result against Laplace or Hurwicz to see how sensitive the choice is to that assumption.
+
+.. autoclass:: formative.game.ExpectedValue
+   :members:
+
+.. autoclass:: formative.game.ExpectedValueResult
+   :members:

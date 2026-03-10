@@ -114,11 +114,18 @@ result = maximin({
 ```
 
 **Package layout:**
-- `formative/game/_maximin.py` — `maximin`, `Maximin`, `MaximinResult`
-- `formative/game/_maximax.py` — `maximax`, `Maximax`, `MaximaxResult`
-- `formative/game/_minimax_regret.py` — `minimax_regret`, `MinimaxRegret`, `MinimaxRegretResult`
-- `formative/game/_hurwicz.py` — `hurwicz`, `Hurwicz`, `HurwiczResult`
-- `formative/game/_laplace.py` — `laplace`, `Laplace`, `LaplaceResult`
+- `formative/game/maximin.py` — `maximin`, `Maximin`, `MaximinResult`
+- `formative/game/maximax.py` — `maximax`, `Maximax`, `MaximaxResult`
+- `formative/game/minimax_regret.py` — `minimax_regret`, `MinimaxRegret`, `MinimaxRegretResult`
+- `formative/game/hurwicz.py` — `hurwicz`, `Hurwicz`, `HurwiczResult`
+- `formative/game/laplace.py` — `laplace`, `Laplace`, `LaplaceResult`
+- `formative/game/expected_value.py` — `expected_value`, `ExpectedValue`, `ExpectedValueResult`
 - `formative/game/__init__.py` — public API for the game submodule
 
-**Adding a new decision rule:** follow the `maximin` pattern — a function that accepts `{choice: {scenario: payoff}}`, returns a solver class instance, and the solver has a `.solve()` method returning a result dataclass with a clear `__repr__`. Export from `formative/game/__init__.py`. Add a test file `tests/test_<rule>.py` and a docs page `docs/game/<rule>.rst`, then add the page to the game toctree in `docs/index.rst`.
+**Adding a new decision rule:** every rule must have docs, tests, and follow these conventions exactly:
+
+- **Code:** a public function `rule_name(outcomes, ...)` that returns a solver class instance. The solver class (`RuleName`) validates inputs in `__init__` and has a `.solve()` method. `.solve()` returns a `RuleNameResult` dataclass. All three are exported from `formative/game/__init__.py`.
+- **Result dataclass:** fields are `choice: str`, then any rule-specific scalar for the chosen option (e.g. `guaranteed`, `score`, `expected`), then any dict of all values. Always include a custom `__repr__` that lists all choices, formats the key metric with `{v:+.4g}`, and marks the chosen with `← chosen`.
+- **Solver class docstring:** must include an `Examples` block showing `.solve()` and the correct `result.choice` value.
+- **Tests:** add a `class TestRuleName` to `tests/test_game.py` (not a separate file). Cover: correct choice, scalar field on result, dict field on result, empty outcomes raises, `← chosen` in repr, and any rule-specific validation.
+- **Docs:** add a section to `docs/game/game.rst` with a one-line question header, prose explanation, worked example with manual calculation, a code block, the expected output block, and `.. autoclass::` directives for both the solver and result classes.
