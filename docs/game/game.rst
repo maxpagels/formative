@@ -3,7 +3,7 @@ Decision Rules
 
 All decision rules take the same input — a dict of ``{choice: {scenario: payoff}}`` —
 and return a solver with a ``.solve()`` method. They differ only in the attitude towards
-uncertainty they encode.
+uncertainty they encode. Payoffs can be integers, or floats.
 
 .. code-block:: python
 
@@ -137,4 +137,92 @@ regret of 28. Bonds minimise the worst-case regret.
    :members:
 
 .. autoclass:: formative.game.MinimaxRegretResult
+   :members:
+
+Hurwicz Criterion
+-----------------
+
+*Which choice scores best on a blend of optimism and pessimism?*
+
+The Hurwicz criterion scores each choice as:
+
+.. math::
+
+   \text{score} = \alpha \cdot \text{best case} + (1 - \alpha) \cdot \text{worst case}
+
+The parameter ``alpha`` controls how optimistic you are. At ``alpha=0`` the rule is
+identical to maximin (pure pessimism); at ``alpha=1`` it is identical to maximax (pure
+optimism). Values in between express a considered attitude towards risk.
+
+With ``alpha=0.5`` (equal weight to best and worst case):
+
+- stocks: 0.5 × 30 + 0.5 × (−20) = **+5**
+- bonds:  0.5 × 7  + 0.5 × 5     = **+6** ← chosen
+- cash:   0.5 × 2  + 0.5 × 2     = **+2**
+
+.. code-block:: python
+
+   from formative.game import hurwicz
+
+   print(hurwicz(outcomes, alpha=0.5).solve())
+
+.. code-block:: text
+
+   HurwiczResult(alpha=0.5,
+     stocks  score: +5
+     bonds   score: +6  ← chosen
+     cash    score: +2
+   )
+
+At ``alpha=0.8`` the optimistic weight dominates and stocks pull ahead:
+
+.. code-block:: python
+
+   print(hurwicz(outcomes, alpha=0.8).solve())
+
+.. code-block:: text
+
+   HurwiczResult(alpha=0.8,
+     stocks  score: +20  ← chosen
+     bonds   score: +6.6
+     cash    score: +2
+   )
+
+.. autoclass:: formative.game.Hurwicz
+   :members:
+
+.. autoclass:: formative.game.HurwiczResult
+   :members:
+
+Laplace Criterion
+-----------------
+
+*Which choice has the best average payoff?*
+
+With no information about which scenario is more likely, treat them all as equally
+probable (Laplace's principle of indifference) and pick the choice with the highest
+average payoff.
+
+- stocks: (−20 + 5 + 30) ÷ 3 = **+5.0**
+- bonds:  (5 + 5 + 7) ÷ 3    = **+5.67** ← chosen
+- cash:   (2 + 2 + 2) ÷ 3    = **+2.0**
+
+.. code-block:: python
+
+   from formative.game import laplace
+
+   print(laplace(outcomes).solve())
+
+.. code-block:: text
+
+   LaplaceResult(
+     stocks  average: +5
+     bonds   average: +5.667  ← chosen
+     cash    average: +2
+   )
+
+.. autoclass:: formative.game.Laplace
+   :members:
+
+.. autoclass:: formative.game.LaplaceResult
    :members:

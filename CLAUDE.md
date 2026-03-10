@@ -115,12 +115,10 @@ result = maximin({
 
 **Package layout:**
 - `formative/game/_maximin.py` — `maximin`, `Maximin`, `MaximinResult`
+- `formative/game/_maximax.py` — `maximax`, `Maximax`, `MaximaxResult`
+- `formative/game/_minimax_regret.py` — `minimax_regret`, `MinimaxRegret`, `MinimaxRegretResult`
+- `formative/game/_hurwicz.py` — `hurwicz`, `Hurwicz`, `HurwiczResult`
+- `formative/game/_laplace.py` — `laplace`, `Laplace`, `LaplaceResult`
 - `formative/game/__init__.py` — public API for the game submodule
 
 **Adding a new decision rule:** follow the `maximin` pattern — a function that accepts `{choice: {scenario: payoff}}`, returns a solver class instance, and the solver has a `.solve()` method returning a result dataclass with a clear `__repr__`. Export from `formative/game/__init__.py`. Add a test file `tests/test_<rule>.py` and a docs page `docs/game/<rule>.rst`, then add the page to the game toctree in `docs/index.rst`.
-
-**Planned decision rules:**
-- **maximax** — optimistic rule: pick the choice with the best best-case outcome
-- **minimax regret** — pick the choice that minimises the maximum regret across scenarios
-- **Hurwicz criterion** — weighted combination of best and worst case (optimism parameter α)
-- **Laplace criterion** — treat all scenarios as equally likely; pick highest average payoff

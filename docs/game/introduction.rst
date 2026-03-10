@@ -1,9 +1,8 @@
 Introduction
 ============
 
-The game theory module provides decision rules for choosing between options under
-uncertainty or in strategic situations. It is designed to be usable without a background
-in game theory.
+Game theory, much like causal estimation, is difficult to learn. The best way to learn is to practice.
+formative includes a game module that aims to make using game theory in decision-making earier.
 
 Every analysis follows two steps.
 

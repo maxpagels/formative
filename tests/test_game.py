@@ -1,6 +1,6 @@
 import pytest
 
-from formative.game import maximax, maximin, minimax_regret
+from formative.game import hurwicz, laplace, maximax, maximin, minimax_regret
 
 OUTCOMES = {
     "stocks": {"recession": -20, "stagnation":  5, "growth": 30},
@@ -87,3 +87,114 @@ class TestMinimaxRegret:
         r = minimax_regret({"only": {"good": 10, "bad": -1}}).solve()
         assert r.choice == "only"
         assert r.max_regret == 0
+
+
+class TestHurwicz:
+    def test_alpha_zero_matches_maximin(self):
+        # alpha=0 → pure maximin → bonds (worst case 5)
+        assert hurwicz(OUTCOMES, alpha=0).solve().choice == "bonds"
+
+    def test_alpha_one_matches_maximax(self):
+        # alpha=1 → pure maximax → stocks (best case 30)
+        assert hurwicz(OUTCOMES, alpha=1).solve().choice == "stocks"
+
+    def test_alpha_half(self):
+        # stocks: 0.5*30 + 0.5*(-20) = 5
+        # bonds:  0.5*7  + 0.5*5    = 6
+        # cash:   0.5*2  + 0.5*2    = 2
+        # → bonds chosen at alpha=0.5
+        r = hurwicz(OUTCOMES, alpha=0.5).solve()
+        assert r.choice == "bonds"
+
+    def test_scores(self):
+        r = hurwicz(OUTCOMES, alpha=0.5).solve()
+        assert r.scores["stocks"] == pytest.approx(5.0)
+        assert r.scores["bonds"] == pytest.approx(6.0)
+        assert r.scores["cash"] == pytest.approx(2.0)
+
+    def test_alpha_stored_on_result(self):
+        r = hurwicz(OUTCOMES, alpha=0.3).solve()
+        assert r.alpha == pytest.approx(0.3)
+
+    def test_empty_raises(self):
+        with pytest.raises(ValueError):
+            hurwicz({}, alpha=0.5)
+
+    def test_alpha_out_of_range_raises(self):
+        with pytest.raises(ValueError):
+            hurwicz(OUTCOMES, alpha=1.5)
+
+    def test_repr_marks_chosen(self):
+        assert "← chosen" in repr(hurwicz(OUTCOMES, alpha=0.5).solve())
+
+
+class TestLaplace:
+    def test_choice(self):
+        # stocks: (-20+5+30)/3 = 5, bonds: (5+5+7)/3 = 5.67, cash: 2 → bonds
+        # wait: stocks = 15/3 = 5, bonds = 17/3 ≈ 5.67 → bonds
+        # Actually stocks: (-20+5+30)/3 = 15/3 = 5
+        # bonds: (5+5+7)/3 = 17/3 ≈ 5.67 → bonds chosen
+        assert laplace(OUTCOMES).solve().choice == "bonds"
+
+    def test_averages(self):
+        r = laplace(OUTCOMES).solve()
+        assert r.averages["stocks"] == pytest.approx(5.0)
+        assert r.averages["bonds"] == pytest.approx(17 / 3)
+        assert r.averages["cash"] == pytest.approx(2.0)
+
+    def test_average_on_result(self):
+        r = laplace(OUTCOMES).solve()
+        assert r.average == pytest.approx(17 / 3)
+
+    def test_empty_raises(self):
+        with pytest.raises(ValueError):
+            laplace({})
+
+    def test_single_choice(self):
+        r = laplace({"only": {"good": 10, "bad": -2}}).solve()
+        assert r.choice == "only"
+        assert r.average == pytest.approx(4.0)
+
+    def test_repr_marks_chosen(self):
+        assert "← chosen" in repr(laplace(OUTCOMES).solve())
+
+
+FLOAT_OUTCOMES = {
+    "a": {"s1": -1.5, "s2": 2.5, "s3": 10.0},
+    "b": {"s1":  0.5, "s2": 0.5, "s3":  1.0},
+}
+
+
+class TestFloatPayoffs:
+    def test_maximin_float(self):
+        r = maximin(FLOAT_OUTCOMES).solve()
+        assert r.choice == "b"
+        assert r.guaranteed == pytest.approx(0.5)
+
+    def test_maximax_float(self):
+        r = maximax(FLOAT_OUTCOMES).solve()
+        assert r.choice == "a"
+        assert r.best_case == pytest.approx(10.0)
+
+    def test_minimax_regret_float(self):
+        r = minimax_regret(FLOAT_OUTCOMES).solve()
+        # best per scenario: s1=0.5, s2=2.5, s3=10.0
+        # regrets a: s1=2.0, s2=0.0, s3=0.0 → max=2.0
+        # regrets b: s1=0.0, s2=2.0, s3=9.0 → max=9.0
+        assert r.choice == "a"
+        assert r.max_regrets["a"] == pytest.approx(2.0)
+        assert r.max_regrets["b"] == pytest.approx(9.0)
+
+    def test_hurwicz_float(self):
+        r = hurwicz(FLOAT_OUTCOMES, alpha=0.5).solve()
+        # a: 0.5*10.0 + 0.5*(-1.5) = 4.25
+        # b: 0.5*1.0  + 0.5*0.5    = 0.75
+        assert r.choice == "a"
+        assert r.scores["a"] == pytest.approx(4.25)
+
+    def test_laplace_float(self):
+        r = laplace(FLOAT_OUTCOMES).solve()
+        # a: (-1.5+2.5+10.0)/3 = 11/3 ≈ 3.667
+        # b: (0.5+0.5+1.0)/3   = 2/3  ≈ 0.667
+        assert r.choice == "a"
+        assert r.averages["a"] == pytest.approx(11 / 3)
