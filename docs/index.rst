@@ -10,11 +10,11 @@ Install with pip:
 
    pip install formative-ds
 
-**Causal Estimation** (``formative.causal``) helps you estimate the effect of one variable
+**Causal estimation** (``formative.causal``) helps you estimate the effect of one variable
 on another from observational or experimental data, whilst making your assumptions explicit
 and testable. :doc:`Get started <causal/introduction>`.
 
-**Game Theory** (``formative.game``) provides decision rules for choosing between options
+**Game theory** (``formative.game``) provides decision rules for choosing between options
 under uncertainty or in strategic situations. :doc:`Get started <game/introduction>`.
 
 .. toctree::
