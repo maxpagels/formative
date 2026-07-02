@@ -91,6 +91,60 @@ class DecisionReport:
             f"This requires approximately {n_multiplier:.1f}x the current sample size."
         )
 
+    def to_outcomes(
+        self,
+        scenarios: dict[str, float] | None = None,
+    ) -> dict[str, dict[str, float]]:
+        """
+        Convert this decision's uncertainty into a payoff structure for
+        game-theoretic decision rules in ``formative.game``.
+
+        Parameters
+        ----------
+        scenarios : dict[str, float], optional
+            Mapping of scenario name → quantile of the net-benefit sampling
+            distribution. Defaults to
+            ``{"pessimistic": 0.10, "expected": 0.50, "optimistic": 0.90}``.
+
+        Returns
+        -------
+        dict[str, dict[str, float]]
+            A ``{choice: {scenario: payoff}}`` structure accepted by any
+            ``formative.game`` rule (``maximin``, ``minimax_regret``,
+            ``hurwicz``, etc.). The ``"don't treat"`` payoff is 0 in every
+            scenario — the status quo baseline.
+
+        Notes
+        -----
+        ``treat`` payoffs are quantiles of N(net_benefit, se_net), where
+        ``se_net`` is derived from the 95% CI. ``robust=True`` is equivalent
+        to ``maximin`` returning the same choice as ``optimal`` when scenarios
+        are set to the CI bounds (quantiles 0.025 and 0.975).
+        """
+        if scenarios is None:
+            scenarios = {"pessimistic": 0.10, "expected": 0.50, "optimistic": 0.90}
+
+        if not scenarios:
+            raise ValueError("scenarios must be a non-empty dict")
+        for name, q in scenarios.items():
+            if not (0.0 < q < 1.0):
+                raise ValueError(f"Scenario '{name}' quantile {q} must be strictly between 0 and 1")
+
+        lo, hi = self.net_benefit_ci
+        se_net = abs(hi - lo) / (2 * 1.96)
+
+        if se_net > 0:
+            treat_payoffs = {
+                name: float(norm.ppf(q, loc=self.net_benefit, scale=se_net)) for name, q in scenarios.items()
+            }
+        else:
+            treat_payoffs = {name: self.net_benefit for name in scenarios}
+
+        return {
+            "treat": treat_payoffs,
+            "don't treat": {name: 0.0 for name in scenarios},
+        }
+
     def summary(self) -> str:
         """Formatted summary of the decision analysis."""
         lo, hi = self.net_benefit_ci

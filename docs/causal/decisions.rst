@@ -77,6 +77,56 @@ But how confident are we in that estimate? And is it robust to estimation error?
      Decision confidence          :    100.0%
      Robust to estimation error   : Yes — decision is stable across 95% CI
 
+Game-theoretic robustness
+-------------------------
+
+``decide()`` uses expected value maximisation: it picks "treat" when
+``effect × benefit − cost > 0``. This is the right rule when you want to
+maximise the average outcome, but it is silent about risk attitude — it
+treats a certain $37 gain and a 50/50 gamble between $0 and $74 identically.
+
+The ``robust`` flag is a first step toward robustness: it checks whether
+the decision flips anywhere inside the 95% confidence interval. But it
+only returns ``True`` or ``False``, and it is implicitly using the most
+conservative possible standard (the CI bounds).
+
+For finer control, call ``to_outcomes()`` on the report and pass the result
+to any rule in ``formative.game``:
+
+.. code-block:: python
+
+   from formative.game import maximin, minimax_regret, hurwicz
+
+   decision = result.decide(cost=8, benefit=15)
+   outcomes = decision.to_outcomes()
+   # {
+   #   "treat":       {"pessimistic": ..., "expected": ..., "optimistic": ...},
+   #   "don't treat": {"pessimistic": 0.0, "expected": 0.0, "optimistic": 0.0},
+   # }
+
+   maximin(outcomes).solve()            # best worst-case
+   minimax_regret(outcomes).solve()     # minimise maximum regret
+   hurwicz(outcomes, alpha=0.3).solve() # weighted pessimism–optimism
+
+By default, the three scenarios correspond to the 10th, 50th, and 90th
+percentiles of the net-benefit sampling distribution (assumed normal with
+the se derived from the 95% CI). The ``"don't treat"`` payoff is 0 in
+every scenario — the status quo baseline.
+
+You can supply your own scenario names and quantiles:
+
+.. code-block:: python
+
+   outcomes = decision.to_outcomes(
+       scenarios={"bear": 0.05, "base": 0.50, "bull": 0.95}
+   )
+
+**Relationship to** ``robust``. ``robust=True`` is equivalent to
+``maximin`` returning the same choice as ``optimal`` when the scenarios are
+set to the CI bounds (quantiles 0.025 and 0.975). ``to_outcomes()``
+generalises that check: different rules express different risk attitudes, and
+you can dial in your own pessimism level via ``hurwicz(alpha=...)``.
+
 Value of information
 --------------------
 
