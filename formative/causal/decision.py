@@ -135,8 +135,7 @@ class DecisionReport:
 
         if se_net > 0:
             treat_payoffs = {
-                name: float(norm.ppf(q, loc=self.net_benefit, scale=se_net))
-                for name, q in scenarios.items()
+                name: float(norm.ppf(q, loc=self.net_benefit, scale=se_net)) for name, q in scenarios.items()
             }
         else:
             treat_payoffs = {name: self.net_benefit for name in scenarios}

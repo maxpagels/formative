@@ -194,6 +194,7 @@ class TestToOutcomes:
 
     def test_zero_se_all_payoffs_equal_net_benefit(self):
         from formative.causal.decision import _decide
+
         report = _decide(2.0, 0.0, (2.0, 2.0), TREATMENT, OUTCOME, cost=1.0, benefit=5.0)
         out = report.to_outcomes()
         assert all(abs(v - report.net_benefit) < 1e-9 for v in out["treat"].values())
@@ -209,11 +210,13 @@ class TestToOutcomes:
 
     def test_empty_scenarios_raises(self):
         import pytest
+
         with pytest.raises(ValueError, match="non-empty"):
             POSITIVE.to_outcomes(scenarios={})
 
     def test_invalid_quantile_raises(self):
         import pytest
+
         with pytest.raises(ValueError, match="between 0 and 1"):
             POSITIVE.to_outcomes(scenarios={"bad": 1.5})
 
