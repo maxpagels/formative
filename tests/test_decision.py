@@ -169,6 +169,60 @@ class TestValueOfInformation:
 # ---------------------------------------------------------------------------
 
 
+class TestToOutcomes:
+    def test_default_keys(self):
+        out = POSITIVE.to_outcomes()
+        assert set(out.keys()) == {"treat", "don't treat"}
+        assert set(out["treat"].keys()) == {"pessimistic", "expected", "optimistic"}
+
+    def test_dont_treat_always_zero(self):
+        out = POSITIVE.to_outcomes()
+        assert all(v == 0.0 for v in out["don't treat"].values())
+
+    def test_expected_scenario_equals_net_benefit(self):
+        out = POSITIVE.to_outcomes()
+        assert abs(out["treat"]["expected"] - POSITIVE.net_benefit) < 1e-6
+
+    def test_payoffs_ordered_pessimistic_to_optimistic(self):
+        out = POSITIVE.to_outcomes()
+        assert out["treat"]["pessimistic"] < out["treat"]["expected"] < out["treat"]["optimistic"]
+
+    def test_custom_scenarios(self):
+        out = POSITIVE.to_outcomes(scenarios={"low": 0.05, "high": 0.95})
+        assert set(out["treat"].keys()) == {"low", "high"}
+        assert out["treat"]["low"] < out["treat"]["high"]
+
+    def test_zero_se_all_payoffs_equal_net_benefit(self):
+        from formative.causal.decision import _decide
+        report = _decide(2.0, 0.0, (2.0, 2.0), TREATMENT, OUTCOME, cost=1.0, benefit=5.0)
+        out = report.to_outcomes()
+        assert all(abs(v - report.net_benefit) < 1e-9 for v in out["treat"].values())
+
+    def test_pessimistic_treat_positive_for_clear_positive(self):
+        # POSITIVE: net_benefit=37, CI=(22.3, 51.7) — even worst-case should be well above 0
+        out = POSITIVE.to_outcomes()
+        assert out["treat"]["pessimistic"] > 0
+
+    def test_pessimistic_treat_negative_for_clear_negative(self):
+        out = NEGATIVE.to_outcomes()
+        assert out["treat"]["pessimistic"] < 0
+
+    def test_empty_scenarios_raises(self):
+        import pytest
+        with pytest.raises(ValueError, match="non-empty"):
+            POSITIVE.to_outcomes(scenarios={})
+
+    def test_invalid_quantile_raises(self):
+        import pytest
+        with pytest.raises(ValueError, match="between 0 and 1"):
+            POSITIVE.to_outcomes(scenarios={"bad": 1.5})
+
+    def test_dont_treat_keys_match_scenarios(self):
+        custom = {"a": 0.1, "b": 0.5, "c": 0.9}
+        out = POSITIVE.to_outcomes(scenarios=custom)
+        assert set(out["don't treat"].keys()) == set(custom.keys())
+
+
 class TestSummary:
     def test_summary_contains_treatment_and_outcome(self):
         s = POSITIVE.summary()
