@@ -3,7 +3,7 @@ from .hurwicz import Hurwicz, HurwiczResult, hurwicz
 from .laplace import Laplace, LaplaceResult, laplace
 from .maximax import Maximax, MaximaxResult, maximax
 from .maximin import Maximin, MaximinResult, maximin
-from .minimax_regret import MinimaxRegret, MinimaxRegretResult, minimax_regret
+from .minimax import Minimax, MinimaxResult, minimax
 
 __all__ = [
     "maximin",
@@ -12,9 +12,9 @@ __all__ = [
     "maximax",
     "Maximax",
     "MaximaxResult",
-    "minimax_regret",
-    "MinimaxRegret",
-    "MinimaxRegretResult",
+    "minimax",
+    "Minimax",
+    "MinimaxResult",
     "hurwicz",
     "Hurwicz",
     "HurwiczResult",

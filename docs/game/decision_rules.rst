@@ -74,8 +74,8 @@ downside.
 .. autoclass:: formative.game.MaximaxResult
    :members:
 
-Minimax Regret
---------------
+Minimax
+-------
 
 *Which choice do you regret the least in hindsight?*
 
@@ -115,14 +115,14 @@ Then compute regret for every combination — how much you miss out on versus th
 
 .. code-block:: python
 
-   from formative.game import minimax_regret
+   from formative.game import minimax
 
-   result = minimax_regret(outcomes).solve()
+   result = minimax(outcomes).solve()
    print(result)
 
 .. code-block:: text
 
-   MinimaxRegretResult(
+   MinimaxResult(
      stocks  max regret: +25
      bonds   max regret: +23  ← chosen
      cash    max regret: +28
@@ -133,10 +133,10 @@ score zero in recession and stagnation, but 23 in growth where stocks outperform
 Cash never comes close to the best option in any scenario, giving it the highest max
 regret of 28. Bonds minimise the worst-case regret.
 
-.. autoclass:: formative.game.MinimaxRegret
+.. autoclass:: formative.game.Minimax
    :members:
 
-.. autoclass:: formative.game.MinimaxRegretResult
+.. autoclass:: formative.game.MinimaxResult
    :members:
 
 Hurwicz Criterion

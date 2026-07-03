@@ -95,7 +95,7 @@ to any rule in ``formative.game``:
 
 .. code-block:: python
 
-   from formative.game import maximin, minimax_regret, hurwicz
+   from formative.game import maximin, minimax, hurwicz
 
    decision = result.decide(cost=8, benefit=15)
    outcomes = decision.to_outcomes()
@@ -105,7 +105,7 @@ to any rule in ``formative.game``:
    # }
 
    maximin(outcomes).solve()            # best worst-case
-   minimax_regret(outcomes).solve()     # minimise maximum regret
+   minimax(outcomes).solve()            # minimise maximum regret
    hurwicz(outcomes, alpha=0.3).solve() # weighted pessimism–optimism
 
 By default, the three scenarios correspond to the 10th, 50th, and 90th

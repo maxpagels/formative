@@ -65,7 +65,7 @@ class DecisionReport:
         -------
         dict[str, dict[str, float]]
             A ``{choice: {scenario: payoff}}`` structure accepted by any
-            ``formative.game`` rule (``maximin``, ``minimax_regret``,
+            ``formative.game`` rule (``maximin``, ``minimax``,
             ``hurwicz``, etc.). The ``"don't treat"`` payoff is 0 in every
             scenario — the status quo baseline.
 

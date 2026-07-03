@@ -41,7 +41,7 @@ Confounders declared in the DAG are controlled for automatically. If a confounde
 ### Decision rules
 
 ```python
-from formative.game import maximin, maximax, hurwicz, laplace, minimax_regret
+from formative.game import maximin, maximax, hurwicz, laplace, minimax
 
 outcomes = {
     "stocks": {"recession": -20, "stagnation":  5, "growth": 30},
@@ -53,7 +53,7 @@ maximin(outcomes).solve()        # safest choice (best worst case)
 maximax(outcomes).solve()        # most optimistic (best best case)
 hurwicz(outcomes, alpha=0.5).solve()  # blend of optimism and pessimism
 laplace(outcomes).solve()        # highest average payoff
-minimax_regret(outcomes).solve() # lowest worst-case regret
+minimax(outcomes).solve()        # lowest worst-case regret
 ```
 
 See online documentation at [docs.getformative.dev](https://docs.getformative.dev) for more examples and details.

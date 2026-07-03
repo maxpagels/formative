@@ -99,7 +99,7 @@ result = maximin({
 **Package layout:**
 - `formative/game/maximin.py` — `maximin`, `Maximin`, `MaximinResult`
 - `formative/game/maximax.py` — `maximax`, `Maximax`, `MaximaxResult`
-- `formative/game/minimax_regret.py` — `minimax_regret`, `MinimaxRegret`, `MinimaxRegretResult`
+- `formative/game/minimax.py` — `minimax`, `Minimax`, `MinimaxResult`
 - `formative/game/hurwicz.py` — `hurwicz`, `Hurwicz`, `HurwiczResult`
 - `formative/game/laplace.py` — `laplace`, `Laplace`, `LaplaceResult`
 - `formative/game/expected_value.py` — `expected_value`, `ExpectedValue`, `ExpectedValueResult`
