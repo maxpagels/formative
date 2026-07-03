@@ -5,6 +5,7 @@ import statsmodels.formula.api as smf
 
 from ..dag import DAG
 from ..refutations._check import Assumption
+from ._base import _StatsmodelsResult
 
 RDD_ASSUMPTIONS: list[Assumption] = [
     Assumption(
@@ -23,13 +24,15 @@ RDD_ASSUMPTIONS: list[Assumption] = [
 ]
 
 
-class RDDResult:
+class RDDResult(_StatsmodelsResult):
     """
     The result of a Regression Discontinuity Design estimation.
 
     The RDD estimate is the LATE at the cutoff: the jump in the outcome at
     the cutoff, estimated via local linear regression on both sides of the threshold.
     """
+
+    _ASSUMPTIONS = RDD_ASSUMPTIONS
 
     def __init__(
         self,
@@ -52,40 +55,9 @@ class RDDResult:
         self._dag = dag
 
     @property
-    def effect(self) -> float:
-        """LATE at the cutoff: the jump in outcome at the threshold (coefficient on the treatment indicator)."""
-        return float(self._result.params[self._treatment])
-
-    @property
     def unadjusted_effect(self) -> float:
         """Naive mean difference: above-cutoff mean minus below-cutoff mean."""
         return self._unadjusted_effect
-
-    @property
-    def std_err(self) -> float:
-        """Standard error of the LATE at the cutoff estimate."""
-        return float(self._result.bse[self._treatment])
-
-    @property
-    def conf_int(self) -> tuple[float, float]:
-        """95% confidence interval for the LATE at the cutoff estimate."""
-        ci = self._result.conf_int()
-        return (float(ci.loc[self._treatment, 0]), float(ci.loc[self._treatment, 1]))
-
-    @property
-    def pvalue(self) -> float:
-        """p-value for the LATE at the cutoff (``H0: LATE at cutoff = 0``)."""
-        return float(self._result.pvalues[self._treatment])
-
-    @property
-    def statsmodels_result(self):
-        """The underlying statsmodels OLS result, for full diagnostics."""
-        return self._result
-
-    @property
-    def assumptions(self) -> list[Assumption]:
-        """Modelling assumptions required for a causal interpretation."""
-        return list(RDD_ASSUMPTIONS)
 
     @property
     def cutoff(self) -> float:
@@ -131,34 +103,9 @@ class RDDResult:
             f"  95% CI                : [{lo:.4f}, {hi:.4f}]",
             f"  p-value               : {self.pvalue:>10.4f}",
             f"  N (in bandwidth)      : {self.n_obs:>9}",
-            "",
-            "  Assumptions",
-            "  " + "\u2504" * 30,
         ]
-        for a in RDD_ASSUMPTIONS:
-            lines.append(f"  {a.fmt_tag()}  {a.name}")
-        lines.append("")
+        lines += self._assumptions_lines(width=30)
         return "\n".join(lines)
-
-    def decide(self, cost: float, benefit: float):
-        """
-        Compute a cost-benefit decision analysis from this causal estimate.
-
-        Parameters
-        ----------
-        cost : float
-            Cost per unit of treatment applied.
-        benefit : float
-            Benefit (revenue, utility, etc.) per unit increase in the outcome.
-
-        Returns
-        -------
-        DecisionReport
-            Optimal decision, net benefit, CI, confidence, and robustness flag.
-        """
-        from ..decision import _decide
-
-        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -209,9 +156,6 @@ class RDDResult:
             cutoff=self._cutoff,
             outcome=self._outcome,
         )
-
-    def __repr__(self) -> str:
-        return self.summary()
 
 
 class RDD:

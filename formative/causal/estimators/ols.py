@@ -6,6 +6,7 @@ import statsmodels.formula.api as smf
 from .._exceptions import IdentificationError
 from ..dag import DAG
 from ..refutations._check import Assumption
+from ._base import _StatsmodelsResult
 
 OLS_ASSUMPTIONS: list[Assumption] = [
     Assumption("No unobserved confounders (selection on observables)", testable=False),
@@ -16,7 +17,7 @@ OLS_ASSUMPTIONS: list[Assumption] = [
 ]
 
 
-class OLSResult:
+class OLSResult(_StatsmodelsResult):
     """
     The result of an OLS causal estimation.
 
@@ -24,6 +25,8 @@ class OLSResult:
     unadjusted estimate (``treatment ~ outcome`` only), so you can see the
     effect of controlling for confounders directly.
     """
+
+    _ASSUMPTIONS = OLS_ASSUMPTIONS
 
     def __init__(
         self,
@@ -35,7 +38,7 @@ class OLSResult:
         dag,
         n: int,
     ) -> None:
-        self._adjusted = adjusted_result
+        self._result = adjusted_result
         self._unadjusted = unadjusted_result
         self._treatment = treatment
         self._outcome = outcome
@@ -44,30 +47,9 @@ class OLSResult:
         self._n = n
 
     @property
-    def effect(self) -> float:
-        """Adjusted point estimate: causal effect of treatment on outcome."""
-        return float(self._adjusted.params[self._treatment])
-
-    @property
     def unadjusted_effect(self) -> float:
         """Unadjusted point estimate: naive regression without controlling for confounders."""
         return float(self._unadjusted.params[self._treatment])
-
-    @property
-    def std_err(self) -> float:
-        """Standard error of the adjusted treatment effect estimate."""
-        return float(self._adjusted.bse[self._treatment])
-
-    @property
-    def conf_int(self) -> tuple[float, float]:
-        """95% confidence interval for the adjusted treatment effect."""
-        ci = self._adjusted.conf_int()
-        return (float(ci.loc[self._treatment, 0]), float(ci.loc[self._treatment, 1]))
-
-    @property
-    def pvalue(self) -> float:
-        """p-value for the adjusted treatment effect (``H0: effect = 0``)."""
-        return float(self._adjusted.pvalues[self._treatment])
 
     @property
     def adjustment_set(self) -> set[str]:
@@ -75,19 +57,9 @@ class OLSResult:
         return self._adjustment_set
 
     @property
-    def statsmodels_result(self):
-        """The underlying adjusted statsmodels result, for full diagnostics."""
-        return self._adjusted
-
-    @property
     def statsmodels_unadjusted_result(self):
         """The underlying unadjusted statsmodels result, for full diagnostics."""
         return self._unadjusted
-
-    @property
-    def assumptions(self) -> list[Assumption]:
-        """Modelling assumptions required for a causal interpretation."""
-        return list(OLS_ASSUMPTIONS)
 
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
@@ -124,34 +96,9 @@ class OLSResult:
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
             f"  N                    : {self._n:>10}",
-            "",
-            "  Assumptions",
-            "  " + "┄" * 48,
         ]
-        for a in OLS_ASSUMPTIONS:
-            lines.append(f"  {a.fmt_tag()}  {a.name}")
-        lines.append("")
+        lines += self._assumptions_lines()
         return "\n".join(lines)
-
-    def decide(self, cost: float, benefit: float):
-        """
-        Compute a cost-benefit decision analysis from this causal estimate.
-
-        Parameters
-        ----------
-        cost : float
-            Cost per unit of treatment applied.
-        benefit : float
-            Benefit (revenue, utility, etc.) per unit increase in the outcome.
-
-        Returns
-        -------
-        DecisionReport
-            Optimal decision, net benefit, CI, confidence, and robustness flag.
-        """
-        from ..decision import _decide
-
-        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -185,9 +132,6 @@ class OLSResult:
             treatment=self._treatment,
             outcome=self._outcome,
         )
-
-    def __repr__(self) -> str:
-        return self.summary()
 
 
 class OLSObservational:

@@ -7,6 +7,7 @@ from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
 from ..dag import DAG
 from ..refutations._check import Assumption
+from ._base import _StatsmodelsResult
 
 IV_ASSUMPTIONS: list[Assumption] = [
     Assumption("Relevance: the instrument strongly affects treatment", testable=True),
@@ -17,7 +18,7 @@ IV_ASSUMPTIONS: list[Assumption] = [
 ]
 
 
-class IVResult:
+class IVResult(_StatsmodelsResult):
     """
     The result of an IV (2SLS) causal estimation.
 
@@ -25,6 +26,8 @@ class IVResult:
     estimate (``outcome ~ treatment`` only), so you can see the confounding
     bias that IV corrects.
     """
+
+    _ASSUMPTIONS = IV_ASSUMPTIONS
 
     def __init__(
         self,
@@ -47,30 +50,9 @@ class IVResult:
         self._n = n
 
     @property
-    def effect(self) -> float:
-        """2SLS point estimate of the causal effect of treatment on outcome."""
-        return float(self._result.params[self._treatment])
-
-    @property
     def unadjusted_effect(self) -> float:
         """Unadjusted OLS estimate: naive regression without instrument or controls."""
         return float(self._unadjusted.params[self._treatment])
-
-    @property
-    def std_err(self) -> float:
-        """Standard error of the 2SLS treatment effect estimate."""
-        return float(self._result.bse[self._treatment])
-
-    @property
-    def conf_int(self) -> tuple[float, float]:
-        """95% confidence interval for the 2SLS treatment effect."""
-        ci = self._result.conf_int()
-        return (float(ci.loc[self._treatment, 0]), float(ci.loc[self._treatment, 1]))
-
-    @property
-    def pvalue(self) -> float:
-        """p-value for the 2SLS treatment effect (``H0: effect = 0``)."""
-        return float(self._result.pvalues[self._treatment])
 
     @property
     def adjustment_set(self) -> set[str]:
@@ -78,45 +60,15 @@ class IVResult:
         return self._adjustment_set
 
     @property
-    def statsmodels_result(self):
-        """The underlying statsmodels IV2SLS result, for full diagnostics."""
-        return self._result
-
-    @property
     def statsmodels_unadjusted_result(self):
         """The underlying unadjusted OLS result, for full diagnostics."""
         return self._unadjusted
-
-    @property
-    def assumptions(self) -> list[Assumption]:
-        """Modelling assumptions required for a causal interpretation."""
-        return list(IV_ASSUMPTIONS)
 
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
         from .._explain import explain_iv
 
         return explain_iv(self)
-
-    def decide(self, cost: float, benefit: float):
-        """
-        Compute a cost-benefit decision analysis from this causal estimate.
-
-        Parameters
-        ----------
-        cost : float
-            Cost per unit of treatment applied.
-        benefit : float
-            Benefit (revenue, utility, etc.) per unit increase in the outcome.
-
-        Returns
-        -------
-        DecisionReport
-            Optimal decision, net benefit, CI, confidence, and robustness flag.
-        """
-        from ..decision import _decide
-
-        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -181,17 +133,9 @@ class IVResult:
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
             f"  N                    : {self._n:>10}",
-            "",
-            "  Assumptions",
-            "  " + "┄" * 48,
         ]
-        for a in IV_ASSUMPTIONS:
-            lines.append(f"  {a.fmt_tag()}  {a.name}")
-        lines.append("")
+        lines += self._assumptions_lines()
         return "\n".join(lines)
-
-    def __repr__(self) -> str:
-        return self.summary()
 
 
 class IV2SLS:

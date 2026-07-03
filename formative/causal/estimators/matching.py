@@ -7,6 +7,7 @@ import statsmodels.formula.api as smf
 from .._exceptions import IdentificationError
 from ..dag import DAG
 from ..refutations._check import Assumption
+from ._base import _BaseResult
 
 MATCHING_ASSUMPTIONS: list[Assumption] = [
     Assumption("Conditional independence: no unobserved confounders given matched variables", testable=False),
@@ -65,7 +66,7 @@ def _att_from_ps(
 # ── Result ─────────────────────────────────────────────────────────────────────
 
 
-class MatchingResult:
+class MatchingResult(_BaseResult):
     """
     The result of a propensity score matching estimation.
 
@@ -74,6 +75,8 @@ class MatchingResult:
     corrects. Standard errors and CIs are computed via bootstrap over the
     full matching procedure.
     """
+
+    _ASSUMPTIONS = MATCHING_ASSUMPTIONS
 
     def __init__(
         self,
@@ -136,11 +139,6 @@ class MatchingResult:
         """Full array of per-bootstrap ATT values, for diagnostics."""
         return self._bootstrap_atts.copy()
 
-    @property
-    def assumptions(self) -> list[Assumption]:
-        """Modelling assumptions required for a causal interpretation."""
-        return list(MATCHING_ASSUMPTIONS)
-
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
         from .._explain import explain_matching
@@ -179,34 +177,9 @@ class MatchingResult:
             f"  N                    : {self._n:>10}",
             "",
             "  Matching: 1-to-1 nearest-neighbour on propensity score (with replacement)",
-            "",
-            "  Assumptions",
-            "  " + "┄" * 48,
         ]
-        for a in MATCHING_ASSUMPTIONS:
-            lines.append(f"  {a.fmt_tag()}  {a.name}")
-        lines.append("")
+        lines += self._assumptions_lines()
         return "\n".join(lines)
-
-    def decide(self, cost: float, benefit: float):
-        """
-        Compute a cost-benefit decision analysis from this causal estimate.
-
-        Parameters
-        ----------
-        cost : float
-            Cost per unit of treatment applied.
-        benefit : float
-            Benefit (revenue, utility, etc.) per unit increase in the outcome.
-
-        Returns
-        -------
-        DecisionReport
-            Optimal decision, net benefit, CI, confidence, and robustness flag.
-        """
-        from ..decision import _decide
-
-        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -253,9 +226,6 @@ class MatchingResult:
             treatment=self._treatment,
             outcome=self._outcome,
         )
-
-    def __repr__(self) -> str:
-        return self.summary()
 
 
 # ── Estimator ──────────────────────────────────────────────────────────────────

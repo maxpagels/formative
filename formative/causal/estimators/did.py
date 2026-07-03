@@ -5,6 +5,7 @@ import statsmodels.formula.api as smf
 
 from ..dag import DAG
 from ..refutations._check import Assumption
+from ._base import _StatsmodelsResult
 
 DID_ASSUMPTIONS: list[Assumption] = [
     Assumption(
@@ -17,7 +18,7 @@ DID_ASSUMPTIONS: list[Assumption] = [
 ]
 
 
-class DiDResult:
+class DiDResult(_StatsmodelsResult):
     """
     The result of a Difference-in-Differences estimation.
 
@@ -25,6 +26,8 @@ class DiDResult:
     group did relative to what would have been expected based on the
     control group's trajectory.
     """
+
+    _ASSUMPTIONS = DID_ASSUMPTIONS
 
     def __init__(
         self,
@@ -45,44 +48,19 @@ class DiDResult:
         self._n = n
 
     @property
-    def _interaction(self) -> str:
+    def _param(self) -> str:
+        # The DiD estimate is the group × time interaction coefficient.
         return f"{self._group}:{self._time}"
 
     @property
-    def effect(self) -> float:
-        """DiD point estimate: ATT under the parallel trends assumption."""
-        return float(self._result.params[self._interaction])
+    def _treatment(self) -> str:
+        # The treatment label used by decide() is the group indicator.
+        return self._group
 
     @property
     def naive_diff(self) -> float:
         """Naive post-period difference: treated mean minus control mean in the post period."""
         return self._naive_diff
-
-    @property
-    def std_err(self) -> float:
-        """Standard error of the DiD estimate."""
-        return float(self._result.bse[self._interaction])
-
-    @property
-    def conf_int(self) -> tuple[float, float]:
-        """95% confidence interval for the DiD estimate."""
-        ci = self._result.conf_int()
-        return (float(ci.loc[self._interaction, 0]), float(ci.loc[self._interaction, 1]))
-
-    @property
-    def pvalue(self) -> float:
-        """p-value for the DiD estimate (``H0: ATT = 0``)."""
-        return float(self._result.pvalues[self._interaction])
-
-    @property
-    def statsmodels_result(self):
-        """The underlying statsmodels OLS result, for full diagnostics."""
-        return self._result
-
-    @property
-    def assumptions(self) -> list[Assumption]:
-        """Modelling assumptions required for a causal interpretation."""
-        return list(DID_ASSUMPTIONS)
 
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
@@ -107,34 +85,9 @@ class DiDResult:
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
             f"  N                    : {self._n:>10}",
-            "",
-            "  Assumptions",
-            "  " + "\u2504" * 48,
         ]
-        for a in DID_ASSUMPTIONS:
-            lines.append(f"  {a.fmt_tag()}  {a.name}")
-        lines.append("")
+        lines += self._assumptions_lines()
         return "\n".join(lines)
-
-    def decide(self, cost: float, benefit: float):
-        """
-        Compute a cost-benefit decision analysis from this causal estimate.
-
-        Parameters
-        ----------
-        cost : float
-            Cost per unit of treatment applied.
-        benefit : float
-            Benefit (revenue, utility, etc.) per unit increase in the outcome.
-
-        Returns
-        -------
-        DecisionReport
-            Optimal decision, net benefit, CI, confidence, and robustness flag.
-        """
-        from ..decision import _decide
-
-        return _decide(self.effect, self.std_err, self.conf_int, self._group, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
