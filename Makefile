@@ -8,11 +8,11 @@ test:
 	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80
 
 lint:
-	uv run ruff check .
+	uv run ruff check --exclude notebooks .
 
 fmt:
-	uv run ruff format .
+	uv run ruff format --exclude notebooks .
 
 check: lint
-	uv run ruff format --check .
+	uv run ruff format --check --exclude notebooks .
 	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80

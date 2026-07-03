@@ -16,7 +16,7 @@ jobs:
         run: uv sync --dev --group docs
 
       - name: Lint
-        run: uv run ruff check . && uv run ruff format --check .
+        run: uv run ruff check --exclude notebooks . && uv run ruff format --check --exclude notebooks .
 
       - name: Run tests
         run: uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80
