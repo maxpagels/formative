@@ -21,7 +21,7 @@ Comprehensive documentation is available at [docs.getformative.dev](https://docs
 ### Causal estimation
 
 ```python
-from formative import DAG, OLSObservational
+from formative.causal import DAG, OLSObservational
 
 dag = DAG()
 dag.assume("ability").causes("education", "income")
@@ -93,7 +93,7 @@ To use `formative` from a script outside this repo without installing it, either
 import sys
 sys.path.insert(0, "/path/to/formative")
 
-from formative import DAG, OLSObservational
+from formative.causal import DAG, OLSObservational
 ```
 
 Or set `PYTHONPATH` before running:
