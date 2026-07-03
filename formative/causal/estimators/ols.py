@@ -312,6 +312,12 @@ class OLSObservational:
             unobserved — if any of these are confounders, an ``IdentificationError``
             is raised before estimation.
 
+        Returns
+        -------
+        OLSResult
+            Or an ``OLSCATEResult`` (a subclass adding per-group effects) when
+            the estimator was constructed with an ``effect_modifier``.
+
         Raises
         ------
         ``IdentificationError``

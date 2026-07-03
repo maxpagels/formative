@@ -2,7 +2,7 @@ Estimands: ATE, ATT, LATE etc.
 ==============================
 
 Every causal estimator targets a specific *estimand*. Choosing the wrong estimator for your question gives a valid answer to the wrong
-question. The four estimands formative works with are ATE, ATT, LATE, and LATE at the cutoff. One method can only target one estimand.
+question. The five estimands formative works with are ATE, ATT, LATE, LATE at the cutoff, and CATE. One method can only target one estimand.
 
 .. list-table::
    :header-rows: 1
@@ -14,6 +14,9 @@ question. The four estimands formative works with are ATE, ATT, LATE, and LATE a
    * - **ATE**
      - Average Treatment Effect
      - :class:`~formative.OLSObservational`, :class:`~formative.RCT`
+   * - **CATE**
+     - Conditional Average Treatment Effect
+     - :class:`~formative.OLSObservational`, :class:`~formative.RCT` (with ``effect_modifier``)
    * - **ATT**
      - Average Treatment Effect on the Treated
      - :class:`~formative.PropensityScoreMatching`, :class:`~formative.DiD`
@@ -191,3 +194,48 @@ assumption is more defensible but the estimate has higher variance.
 - **RDD** — fits a local linear regression on both sides of the cutoff. The coefficient on
   the treatment indicator gives the jump in outcome at the threshold, controlling for the
   slope of the running variable separately on each side.
+
+----
+
+CATE: Conditional Average Treatment Effect
+------------------------------------------
+
+**What it answers:** *For whom* does the treatment work? An average effect answers "does the
+intervention work?"; the CATE answers how the effect differs across known subgroups — should
+a discount go to new customers or loyal ones, does the training help juniors more than
+seniors?
+
+.. math::
+
+   \text{CATE}(x) = \mathbb{E}[Y(1) - Y(0) \mid X = x]
+
+:math:`X` is an *effect modifier*: a pre-treatment variable whose levels the effect is
+allowed to differ across. Instead of one number, the estimand is a per-group effect —
+one for each level of :math:`X`.
+
+**When it makes sense:** When the decision is not "treat everyone or no one" but "who should
+receive the treatment" — targeting, personalisation, prioritising a limited budget. Estimating
+per-group effects also comes with a **homogeneity test** answering whether the group
+differences are real or noise; without it, eyeballing subgroup estimates invites false
+discoveries.
+
+In formative, pass ``effect_modifier=`` to :class:`~formative.OLSObservational` or
+:class:`~formative.RCT`. The fitted model becomes
+``outcome ~ treatment * C(modifier) + controls``, and the result exposes per-group effects
+(``effect_by_group``), the homogeneity test, and a cost-benefit decision per group
+(``decide_by_group``). The modifier must be measured pre-treatment: segmenting by a variable
+the treatment itself affects (a mediator) manufactures artificial heterogeneity, and the DAG
+validation rejects modifiers that are descendants of the treatment.
+
+**Methods that estimate CATE:**
+
+- **OLS Observational** (with ``effect_modifier``) — interacts the treatment with the
+  modifier while adjusting for confounders identified via the backdoor criterion.
+- **RCT** (with ``effect_modifier``) — randomisation makes each subgroup's simple contrast
+  unbiased; the interaction model estimates all subgroups jointly.
+
+**CATE vs ATE:** The ATE is the average of the CATEs, weighted by each group's share of the
+population — formative reports exactly this weighted average as the headline effect when an
+effect modifier is used. A homogeneous effect means CATE(x) = ATE for every group; the wider
+the CATEs spread around the ATE, the more value there is in targeting rather than treating
+uniformly.

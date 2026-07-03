@@ -27,7 +27,6 @@ under uncertainty or in strategic situations. :doc:`Get started <game/introducti
    causal/estimands
    causal/wizard
    causal/estimators
-   causal/heterogeneity
    causal/refutations
    causal/decisions
 

@@ -216,6 +216,18 @@ class TestCATEDataValidation:
         with pytest.raises(ValueError, match="does not vary within"):
             estimator.fit(df)
 
+    def test_mixed_type_modifier_levels_work(self):
+        """Unsortable mixed-type levels fall back to string ordering."""
+        df = make_heterogeneous_data()
+        df["segment"] = df["segment"].map({0: 0, 1: 1, 2: "high"})
+        result = OLSObservational(make_dag(), treatment="education", outcome="income", effect_modifier="segment").fit(
+            df
+        )
+        effects = {g.level: g.effect for g in result.effect_by_group}
+        assert abs(effects[0] - 1.0) < 0.15
+        assert abs(effects[1] - 2.0) < 0.15
+        assert abs(effects["high"] - 3.0) < 0.15
+
     def test_string_modifier_levels_work(self):
         df = make_heterogeneous_data()
         df["segment"] = df["segment"].map({0: "low", 1: "mid", 2: "high"})

@@ -246,6 +246,12 @@ class RCT:
             Must contain columns for treatment and outcome. Treatment may
             be binary (0/1) or continuous.
 
+        Returns
+        -------
+        RCTResult
+            Or an ``RCTCATEResult`` (a subclass adding per-group effects) when
+            the estimator was constructed with an ``effect_modifier``.
+
         Raises
         ------
         ``ValueError``
