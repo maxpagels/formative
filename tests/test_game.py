@@ -1,6 +1,6 @@
 import pytest
 
-from formative.game import expected_value, hurwicz, laplace, maximax, maximin, minimax_regret
+from formative.game import expected_value, hurwicz, laplace, maximax, maximin, minimax
 
 OUTCOMES = {
     "stocks": {"recession": -20, "stagnation": 5, "growth": 30},
@@ -56,35 +56,35 @@ class TestMaximax:
         assert "← chosen" in repr(maximax(OUTCOMES).solve())
 
 
-class TestMinimaxRegret:
+class TestMinimax:
     def test_choice(self):
         # In recession: bonds regret=0, stocks regret=25, cash regret=3
         # In stagnation: bonds regret=0, stocks regret=0, cash regret=3
         # In growth: stocks regret=0, bonds regret=23, cash regret=28
         # max regrets: stocks=25, bonds=23, cash=28 → bonds chosen
-        assert minimax_regret(OUTCOMES).solve().choice == "bonds"
+        assert minimax(OUTCOMES).solve().choice == "bonds"
 
     def test_max_regret_value(self):
-        r = minimax_regret(OUTCOMES).solve()
+        r = minimax(OUTCOMES).solve()
         assert r.max_regrets["stocks"] == 25  # recession: 5 - (-20)
         assert r.max_regrets["bonds"] == 23  # growth: 30 - 7
         assert r.max_regrets["cash"] == 28  # growth: 30 - 2
 
     def test_regret_table(self):
-        r = minimax_regret(OUTCOMES).solve()
+        r = minimax(OUTCOMES).solve()
         assert r.regret_table["stocks"]["recession"] == 25  # 5 - (-20)
         assert r.regret_table["bonds"]["recession"] == 0  # best in recession
         assert r.regret_table["stocks"]["growth"] == 0  # best in growth
 
     def test_empty_raises(self):
         with pytest.raises(ValueError):
-            minimax_regret({})
+            minimax({})
 
     def test_repr_marks_chosen(self):
-        assert "← chosen" in repr(minimax_regret(OUTCOMES).solve())
+        assert "← chosen" in repr(minimax(OUTCOMES).solve())
 
     def test_single_choice_zero_regret(self):
-        r = minimax_regret({"only": {"good": 10, "bad": -1}}).solve()
+        r = minimax({"only": {"good": 10, "bad": -1}}).solve()
         assert r.choice == "only"
         assert r.max_regret == 0
 
@@ -245,8 +245,8 @@ class TestFloatPayoffs:
         assert r.choice == "a"
         assert r.best_case == pytest.approx(10.0)
 
-    def test_minimax_regret_float(self):
-        r = minimax_regret(FLOAT_OUTCOMES).solve()
+    def test_minimax_float(self):
+        r = minimax(FLOAT_OUTCOMES).solve()
         # best per scenario: s1=0.5, s2=2.5, s3=10.0
         # regrets a: s1=2.0, s2=0.0, s3=0.0 → max=2.0
         # regrets b: s1=0.0, s2=2.0, s3=9.0 → max=9.0

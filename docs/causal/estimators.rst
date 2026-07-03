@@ -14,6 +14,13 @@ OLSResult
    :members:
    :inherited-members:
 
+OLSCATEResult
+-------------
+
+.. autoclass:: formative.causal.OLSCATEResult
+   :members:
+   :inherited-members:
+
 IV2SLS
 ------
 
@@ -53,6 +60,13 @@ RCTResult
    :members:
    :inherited-members:
 
+RCTCATEResult
+-------------
+
+.. autoclass:: formative.causal.RCTCATEResult
+   :members:
+   :inherited-members:
+
 DiD
 ---
 
@@ -78,3 +92,9 @@ RDDResult
 .. autoclass:: formative.causal.RDDResult
    :members:
    :inherited-members:
+
+GroupEffect
+-----------
+
+.. autoclass:: formative.causal.GroupEffect
+   :members:

@@ -46,51 +46,6 @@ class DecisionReport:
     robust: bool
     p_beneficial: float
 
-    def value_of_information(self, target_confidence: float = 0.95) -> str:
-        """
-        Estimate how much the standard error would need to shrink — and
-        approximately how many times larger the sample would need to be — to
-        reach ``target_confidence`` that the optimal decision is correct.
-
-        If the decision is already at or above ``target_confidence``, reports
-        that no additional data is needed.
-
-        Parameters
-        ----------
-        target_confidence : float
-            Desired probability that net benefit > 0 (default 0.95).
-
-        Returns
-        -------
-        str
-            A human-readable description of the value of information.
-        """
-        if self.p_beneficial >= target_confidence:
-            return (
-                f"Decision confidence is already {self.p_beneficial:.1%}, "
-                f"at or above the target of {target_confidence:.1%}. "
-                f"No additional data is needed to be confident in this decision."
-            )
-
-        # net_benefit / (se_net * z_target) = 1  →  se_net_required = net_benefit / z_target
-        # se_net = std_err_ate * benefit  →  std_err_required = se_net_required / benefit
-        z_target = norm.ppf(target_confidence)
-        se_net_current = abs(self.net_benefit_ci[1] - self.net_benefit_ci[0]) / (2 * 1.96)
-        if se_net_current == 0:
-            return "Cannot compute value of information: standard error is zero."
-
-        se_net_required = abs(self.net_benefit) / z_target
-        se_ratio = se_net_current / se_net_required
-        n_multiplier = se_ratio**2
-
-        return (
-            f"Current decision confidence: {self.p_beneficial:.1%} "
-            f"(target: {target_confidence:.1%}).\n"
-            f"The standard error on net benefit would need to shrink by "
-            f"{(1 - 1 / se_ratio):.1%} to reach the target.\n"
-            f"This requires approximately {n_multiplier:.1f}x the current sample size."
-        )
-
     def to_outcomes(
         self,
         scenarios: dict[str, float] | None = None,
@@ -110,7 +65,7 @@ class DecisionReport:
         -------
         dict[str, dict[str, float]]
             A ``{choice: {scenario: payoff}}`` structure accepted by any
-            ``formative.game`` rule (``maximin``, ``minimax_regret``,
+            ``formative.game`` rule (``maximin``, ``minimax``,
             ``hurwicz``, etc.). The ``"don't treat"`` payoff is 0 in every
             scenario — the status quo baseline.
 

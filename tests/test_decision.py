@@ -139,32 +139,6 @@ class TestDecideFields:
 
 
 # ---------------------------------------------------------------------------
-# value_of_information
-# ---------------------------------------------------------------------------
-
-
-class TestValueOfInformation:
-    def test_already_confident_returns_no_data_needed(self):
-        msg = POSITIVE.value_of_information(target_confidence=0.95)
-        assert "No additional data is needed" in msg
-
-    def test_below_target_reports_shrinkage_and_multiplier(self):
-        msg = MARGINAL.value_of_information(target_confidence=0.95)
-        assert "standard error" in msg
-        assert "sample size" in msg
-
-    def test_zero_se_returns_error_message(self):
-        report = _decide(0.0, 0.0, (0.0, 0.0), TREATMENT, OUTCOME, cost=1.0, benefit=5.0)
-        msg = report.value_of_information()
-        assert "standard error is zero" in msg
-
-    def test_custom_target_confidence(self):
-        msg = POSITIVE.value_of_information(target_confidence=0.9999)
-        # Even a very profitable decision may need more data at 99.99% confidence
-        assert isinstance(msg, str)
-
-
-# ---------------------------------------------------------------------------
 # summary / __repr__
 # ---------------------------------------------------------------------------
 

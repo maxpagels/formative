@@ -43,17 +43,24 @@ Called as `result.refute(df)` — always pass the same `df` used for `fit()`. Re
 **Refutation seeds** — isolated to avoid collisions with test data (seeded at 42):
 - `_RCC_SEED = 54321` — random common cause column
 - `_PLACEBO_SEED = 99999` — treatment permutation in matching
+- `_PLACEBO_TIME_SEED = 22222` — time permutation in DiD
+- `_PLACEBO_MODIFIER_SEED = 77777` — modifier permutation in CATE checks
+- `_RANDOM_MODIFIER_SEED = 31313` — noise modifier column in CATE checks
 - `_BOOTSTRAP_SEED = 42` — safe to reuse in matching's bootstrap (samples row indices, not independent values)
 
 Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise collides with instrument/treatment data and produces a singular matrix in IV.
 
+**Heterogeneous effects (CATE)** — `OLSObservational` and `RCT` accept `effect_modifier=` (a discrete, pre-treatment column). `fit()` then returns `OLSCATEResult`/`RCTCATEResult` with `effect_by_group`, a homogeneity F-test, and `decide_by_group()`. The headline `effect` is the sample-share-weighted average of group effects (the raw treatment coefficient under interaction coding is only the reference group's effect). Shared machinery lives in `estimators/_cate.py`; DAG validation rejects modifiers that are descendants of the treatment (mediators) or not ancestors of the outcome.
+
 **Package layout:**
 - `formative/causal/dag.py` — `DAG`, `_Node`
 - `formative/causal/_exceptions.py` — `IdentificationError`, `GraphError`
-- `formative/causal/estimators/ols.py` — `OLSObservational`, `OLSResult`
+- `formative/causal/estimators/_base.py` — `_BaseResult`, `_StatsmodelsResult` (shared result plumbing: effect stats via `_param`, `decide()`, assumptions footer)
+- `formative/causal/estimators/_cate.py` — `GroupEffect`, `_fit_cate`, `_CATEResultMixin`, modifier validation (shared by OLS/RCT and the CATE refutations)
+- `formative/causal/estimators/ols.py` — `OLSObservational`, `OLSResult`, `OLSCATEResult`
 - `formative/causal/estimators/iv.py` — `IV2SLS`, `IVResult`
 - `formative/causal/estimators/matching.py` — `PropensityScoreMatching`, `MatchingResult`; exports `_propensity_scores`, `_att_from_ps` for use by refutations
-- `formative/causal/estimators/rct.py` — `RCT`, `RCTResult`
+- `formative/causal/estimators/rct.py` — `RCT`, `RCTResult`, `RCTCATEResult`
 - `formative/causal/estimators/did.py` — `DiD`, `DiDResult`
 - `formative/causal/estimators/rdd.py` — `RDD`, `RDDResult`
 - `formative/causal/refutations/_check.py` — `Assumption`, `RefutationCheck`, `RefutationReport`
@@ -61,6 +68,7 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 - `formative/causal/refutations/iv.py` — `IVRefutationReport`, `_check_first_stage_f`, `_check_random_common_cause`
 - `formative/causal/refutations/matching.py` — `MatchingRefutationReport`, `_check_placebo_treatment`, `_check_random_common_cause`
 - `formative/causal/refutations/rct.py` — `RCTRefutationReport`, `_check_random_common_cause`
+- `formative/causal/refutations/cate.py` — `_check_placebo_modifier`, `_check_random_modifier`, `_check_random_common_cause` (used by `OLSCATEResult`/`RCTCATEResult`; reports reuse the OLS/RCT report classes)
 - `formative/causal/refutations/did.py` — `DiDRefutationReport`, `_check_placebo_group`, `_check_random_common_cause`
 - `formative/causal/refutations/rdd.py` — `RDDRefutationReport`, `_check_placebo_cutoff`, `_check_random_common_cause`
 - `formative/causal/_explain.py` — narrative rendering for all estimators
@@ -91,7 +99,7 @@ result = maximin({
 **Package layout:**
 - `formative/game/maximin.py` — `maximin`, `Maximin`, `MaximinResult`
 - `formative/game/maximax.py` — `maximax`, `Maximax`, `MaximaxResult`
-- `formative/game/minimax_regret.py` — `minimax_regret`, `MinimaxRegret`, `MinimaxRegretResult`
+- `formative/game/minimax.py` — `minimax`, `Minimax`, `MinimaxResult`
 - `formative/game/hurwicz.py` — `hurwicz`, `Hurwicz`, `HurwiczResult`
 - `formative/game/laplace.py` — `laplace`, `Laplace`, `LaplaceResult`
 - `formative/game/expected_value.py` — `expected_value`, `ExpectedValue`, `ExpectedValueResult`

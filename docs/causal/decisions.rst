@@ -36,7 +36,7 @@ earnings using OLS with a DAG that encodes family background as a confounder:
 
    import numpy as np
    import pandas as pd
-   from formative import DAG, OLSObservational
+   from formative.causal import DAG, OLSObservational
 
    rng = np.random.default_rng(0)
    N = 2_000
@@ -95,7 +95,7 @@ to any rule in ``formative.game``:
 
 .. code-block:: python
 
-   from formative.game import maximin, minimax_regret, hurwicz
+   from formative.game import maximin, minimax, hurwicz
 
    decision = result.decide(cost=8, benefit=15)
    outcomes = decision.to_outcomes()
@@ -105,7 +105,7 @@ to any rule in ``formative.game``:
    # }
 
    maximin(outcomes).solve()            # best worst-case
-   minimax_regret(outcomes).solve()     # minimise maximum regret
+   minimax(outcomes).solve()            # minimise maximum regret
    hurwicz(outcomes, alpha=0.3).solve() # weighted pessimism–optimism
 
 By default, the three scenarios correspond to the 10th, 50th, and 90th
@@ -126,27 +126,6 @@ You can supply your own scenario names and quantiles:
 set to the CI bounds (quantiles 0.025 and 0.975). ``to_outcomes()``
 generalises that check: different rules express different risk attitudes, and
 you can dial in your own pessimism level via ``hurwicz(alpha=...)``.
-
-Value of information
---------------------
-
-When a decision is *not* already highly confident, it is useful to know how much
-more data would be needed to reach a target confidence level. Call
-``value_of_information()`` on the report:
-
-.. code-block:: python
-
-   print(decision.value_of_information(target_confidence=0.99))
-
-If the decision is already at or above the target confidence, formative reports
-that no additional data is needed. Otherwise, it reports:
-
-* how much the standard error on net benefit would need to shrink, and
-* approximately how many times larger the sample would need to be.
-
-This frames the cost of uncertainty concretely: collecting more data has a price,
-and the value of information tells you whether that price is worth paying before
-you commit to a decision.
 
 Philosophy
 ----------

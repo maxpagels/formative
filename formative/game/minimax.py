@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass
-class MinimaxRegretResult:
+class MinimaxResult:
     """Result of applying the minimax regret decision rule.
 
     Regret for a given choice and scenario is the difference between the best
@@ -28,7 +28,7 @@ class MinimaxRegretResult:
 
     def __repr__(self):
         w = max(len(c) for c in self.max_regrets)
-        lines = ["MinimaxRegretResult("]
+        lines = ["MinimaxResult("]
         for c, v in self.max_regrets.items():
             marker = "  ← chosen" if c == self.choice else ""
             lines.append(f"  {c:{w}s}  max regret: {v:+.4g}{marker}")
@@ -36,7 +36,7 @@ class MinimaxRegretResult:
         return "\n".join(lines)
 
 
-class MinimaxRegret:
+class Minimax:
     """Minimax regret decision rule.
 
     Parameters
@@ -46,7 +46,7 @@ class MinimaxRegret:
 
     Examples
     --------
-    >>> result = minimax_regret({
+    >>> result = minimax({
     ...     "stocks": {"recession": -20, "stagnation":  5, "growth": 30},
     ...     "bonds":  {"recession":   5, "stagnation":  5, "growth":  7},
     ...     "cash":   {"recession":   2, "stagnation":  2, "growth":  2},
@@ -65,7 +65,7 @@ class MinimaxRegret:
 
         Returns
         -------
-        MinimaxRegretResult
+        MinimaxResult
         """
         choices = list(self._outcomes.keys())
         scenarios = list(next(iter(self._outcomes.values())).keys())
@@ -79,7 +79,7 @@ class MinimaxRegret:
         max_regrets = {c: max(regret_table[c].values()) for c in choices}
         best = min(max_regrets, key=max_regrets.__getitem__)
 
-        return MinimaxRegretResult(
+        return MinimaxResult(
             choice=best,
             max_regret=max_regrets[best],
             max_regrets=max_regrets,
@@ -87,7 +87,7 @@ class MinimaxRegret:
         )
 
 
-def minimax_regret(outcomes):
+def minimax(outcomes):
     """Find the choice that minimises the worst-case regret across all scenarios.
 
     Regret for a choice in a given scenario is the gap between the best payoff
@@ -101,7 +101,7 @@ def minimax_regret(outcomes):
 
     Returns
     -------
-    MinimaxRegret
+    Minimax
         Call ``.solve()`` to get the result.
     """
-    return MinimaxRegret(outcomes)
+    return Minimax(outcomes)
