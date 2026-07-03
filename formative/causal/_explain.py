@@ -82,6 +82,46 @@ def _dag_section(dag, treatment: str, outcome: str, adjustment_set: set[str]) ->
     return "\n".join(lines)
 
 
+def _heterogeneity_section(result) -> str | None:
+    """HETEROGENEITY block for results fitted with an effect modifier, else None."""
+    modifier = getattr(result, "_modifier", None)
+    if modifier is None:
+        return None
+
+    groups = result.effect_by_group
+    p = result.homogeneity_pvalue
+    largest = max(groups, key=lambda g: g.effect)
+    smallest = min(groups, key=lambda g: g.effect)
+
+    if p < 0.05:
+        verdict = (
+            f"A formal test rejects the hypothesis that the effect is the same across "
+            f"{modifier} groups ({_fmt_p(p)}): the treatment effect genuinely differs by {modifier}."
+        )
+    else:
+        verdict = (
+            f"A formal test does not reject the hypothesis that the effect is the same "
+            f"across {modifier} groups ({_fmt_p(p)}); the differences below may be noise."
+        )
+
+    lines = [
+        "HETEROGENEITY",
+        f"The effect was allowed to differ across levels of {modifier}. {verdict}",
+        "",
+    ]
+    for g in groups:
+        lo, hi = g.conf_int
+        lines.append(f"  • {modifier} = {g.level}: effect = {g.effect:.4f}  (95% CI: {_fmt_ci(lo, hi)}, n = {g.n:,})")
+    lines += [
+        "",
+        f"The largest estimated effect is for {modifier} = {largest.level} ({largest.effect:.4f}) "
+        f"and the smallest for {modifier} = {smallest.level} ({smallest.effect:.4f}). Group "
+        f"estimates are less precise than the overall average, and with many groups some "
+        f"extreme-looking effects are expected by chance.",
+    ]
+    return "\n".join(lines)
+
+
 def _assumptions_section(assumptions: list) -> str:
     n = len(assumptions)
     n_u = sum(1 for a in assumptions if not a.testable)
@@ -115,6 +155,7 @@ def explain_ols(result) -> str:
     adj = sorted(result._adjustment_set)
     lo, hi = result.conf_int
     bias = result.unadjusted_effect - result.effect
+    heterogeneity = _heterogeneity_section(result)
 
     bias_lines = []
     if adj:
@@ -161,6 +202,7 @@ def explain_ols(result) -> str:
                 *bias_lines,
             ]
         ),
+        *([heterogeneity] if heterogeneity else []),
         "\n".join(
             [
                 "CAVEATS",
@@ -247,6 +289,7 @@ def explain_iv(result) -> str:
 def explain_rct(result) -> str:
     T, Y = result._treatment, result._outcome
     lo, hi = result.conf_int
+    heterogeneity = _heterogeneity_section(result)
 
     blocks = [
         "\n".join(
@@ -277,6 +320,7 @@ def explain_rct(result) -> str:
                 f"SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}).",
             ]
         ),
+        *([heterogeneity] if heterogeneity else []),
         "\n".join(
             [
                 "CAVEATS",

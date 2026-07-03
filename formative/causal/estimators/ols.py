@@ -7,6 +7,13 @@ from .._exceptions import IdentificationError
 from ..dag import DAG
 from ..refutations._check import Assumption
 from ._base import _StatsmodelsResult
+from ._cate import (
+    CATE_ASSUMPTIONS,
+    _CATEResultMixin,
+    _fit_cate,
+    _validate_modifier_dag,
+    _validate_modifier_data,
+)
 
 OLS_ASSUMPTIONS: list[Assumption] = [
     Assumption("No unobserved confounders (selection on observables)", testable=False),
@@ -97,6 +104,7 @@ class OLSResult(_StatsmodelsResult):
             f"  p-value              : {self.pvalue:>10.4f}",
             f"  N                    : {self._n:>10}",
         ]
+        lines += self._extra_summary_lines()
         lines += self._assumptions_lines()
         return "\n".join(lines)
 
@@ -134,6 +142,81 @@ class OLSResult(_StatsmodelsResult):
         )
 
 
+class OLSCATEResult(_CATEResultMixin, OLSResult):
+    """
+    The result of an OLS causal estimation with an effect modifier.
+
+    Everything in ``OLSResult``, plus heterogeneous treatment effects:
+    ``effect_by_group`` gives the effect within each modifier level,
+    ``homogeneity_pvalue`` tests whether the heterogeneity is real, and
+    ``decide_by_group`` produces a cost-benefit decision per group. The
+    headline ``effect`` is the sample-share-weighted average of the group
+    effects (equivalent to the ATE under the interaction model).
+    """
+
+    _ASSUMPTIONS = OLS_ASSUMPTIONS + CATE_ASSUMPTIONS
+
+    def __init__(
+        self,
+        cate_fit,
+        unadjusted_result,
+        treatment: str,
+        outcome: str,
+        modifier: str,
+        adjustment_set: set[str],
+        dag,
+        n: int,
+    ) -> None:
+        super().__init__(cate_fit.result, unadjusted_result, treatment, outcome, adjustment_set, dag, n)
+        self._modifier = modifier
+        self._cate = cate_fit
+
+    def refute(self, data: pd.DataFrame):
+        """
+        Run refutation checks against this heterogeneous-effects estimation.
+
+        Currently runs:
+
+        - **Random common cause**: adds a random noise column as an extra
+          control and checks that the weighted average effect does not shift
+          by more than one standard error.
+        - **Placebo modifier**: randomly permutes the modifier column; the
+          heterogeneity should vanish (homogeneity test non-significant).
+        - **Random modifier**: interacts treatment with a pure-noise column
+          instead; it should show no significant heterogeneity.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The same dataframe passed to ``fit()``.
+        """
+        from ..refutations.cate import (
+            _check_placebo_modifier,
+            _check_random_common_cause,
+            _check_random_modifier,
+        )
+        from ..refutations.ols import OLSRefutationReport
+
+        checks = [
+            _check_random_common_cause(
+                data,
+                self._treatment,
+                self._outcome,
+                self._modifier,
+                self._adjustment_set,
+                self.effect,
+                self.std_err,
+            ),
+            _check_placebo_modifier(data, self._treatment, self._outcome, self._modifier, self._adjustment_set),
+            _check_random_modifier(data, self._treatment, self._outcome, self._modifier, self._adjustment_set),
+        ]
+        return OLSRefutationReport(
+            checks=checks,
+            treatment=self._treatment,
+            outcome=self._outcome,
+        )
+
+
 class OLSObservational:
     """
     Observational Ordinary Least Squares (OLS) estimator with DAG-based confounder identification.
@@ -157,12 +240,20 @@ class OLSObservational:
         # If 'ability' is not in df, an IdentificationError is raised.
         result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
         print(result.summary())
+
+    To estimate heterogeneous effects, pass a discrete ``effect_modifier``
+    column: the model becomes ``outcome ~ treatment * C(modifier) + controls``
+    and ``fit()`` returns an ``OLSCATEResult`` with per-group effects. The
+    modifier must be a DAG node that causes the outcome and is **not** a
+    descendant of the treatment (conditioning on a mediator manufactures
+    artificial heterogeneity — this is validated and raises ``ValueError``).
     """
 
-    def __init__(self, dag: DAG, treatment: str, outcome: str) -> None:
+    def __init__(self, dag: DAG, treatment: str, outcome: str, effect_modifier: str | None = None) -> None:
         self._dag = dag
         self._treatment = treatment
         self._outcome = outcome
+        self._modifier = effect_modifier
         self._validate_inputs()
 
     def _validate_inputs(self) -> None:
@@ -172,6 +263,8 @@ class OLSObservational:
                 raise ValueError(f"{label} '{var}' is not a node in the DAG. Known nodes: {sorted(nodes)}")
         if self._treatment == self._outcome:
             raise ValueError("Treatment and outcome must be different variables.")
+        if self._modifier is not None:
+            _validate_modifier_dag(self._dag, self._treatment, self._outcome, self._modifier)
 
     def _identify(self, data_columns: set[str]) -> tuple[set[str], set[str]]:
         """
@@ -248,10 +341,25 @@ class OLSObservational:
                 f"  - DiD or RD if a natural experiment is available"
             )
 
+        unadjusted_result = smf.ols(f"{self._outcome} ~ {self._treatment}", data=data).fit()
+
+        if self._modifier is not None:
+            _validate_modifier_data(data, self._treatment, self._modifier)
+            cate_fit = _fit_cate(data, self._treatment, self._outcome, self._modifier, adjustment_set)
+            return OLSCATEResult(
+                cate_fit,
+                unadjusted_result,
+                self._treatment,
+                self._outcome,
+                self._modifier,
+                adjustment_set,
+                self._dag,
+                len(data),
+            )
+
         controls = sorted(adjustment_set)
         rhs = " + ".join([self._treatment] + controls)
         adjusted_result = smf.ols(f"{self._outcome} ~ {rhs}", data=data).fit()
-        unadjusted_result = smf.ols(f"{self._outcome} ~ {self._treatment}", data=data).fit()
 
         return OLSResult(
             adjusted_result,

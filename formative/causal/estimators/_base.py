@@ -29,6 +29,10 @@ class _BaseResult:
         lines.append("")
         return lines
 
+    def _extra_summary_lines(self) -> list[str]:
+        """Hook for subclasses to insert extra blocks before the assumptions footer."""
+        return []
+
     def decide(self, cost: float, benefit: float):
         """
         Compute a cost-benefit decision analysis from this causal estimate.

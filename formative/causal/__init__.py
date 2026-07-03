@@ -1,10 +1,11 @@
 from .dag import DAG
 from .decision import DecisionReport
+from .estimators._cate import GroupEffect
 from .estimators.did import DiD, DiDResult
 from .estimators.iv import IV2SLS, IVResult
 from .estimators.matching import MatchingResult, PropensityScoreMatching
-from .estimators.ols import OLSObservational, OLSResult
-from .estimators.rct import RCT, RCTResult
+from .estimators.ols import OLSCATEResult, OLSObservational, OLSResult
+from .estimators.rct import RCT, RCTCATEResult, RCTResult
 from .estimators.rdd import RDD, RDDResult
 from .refutations import (
     DiDRefutationReport,
@@ -22,12 +23,15 @@ __all__ = [
     "DAG",
     "OLSObservational",
     "OLSResult",
+    "OLSCATEResult",
+    "GroupEffect",
     "IV2SLS",
     "IVResult",
     "PropensityScoreMatching",
     "MatchingResult",
     "RCT",
     "RCTResult",
+    "RCTCATEResult",
     "DiD",
     "DiDResult",
     "RDD",
