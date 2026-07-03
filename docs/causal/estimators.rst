@@ -12,6 +12,7 @@ OLSResult
 
 .. autoclass:: formative.causal.OLSResult
    :members:
+   :inherited-members:
 
 IV2SLS
 ------
@@ -24,6 +25,7 @@ IVResult
 
 .. autoclass:: formative.causal.IVResult
    :members:
+   :inherited-members:
 
 PropensityScoreMatching
 -----------------------
@@ -36,6 +38,7 @@ MatchingResult
 
 .. autoclass:: formative.causal.MatchingResult
    :members:
+   :inherited-members:
 
 RCT
 ---
@@ -48,6 +51,7 @@ RCTResult
 
 .. autoclass:: formative.causal.RCTResult
    :members:
+   :inherited-members:
 
 DiD
 ---
@@ -60,6 +64,7 @@ DiDResult
 
 .. autoclass:: formative.causal.DiDResult
    :members:
+   :inherited-members:
 
 RDD
 ---
@@ -72,3 +77,4 @@ RDDResult
 
 .. autoclass:: formative.causal.RDDResult
    :members:
+   :inherited-members:

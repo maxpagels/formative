@@ -5,6 +5,7 @@ import statsmodels.formula.api as smf
 
 from ..dag import DAG
 from ..refutations._check import Assumption
+from ._base import _StatsmodelsResult
 
 RCT_ASSUMPTIONS: list[Assumption] = [
     Assumption("Random assignment of treatment", testable=False),
@@ -13,7 +14,7 @@ RCT_ASSUMPTIONS: list[Assumption] = [
 ]
 
 
-class RCTResult:
+class RCTResult(_StatsmodelsResult):
     """
     The result of an RCT causal estimation.
 
@@ -21,6 +22,8 @@ class RCTResult:
     is randomly assigned, no confounder adjustment is needed and the ATE
     equals the difference in mean outcomes between treatment and control.
     """
+
+    _ASSUMPTIONS = RCT_ASSUMPTIONS
 
     def __init__(
         self,
@@ -35,37 +38,6 @@ class RCTResult:
         self._outcome = outcome
         self._dag = dag
         self._n = n
-
-    @property
-    def effect(self) -> float:
-        """ATE: average treatment effect (difference in means)."""
-        return float(self._result.params[self._treatment])
-
-    @property
-    def std_err(self) -> float:
-        """Standard error of the ATE estimate."""
-        return float(self._result.bse[self._treatment])
-
-    @property
-    def conf_int(self) -> tuple[float, float]:
-        """95% confidence interval for the ATE."""
-        ci = self._result.conf_int()
-        return (float(ci.loc[self._treatment, 0]), float(ci.loc[self._treatment, 1]))
-
-    @property
-    def pvalue(self) -> float:
-        """p-value for the ATE (``H0: ATE = 0``)."""
-        return float(self._result.pvalues[self._treatment])
-
-    @property
-    def statsmodels_result(self):
-        """The underlying statsmodels OLS result, for full diagnostics."""
-        return self._result
-
-    @property
-    def assumptions(self) -> list[Assumption]:
-        """Modelling assumptions required for a causal interpretation."""
-        return list(RCT_ASSUMPTIONS)
 
     def executive_summary(self) -> str:
         """Narrative explanation of the method, DAG, assumptions, and result."""
@@ -87,34 +59,9 @@ class RCTResult:
             f"  95% CI               : [{lo:.4f}, {hi:.4f}]",
             f"  p-value              : {self.pvalue:>10.4f}",
             f"  N                    : {self._n:>10}",
-            "",
-            "  Assumptions",
-            "  " + "┄" * 48,
         ]
-        for a in RCT_ASSUMPTIONS:
-            lines.append(f"  {a.fmt_tag()}  {a.name}")
-        lines.append("")
+        lines += self._assumptions_lines()
         return "\n".join(lines)
-
-    def decide(self, cost: float, benefit: float):
-        """
-        Compute a cost-benefit decision analysis from this causal estimate.
-
-        Parameters
-        ----------
-        cost : float
-            Cost per unit of treatment applied.
-        benefit : float
-            Benefit (revenue, utility, etc.) per unit increase in the outcome.
-
-        Returns
-        -------
-        DecisionReport
-            Optimal decision, net benefit, CI, confidence, and robustness flag.
-        """
-        from ..decision import _decide
-
-        return _decide(self.effect, self.std_err, self.conf_int, self._treatment, self._outcome, cost, benefit)
 
     def refute(self, data: pd.DataFrame):
         """
@@ -148,9 +95,6 @@ class RCTResult:
             treatment=self._treatment,
             outcome=self._outcome,
         )
-
-    def __repr__(self) -> str:
-        return self.summary()
 
 
 class RCT:
