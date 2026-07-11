@@ -83,9 +83,10 @@ make release BUMP=minor   # 0.1.0 → 0.2.0 (new features)
 make release BUMP=major   # 0.1.0 → 1.0.0 (breaking changes)
 ```
 
-One command does everything: bumps the version (commit + tag), builds the docs, snapshots
-them into `site/<major.minor>/` (the versioned docs site Vercel serves statically), and
-pushes with tags — which triggers the publish to PyPI.
+One command does everything: bumps the version in `pyproject.toml` and `uv.lock`
+(commit + tag), builds the docs, snapshots them into `site/<major.minor>/` (the versioned
+docs site Vercel serves statically), and pushes with tags — which triggers the publish to
+PyPI. It refuses to run if the working tree is dirty or `uv.lock` is out of date.
 
 ### Running tests
 

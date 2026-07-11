@@ -19,6 +19,8 @@ check: lint
 
 release:  # usage: make release BUMP=patch|minor|major
 	@test -n "$(BUMP)" || { echo "Usage: make release BUMP=patch|minor|major"; exit 1; }
+	@git diff --quiet && git diff --cached --quiet || { echo "Working tree not clean — commit or stash first."; exit 1; }
+	uv lock --check
 	uvx bump-my-version bump $(BUMP)
 	$(MAKE) build-docs
 	uv run python scripts/snapshot_docs.py
