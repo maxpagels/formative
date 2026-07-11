@@ -4,6 +4,10 @@
   "framework": null,
   "rewrites": [
     {
+      "source": "/",
+      "destination": "/2.1/index.html"
+    },
+    {
       "source": "/:path*",
       "destination": "/2.1/:path*"
     }

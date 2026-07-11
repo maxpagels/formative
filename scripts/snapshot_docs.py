@@ -57,7 +57,12 @@ def main() -> None:
     (SITE / "versions.json").write_text(json.dumps(payload, indent=2) + "\n")
 
     config = json.loads(VERCEL.read_text())
-    config["rewrites"] = [{"source": "/:path*", "destination": f"/{latest}/:path*"}]
+    config["rewrites"] = [
+        # The root needs an explicit file target: Vercel's rewrite layer does
+        # not resolve directory destinations to their index.html.
+        {"source": "/", "destination": f"/{latest}/index.html"},
+        {"source": "/:path*", "destination": f"/{latest}/:path*"},
+    ]
     VERCEL.write_text(json.dumps(config, indent=2) + "\n")
 
     print(f"Snapshotted docs to site/{minor}/  (latest: {latest}; all: {', '.join(versions)})")
