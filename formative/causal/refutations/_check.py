@@ -17,6 +17,34 @@ def _add_random_column(data: pd.DataFrame, seed: int = _RCC_SEED) -> tuple[pd.Da
     return data.assign(**{col: rng.normal(size=len(data))}), col
 
 
+def _shift_check(new_effect: float, original_effect: float, original_se: float, fail_suffix: str) -> RefutationCheck:
+    """Random-common-cause verdict: pass iff the refitted estimate moved by at most one standard error."""
+    shift = abs(new_effect - original_effect)
+    passed = shift <= original_se
+    if passed:
+        detail = f"estimate shifted by {shift:.4f}  (≤ 1 SE = {original_se:.4f})"
+    else:
+        detail = f"estimate shifted by {shift:.4f}  (> 1 SE = {original_se:.4f})  {fail_suffix}"
+    return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
+
+
+def _placebo_check(
+    name: str,
+    label: str,
+    placebo_effect: float,
+    original_se: float,
+    pass_suffix: str,
+    fail_suffix: str,
+) -> RefutationCheck:
+    """Placebo verdict: pass iff the placebo estimate is within one standard error of zero."""
+    passed = abs(placebo_effect) <= original_se
+    if passed:
+        detail = f"{label} = {placebo_effect:.4f}  (≤ 1 SE = {original_se:.4f})  {pass_suffix}"
+    else:
+        detail = f"{label} = {placebo_effect:.4f}  (> 1 SE = {original_se:.4f})  {fail_suffix}"
+    return RefutationCheck(name=name, passed=passed, detail=detail)
+
+
 @dataclass(frozen=True)
 class Assumption:
     """

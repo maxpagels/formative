@@ -5,7 +5,7 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
-from ._check import RefutationCheck, RefutationReport, _add_random_column
+from ._check import RefutationCheck, RefutationReport, _add_random_column, _shift_check
 
 _FIRST_STAGE_F_THRESHOLD = 10.0
 
@@ -68,17 +68,9 @@ def _check_random_common_cause(
 
     new_effect = float(_IV2SLS(endog=augmented[outcome], exog=X, instrument=Z_mat).fit().params[treatment])
 
-    shift = abs(new_effect - original_effect)
-    passed = shift <= original_se
-
-    if passed:
-        detail = f"estimate shifted by {shift:.4f}  (≤ 1 SE = {original_se:.4f})"
-    else:
-        detail = (
-            f"estimate shifted by {shift:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"Adding a random common cause destabilised the estimate."
-        )
-    return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
+    return _shift_check(
+        new_effect, original_effect, original_se, "Adding a random common cause destabilised the estimate."
+    )
 
 
 class IVRefutationReport(RefutationReport):
