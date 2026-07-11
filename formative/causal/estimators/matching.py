@@ -54,11 +54,19 @@ def _att_from_ps(
         raise ValueError("Sample must contain both treated and control units.")
 
     ps_treated = ps[treated_idx]
-    ps_control = ps[control_idx]
 
-    # For each treated unit find the nearest control unit by PS distance.
-    dists = np.abs(ps_treated[:, None] - ps_control[None, :])
-    matched = control_idx[np.argmin(dists, axis=1)]
+    # For each treated unit find the nearest control unit by PS distance,
+    # by binary search over the sorted control scores rather than a full
+    # treated × control distance matrix.
+    order = np.argsort(ps[control_idx], kind="stable")
+    sorted_controls = control_idx[order]
+    sorted_ps = ps[sorted_controls]
+
+    pos = np.searchsorted(sorted_ps, ps_treated)
+    left = np.clip(pos - 1, 0, len(sorted_ps) - 1)
+    right = np.clip(pos, 0, len(sorted_ps) - 1)
+    take_right = np.abs(sorted_ps[right] - ps_treated) < np.abs(sorted_ps[left] - ps_treated)
+    matched = sorted_controls[np.where(take_right, right, left)]
 
     return float(np.mean(outcome[treated_idx] - outcome[matched]))
 
