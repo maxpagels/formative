@@ -5,11 +5,11 @@
   "rewrites": [
     {
       "source": "/",
-      "destination": "/2.1/index.html"
+      "destination": "/2.2/index.html"
     },
     {
       "source": "/:path*",
-      "destination": "/2.1/:path*"
+      "destination": "/2.2/:path*"
     }
   ]
 }

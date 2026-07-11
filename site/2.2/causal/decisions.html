@@ -1,0 +1,952 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decisions &mdash; formative 2.2.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/version_switcher.css?v=9b866bab" />
+
+  
+    <link rel="canonical" href="https://docs.getformative.dev/causal/decisions.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=b21de401"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/version_switcher.js?v=40e5c8a2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Benchmarks" href="benchmarks.html" />
+    <link rel="prev" title="Refutations" href="refutations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            formative
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Causal Estimation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimands.html">Estimands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wizard.html">Choosing an estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Decisions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#should-we-treat-at-all">Should we treat at all?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#game-theoretic-robustness">Game-theoretic robustness</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#should-we-treat-each-segment">Should we treat each segment?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#whom-should-we-treat-learning-a-policy">Whom should we treat? Learning a policy</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-it-works">How it works</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#example">Example</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#combining-features">Combining features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#policies-with-several-treated-groups">Policies with several treated groups</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#refuting-a-learned-policy">Refuting a learned policy</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#practical-notes">Practical notes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#philosophy">Philosophy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#api-reference">API reference</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#decisionreport">DecisionReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#formative.causal.DecisionReport"><code class="docutils literal notranslate"><span class="pre">DecisionReport</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#policyresult">PolicyResult</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#formative.causal.PolicyResult"><code class="docutils literal notranslate"><span class="pre">PolicyResult</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#policynode">PolicyNode</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#formative.causal.PolicyNode"><code class="docutils literal notranslate"><span class="pre">PolicyNode</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#policyrefutationreport">PolicyRefutationReport</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#formative.causal.PolicyRefutationReport"><code class="docutils literal notranslate"><span class="pre">PolicyRefutationReport</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Game Theory</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../game/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../game/single_player.html">Single-player</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">formative</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Decisions</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/causal/decisions.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="decisions">
+<h1>Decisions<a class="headerlink" href="#decisions" title="Link to this heading"></a></h1>
+<p>Causal estimation answers “does X cause Y, and by how much?” but practitioners
+usually need to go one step further: <em>should we act on this estimate?</em> Simply
+estimating the causal effect is not enough: it may be uncertain, or the cost of
+treatment may outweigh any benefit.</p>
+<p>formative’s decision layer answers the question at three levels of granularity,
+each built on the same two numbers — the cost per unit of treatment applied and
+the benefit per unit of improvement in the outcome:</p>
+<ol class="arabic simple">
+<li><p><strong>Should we treat at all?</strong> <code class="docutils literal notranslate"><span class="pre">result.decide(cost,</span> <span class="pre">benefit)</span></code> — one
+cost-benefit call on the average effect.</p></li>
+<li><p><strong>Should we treat each segment?</strong> <code class="docutils literal notranslate"><span class="pre">result.decide_by_group(cost,</span> <span class="pre">benefit)</span></code>
+— the same call per level of a pre-defined <code class="docutils literal notranslate"><span class="pre">effect_modifier</span></code>.</p></li>
+<li><p><strong>Whom should we treat?</strong> <code class="docutils literal notranslate"><span class="pre">result.learn_policy(...)</span></code> — learns the
+segmentation itself: given several candidate features, it finds the
+treatment rule that maximises net benefit, and reports an honest estimate
+of what that rule is worth.</p></li>
+</ol>
+<section id="should-we-treat-at-all">
+<h2>Should we treat at all?<a class="headerlink" href="#should-we-treat-at-all" title="Link to this heading"></a></h2>
+<p>Every result object exposes a <code class="docutils literal notranslate"><span class="pre">.decide(cost,</span> <span class="pre">benefit)</span></code> method. Pass the average cost
+per unit of treatment applied and the monetary (or utility) value of one unit of
+improvement in the outcome. formative returns a <code class="xref py py-class docutils literal notranslate"><span class="pre">DecisionReport</span></code>
+that answers three questions:</p>
+<ol class="arabic simple">
+<li><p><strong>What is the net benefit?</strong> <code class="docutils literal notranslate"><span class="pre">net_benefit</span> <span class="pre">=</span> <span class="pre">effect</span> <span class="pre">×</span> <span class="pre">benefit</span> <span class="pre">−</span> <span class="pre">cost</span></code>. If
+positive, treating is expected to be worthwhile.</p></li>
+<li><p><strong>How confident are we?</strong> <code class="docutils literal notranslate"><span class="pre">p_beneficial</span></code> is the probability that the true
+net benefit is positive, derived by treating the causal estimate as normally
+distributed around its point estimate with the reported standard error.</p></li>
+<li><p><strong>Is the decision robust?</strong> <code class="docutils literal notranslate"><span class="pre">robust</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code> when the optimal decision
+(treat vs. don’t treat) is the same at both ends of the 95% confidence
+interval. A fragile decision that flips within the CI is a signal
+that the estimate is too uncertain to act on without more data.</p></li>
+</ol>
+<p>Consider a job-training programme. We estimate the causal effect of training on
+earnings using OLS with a DAG that encodes family background as a confounder:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">formative.causal</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAG</span><span class="p">,</span> <span class="n">OLSObservational</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">2_000</span>
+<span class="n">background</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">training</span>   <span class="o">=</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="n">background</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">earnings</span>   <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">training</span> <span class="o">+</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="n">background</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+
+<span class="n">df</span>  <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;background&quot;</span><span class="p">:</span> <span class="n">background</span><span class="p">,</span> <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="n">training</span><span class="p">,</span> <span class="s2">&quot;earnings&quot;</span><span class="p">:</span> <span class="n">earnings</span><span class="p">})</span>
+<span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;background&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;training&quot;</span><span class="p">,</span> <span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;training&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">OLSObservational</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;training&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In the above example, the point estimate of the causal effect of training on earnings is around 3.0,
+meaning that that for each unit increase in training, we expect a 3.0 unit increase in earnings.
+Now suppose rolling out the programme costs $8 per participant, and each unit of
+earnings increase is worth $15 in lifetime value. The expected net benefit per unit for training
+is around <code class="docutils literal notranslate"><span class="pre">3.0</span> <span class="pre">×</span> <span class="pre">15</span> <span class="pre">−</span> <span class="pre">8</span> <span class="pre">=</span> <span class="pre">37</span></code>, i.e. we expect to gain $37 for every unit of training applied.
+But how confident are we in that estimate? And is it robust to estimation error?</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">decision</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">decide</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">decision</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Decision Analysis: training → earnings
+──────────────────────────────────────────────────
+  Cost per unit of treatment   :     8.0000
+  Benefit per unit of outcome  :    15.0000
+
+  Net benefit (point estimate) :    +36.9958
+  Net benefit 95% CI           : [+35.3981, +38.5935]
+
+  Optimal decision             : treat
+  Decision confidence          :    100.0%
+  Robust to estimation error   : Yes — decision is stable across 95% CI
+</pre></div>
+</div>
+<section id="game-theoretic-robustness">
+<h3>Game-theoretic robustness<a class="headerlink" href="#game-theoretic-robustness" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">decide()</span></code> uses expected value maximisation: it picks “treat” when
+<code class="docutils literal notranslate"><span class="pre">effect</span> <span class="pre">×</span> <span class="pre">benefit</span> <span class="pre">−</span> <span class="pre">cost</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>. This is the right rule when you want to
+maximise the average outcome, but it is silent about risk attitude — it
+treats a certain $37 gain and a 50/50 gamble between $0 and $74 identically.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">robust</span></code> flag is a first step toward robustness: it checks whether
+the decision flips anywhere inside the 95% confidence interval. But it
+only returns <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>, and it is implicitly using the most
+conservative possible standard (the CI bounds).</p>
+<p>For finer control, call <code class="docutils literal notranslate"><span class="pre">to_outcomes()</span></code> on the report and pass the result
+to any rule in <code class="docutils literal notranslate"><span class="pre">formative.game</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative.game</span><span class="w"> </span><span class="kn">import</span> <span class="n">maximin</span><span class="p">,</span> <span class="n">minimax</span><span class="p">,</span> <span class="n">hurwicz</span>
+
+<span class="n">decision</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">decide</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+<span class="n">outcomes</span> <span class="o">=</span> <span class="n">decision</span><span class="o">.</span><span class="n">to_outcomes</span><span class="p">()</span>
+<span class="c1"># {</span>
+<span class="c1">#   &quot;treat&quot;:       {&quot;pessimistic&quot;: ..., &quot;expected&quot;: ..., &quot;optimistic&quot;: ...},</span>
+<span class="c1">#   &quot;don&#39;t treat&quot;: {&quot;pessimistic&quot;: 0.0, &quot;expected&quot;: 0.0, &quot;optimistic&quot;: 0.0},</span>
+<span class="c1"># }</span>
+
+<span class="n">maximin</span><span class="p">(</span><span class="n">outcomes</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>            <span class="c1"># best worst-case</span>
+<span class="n">minimax</span><span class="p">(</span><span class="n">outcomes</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span>            <span class="c1"># minimise maximum regret</span>
+<span class="n">hurwicz</span><span class="p">(</span><span class="n">outcomes</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span><span class="o">.</span><span class="n">solve</span><span class="p">()</span> <span class="c1"># weighted pessimism–optimism</span>
+</pre></div>
+</div>
+<p>By default, the three scenarios correspond to the 10th, 50th, and 90th
+percentiles of the net-benefit sampling distribution (assumed normal with
+the se derived from the 95% CI). The <code class="docutils literal notranslate"><span class="pre">&quot;don't</span> <span class="pre">treat&quot;</span></code> payoff is 0 in
+every scenario — the status quo baseline.</p>
+<p>You can supply your own scenario names and quantiles:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">outcomes</span> <span class="o">=</span> <span class="n">decision</span><span class="o">.</span><span class="n">to_outcomes</span><span class="p">(</span>
+    <span class="n">scenarios</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;bear&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mf">0.50</span><span class="p">,</span> <span class="s2">&quot;bull&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">}</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Relationship to</strong> <code class="docutils literal notranslate"><span class="pre">robust</span></code>. <code class="docutils literal notranslate"><span class="pre">robust=True</span></code> is equivalent to
+<code class="docutils literal notranslate"><span class="pre">maximin</span></code> returning the same choice as <code class="docutils literal notranslate"><span class="pre">optimal</span></code> when the scenarios are
+set to the CI bounds (quantiles 0.025 and 0.975). <code class="docutils literal notranslate"><span class="pre">to_outcomes()</span></code>
+generalises that check: different rules express different risk attitudes, and
+you can dial in your own pessimism level via <code class="docutils literal notranslate"><span class="pre">hurwicz(alpha=...)</span></code>.</p>
+</section>
+</section>
+<section id="should-we-treat-each-segment">
+<h2>Should we treat each segment?<a class="headerlink" href="#should-we-treat-each-segment" title="Link to this heading"></a></h2>
+<p>An average effect can hide groups where the treatment is worthless — or where
+it pays for itself several times over. When an estimator was fitted with an
+<code class="docutils literal notranslate"><span class="pre">effect_modifier</span></code> (see <a class="reference internal" href="estimands.html"><span class="doc">Estimands</span></a>), <code class="docutils literal notranslate"><span class="pre">decide_by_group(cost,</span> <span class="pre">benefit)</span></code>
+runs the same cost-benefit analysis within each level of the modifier and
+returns a mapping of level → <code class="xref py py-class docutils literal notranslate"><span class="pre">DecisionReport</span></code>, so different
+groups can receive different treatment decisions.</p>
+<p>The remaining examples share one scenario: a company runs a randomised
+coaching programme and measures employee retention. Coaching costs $2.5k per
+participant and a unit of retention is worth $1k. It helps recent hires a lot
+and everyone else not at all:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">formative.causal</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAG</span><span class="p">,</span> <span class="n">RCT</span>
+
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">5_000</span>
+<span class="n">tenure</span>    <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;&lt;2y&quot;</span><span class="p">,</span> <span class="s2">&quot;2-5y&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">region</span>    <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;north&quot;</span><span class="p">,</span> <span class="s2">&quot;south&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">coaching</span>  <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">retention</span> <span class="o">=</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">coaching</span> <span class="o">*</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&lt;2y&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;tenure&quot;</span><span class="p">:</span> <span class="n">tenure</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span> <span class="s2">&quot;coaching&quot;</span><span class="p">:</span> <span class="n">coaching</span><span class="p">,</span> <span class="s2">&quot;retention&quot;</span><span class="p">:</span> <span class="n">retention</span><span class="p">})</span>
+
+<span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;coaching&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;tenure&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;coaching&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;retention&quot;</span><span class="p">,</span> <span class="n">effect_modifier</span><span class="o">=</span><span class="s2">&quot;tenure&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">level</span><span class="p">,</span> <span class="n">decision</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">decide_by_group</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">decision</span><span class="o">.</span><span class="n">net_benefit_ci</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">level</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">decision</span><span class="o">.</span><span class="n">optimal</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2"> net benefit </span><span class="si">{</span><span class="n">decision</span><span class="o">.</span><span class="n">net_benefit</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">lo</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">hi</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2-5y: don&#39;t treat  net benefit -2.48  [-2.57, -2.38]
+ &lt;2y: treat        net benefit +3.42  [+3.33, +3.52]
+ &gt;5y: don&#39;t treat  net benefit -2.57  [-2.66, -2.47]
+</pre></div>
+</div>
+<p>Coaching everyone would burn money on two-thirds of the workforce; coaching
+recent hires is clearly worthwhile. The limitation is that <em>you</em> had to pick
+<code class="docutils literal notranslate"><span class="pre">tenure</span></code> as the segmentation. That is what the next level removes.</p>
+</section>
+<section id="whom-should-we-treat-learning-a-policy">
+<h2>Whom should we treat? Learning a policy<a class="headerlink" href="#whom-should-we-treat-learning-a-policy" title="Link to this heading"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">learn_policy()</span></code> learns the segmentation itself: given several candidate
+features, it finds the treatment rule that maximises net benefit and reports
+an honest estimate of what that rule is worth.</p>
+<p>The output is deliberately a <em>shallow decision tree</em> — e.g. “treat if
+tenure = &lt;2y” — because a rule a stakeholder can read, audit, and ship is
+worth more than an opaque scoring model.</p>
+<p>Policy learning is currently available on <a class="reference internal" href="estimators.html#formative.causal.RCTResult" title="formative.causal.RCTResult"><code class="xref py py-class docutils literal notranslate"><span class="pre">RCTResult</span></code></a>:
+with randomised treatment the machinery needs no propensity model, so there is
+one less thing to get wrong.</p>
+<section id="how-it-works">
+<h3>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">learn_policy()</span></code> implements doubly robust policy learning in the style of
+Athey &amp; Wager (2021):</p>
+<ol class="arabic simple">
+<li><p><strong>Score every unit.</strong> Each unit gets a cross-fitted AIPW score — an
+unbiased estimate of its individual treatment effect. Outcome models are
+fit by OLS on the candidate features over four folds and evaluated on the
+fifth, so no unit is scored by a model that saw it.</p></li>
+<li><p><strong>Convert to net benefit.</strong> A unit’s score becomes
+<code class="docutils literal notranslate"><span class="pre">benefit</span> <span class="pre">×</span> <span class="pre">score</span> <span class="pre">−</span> <span class="pre">cost</span></code>: the estimated net gain of treating that unit.</p></li>
+<li><p><strong>Search all shallow trees.</strong> An exhaustive search over trees of depth
+<code class="docutils literal notranslate"><span class="pre">max_depth</span></code> (1 or 2), splitting on levels of the candidate features,
+finds the rule that maximises total net benefit. Ties prefer simpler trees.</p></li>
+<li><p><strong>Estimate the value honestly.</strong> Selecting the best-looking rule and then
+scoring it on the same data would overstate its value (a winner’s curse).
+Instead, each unit is evaluated under a rule learned <em>without its fold</em>,
+and the reported <code class="docutils literal notranslate"><span class="pre">value</span></code> is the average advantage over the <strong>best
+constant policy</strong> — treating everyone or no one, whichever is better. A
+policy that learned nothing therefore reads as ≈ 0, even when treating
+everyone is profitable.</p></li>
+</ol>
+<p>Because the tree may split on any level of any candidate feature, features
+must be discrete: bin continuous columns before passing them in. Candidate
+features face the same DAG validation as effect modifiers — each must cause
+the outcome and must not be a descendant of the treatment (targeting on a
+mediator is not actionable at assignment time).</p>
+</section>
+<section id="example">
+<h3>Example<a class="headerlink" href="#example" title="Link to this heading"></a></h3>
+<p>Continuing the coaching scenario, we now hand the learner <em>both</em> candidate
+features instead of choosing a segmentation ourselves:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;coaching&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Learned Policy: coaching → retention
+  Estimand: policy value vs best constant policy (doubly robust)
+──────────────────────────────────────────────────
+  Policy rule
+  ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+    treat if tenure = &lt;2y
+    otherwise don&#39;t treat
+
+  Value vs constant    :    +1.1293 per unit
+  Std. error           :     0.0281
+  95% CI               : [+1.0742, +1.1843]
+  Coverage             :      33.0%
+  Cost / benefit       : 2.5 / 1
+  N                    :       5000
+</pre></div>
+</div>
+<p>The learner recovered the true rule — it treats only recent hires, a third of
+the workforce — and did not split on <code class="docutils literal notranslate"><span class="pre">region</span></code>, which carries no signal.
+The value line says targeting adds about $1.13k per employee over the best
+one-size-fits-all option, with a confidence interval well clear of zero.</p>
+<p>The rule can be applied directly to new data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">new_hires</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;tenure&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;&lt;2y&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">],</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;north&quot;</span><span class="p">,</span> <span class="s2">&quot;south&quot;</span><span class="p">]})</span>
+<span class="n">policy</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">new_hires</span><span class="p">)</span>   <span class="c1"># True, False</span>
+</pre></div>
+</div>
+</section>
+<section id="combining-features">
+<h3>Combining features<a class="headerlink" href="#combining-features" title="Link to this heading"></a></h3>
+<p>The example above only needed one feature, but the point of passing several
+<code class="docutils literal notranslate"><span class="pre">modifiers</span></code> is that a depth-2 tree can express an <em>interaction</em>. Suppose
+coaching is delivered in person and only the north has coaches on site — so
+it only helps recent hires in the north:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>
+<span class="n">tenure</span>    <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;&lt;2y&quot;</span><span class="p">,</span> <span class="s2">&quot;2-5y&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">region</span>    <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;north&quot;</span><span class="p">,</span> <span class="s2">&quot;south&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">coaching</span>  <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">helped</span>    <span class="o">=</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&lt;2y&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">region</span> <span class="o">==</span> <span class="s2">&quot;north&quot;</span><span class="p">)</span>
+<span class="n">retention</span> <span class="o">=</span> <span class="mf">7.0</span> <span class="o">*</span> <span class="n">coaching</span> <span class="o">*</span> <span class="n">helped</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;tenure&quot;</span><span class="p">:</span> <span class="n">tenure</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span> <span class="s2">&quot;coaching&quot;</span><span class="p">:</span> <span class="n">coaching</span><span class="p">,</span> <span class="s2">&quot;retention&quot;</span><span class="p">:</span> <span class="n">retention</span><span class="p">})</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;coaching&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Learned Policy: coaching → retention
+  Estimand: policy value vs best constant policy (doubly robust)
+──────────────────────────────────────────────────
+  Policy rule
+  ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+    treat if tenure = &lt;2y and region ≠ south
+    otherwise don&#39;t treat
+
+  Value vs constant    :    +0.7533 per unit
+  Std. error           :     0.0293
+  95% CI               : [+0.6959, +0.8108]
+  Coverage             :      16.6%
+  Cost / benefit       : 2.5 / 1
+  N                    :       5000
+</pre></div>
+</div>
+<p>The learned rule combines both features and treats only the one-sixth of
+employees where coaching pays for itself. This is also where comparing depths
+earns its keep — a depth-1 tree cannot express the interaction, so it falls
+back to treating all recent hires and burns money on the southern half:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+<span class="c1"># +0.34 per unit — versus +0.75 at depth 2</span>
+</pre></div>
+</div>
+<p>When the deeper policy’s value is clearly higher (as here), ship it; when the
+two are within noise of each other, prefer the simpler rule.</p>
+</section>
+<section id="policies-with-several-treated-groups">
+<h3>Policies with several treated groups<a class="headerlink" href="#policies-with-several-treated-groups" title="Link to this heading"></a></h3>
+<p>A policy is not limited to one treated group: <code class="docutils literal notranslate"><span class="pre">rules</span></code> prints one
+<code class="docutils literal notranslate"><span class="pre">treat</span> <span class="pre">if</span> <span class="pre">…</span></code> line for every path through the tree that ends in <em>treat</em>.
+Here training pays off for two disjoint groups — everyone in segment 0, and
+segment-2 employees in the north:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">N</span> <span class="o">=</span> <span class="mi">6_000</span>
+<span class="n">segment</span>  <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">region</span>   <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;north&quot;</span><span class="p">,</span> <span class="s2">&quot;south&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">training</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">effect</span>   <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">segment</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="p">((</span><span class="n">segment</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">region</span> <span class="o">==</span> <span class="s2">&quot;north&quot;</span><span class="p">))</span>
+<span class="n">earnings</span> <span class="o">=</span> <span class="n">effect</span> <span class="o">*</span> <span class="n">training</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">segment</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">segment</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span> <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="n">training</span><span class="p">,</span> <span class="s2">&quot;earnings&quot;</span><span class="p">:</span> <span class="n">earnings</span><span class="p">})</span>
+
+<span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;training&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;segment&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;training&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Learned Policy: training → earnings
+  Estimand: policy value vs best constant policy (doubly robust)
+──────────────────────────────────────────────────
+  Policy rule
+  ┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄┄
+    treat if segment = 2 and region ≠ south
+    treat if segment ≠ 2 and segment ≠ 1
+    otherwise don&#39;t treat
+
+  Value vs constant    :    +0.5119 per unit
+  Std. error           :     0.0219
+  95% CI               : [+0.4690, +0.5548]
+  Coverage             :      50.4%
+  Cost / benefit       : 1 / 1
+  N                    :       6000
+</pre></div>
+</div>
+<p>Each line is one route to a treat leaf, so conditions read in tree order and
+may arrive in complementary form: the second line is the segment-0 group,
+reached by excluding segments 2 and 1. Whatever the phrasing, <code class="docutils literal notranslate"><span class="pre">assign()</span></code>
+applies the rule exactly — here it treats precisely the two profitable groups.</p>
+</section>
+<section id="refuting-a-learned-policy">
+<h3>Refuting a learned policy<a class="headerlink" href="#refuting-a-learned-policy" title="Link to this heading"></a></h3>
+<p>As with every estimator in formative, the result can be stress-tested with
+<code class="docutils literal notranslate"><span class="pre">policy.refute(df)</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Placebo modifiers</strong> — every candidate feature column is permuted and the
+learner re-run. With the features scrambled there is nothing to target, so
+the placebo policy’s value should collapse to ≈ 0.</p></li>
+<li><p><strong>Random modifier</strong> — a pure-noise feature is added to the candidates. The
+honest value should not improve: if noise helps, the value estimate cannot
+be trusted.</p></li>
+</ul>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">refute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Policy Refutation Report: coaching → retention
+──────────────────────────────────────────────────
+  [PASS]  Placebo modifiers: placebo policy value = +0.0000 (SE 0.0000)  Not significantly positive.
+  [PASS]  Random modifier: value shifted by +0.0000  (≤ 1 SE = 0.0281)  Noise adds no value, as expected.
+
+  All checks passed.
+</pre></div>
+</div>
+</section>
+<section id="practical-notes">
+<h3>Practical notes<a class="headerlink" href="#practical-notes" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">max_depth</span></code> is the regulariser, and it is capped at 2 — deeper trees stop
+being auditable. Fit a depth-1 and a depth-2 policy and compare their
+<code class="docutils literal notranslate"><span class="pre">value</span></code>: if the deeper tree isn’t clearly worth more, ship the simpler one.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">value</span></code> describes the learning <em>procedure</em>, evaluated out-of-fold;
+the printed rule is re-learned on the full sample. This is what makes the
+estimate honest, at the cost of a slight mismatch between the rule you see
+and the folds behind the number.</p></li>
+<li><p>The treatment must be binary 0/1, and each arm needs at least 10 units for
+cross-fitting (in practice you want far more).</p></li>
+</ul>
+</section>
+</section>
+<section id="philosophy">
+<h2>Philosophy<a class="headerlink" href="#philosophy" title="Link to this heading"></a></h2>
+<p>The decision layer is deliberately simple. Each level translates a causal
+estimate and its uncertainty into an auditable action: a treat/don’t-treat
+call, one call per segment, or a shallow readable rule. It does not attempt
+opaque scoring models, multi-valued treatments, or dynamic/sequential
+policies.</p>
+<p>Most packages do not include such functionality, because decision-making is
+inherently complex. formative does, simply because we believe that an attempt at numerical
+decision analysis is better than none.</p>
+<p>Note that a <code class="docutils literal notranslate"><span class="pre">robust=False</span></code> result is not a failure. It is an honest statement that the
+data, as collected, cannot yet discriminate between two different actions. That is
+valuable information.</p>
+</section>
+<section id="api-reference">
+<h2>API reference<a class="headerlink" href="#api-reference" title="Link to this heading"></a></h2>
+<section id="decisionreport">
+<h3>DecisionReport<a class="headerlink" href="#decisionreport" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.causal.</span></span><span class="sig-name descname"><span class="pre">DecisionReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">treatment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benefit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">net_benefit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">net_benefit_ci</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">optimal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">robust</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_beneficial</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.DecisionReport" title="Link to this definition"></a></dt>
+<dd><p>The result of a cost-benefit decision analysis built on a causal estimate.</p>
+<p>Answers: given what we estimated, should we apply the treatment?</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.treatment">
+<span class="sig-name descname"><span class="pre">treatment</span></span><a class="headerlink" href="#formative.causal.DecisionReport.treatment" title="Link to this definition"></a></dt>
+<dd><p>Name of the treatment variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.outcome">
+<span class="sig-name descname"><span class="pre">outcome</span></span><a class="headerlink" href="#formative.causal.DecisionReport.outcome" title="Link to this definition"></a></dt>
+<dd><p>Name of the outcome variable.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.cost">
+<span class="sig-name descname"><span class="pre">cost</span></span><a class="headerlink" href="#formative.causal.DecisionReport.cost" title="Link to this definition"></a></dt>
+<dd><p>Cost per unit of treatment applied.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.benefit">
+<span class="sig-name descname"><span class="pre">benefit</span></span><a class="headerlink" href="#formative.causal.DecisionReport.benefit" title="Link to this definition"></a></dt>
+<dd><p>Benefit (revenue, utility, etc.) per unit increase in the outcome.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.net_benefit">
+<span class="sig-name descname"><span class="pre">net_benefit</span></span><a class="headerlink" href="#formative.causal.DecisionReport.net_benefit" title="Link to this definition"></a></dt>
+<dd><p>Point-estimate net benefit: <code class="docutils literal notranslate"><span class="pre">effect</span> <span class="pre">*</span> <span class="pre">benefit</span> <span class="pre">-</span> <span class="pre">cost</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.net_benefit_ci">
+<span class="sig-name descname"><span class="pre">net_benefit_ci</span></span><a class="headerlink" href="#formative.causal.DecisionReport.net_benefit_ci" title="Link to this definition"></a></dt>
+<dd><p>95% CI on net benefit, propagated from the causal estimate’s CI.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple[float, float]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.optimal">
+<span class="sig-name descname"><span class="pre">optimal</span></span><a class="headerlink" href="#formative.causal.DecisionReport.optimal" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">&quot;treat&quot;</span></code> if the point-estimate net benefit is positive, else <code class="docutils literal notranslate"><span class="pre">&quot;don't</span> <span class="pre">treat&quot;</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.robust">
+<span class="sig-name descname"><span class="pre">robust</span></span><a class="headerlink" href="#formative.causal.DecisionReport.robust" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if the optimal decision is the same at both CI bounds — i.e.
+the conclusion does not flip under estimation uncertainty.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.p_beneficial">
+<span class="sig-name descname"><span class="pre">p_beneficial</span></span><a class="headerlink" href="#formative.causal.DecisionReport.p_beneficial" title="Link to this definition"></a></dt>
+<dd><p>Probability that the true net benefit is positive, assuming the causal
+estimate is normally distributed around its point estimate.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>treatment</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>outcome</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>cost</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>)</p></li>
+<li><p><strong>benefit</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>)</p></li>
+<li><p><strong>net_benefit</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>)</p></li>
+<li><p><strong>net_benefit_ci</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>)</p></li>
+<li><p><strong>optimal</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>robust</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+<li><p><strong>p_beneficial</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.to_outcomes">
+<span class="sig-name descname"><span class="pre">to_outcomes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenarios</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.DecisionReport.to_outcomes" title="Link to this definition"></a></dt>
+<dd><p>Convert this decision’s uncertainty into a payoff structure for
+game-theoretic decision rules in <code class="docutils literal notranslate"><span class="pre">formative.game</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>scenarios</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em><em>, </em><em>optional</em>) – Mapping of scenario name → quantile of the net-benefit sampling
+distribution. Defaults to
+<code class="docutils literal notranslate"><span class="pre">{&quot;pessimistic&quot;:</span> <span class="pre">0.10,</span> <span class="pre">&quot;expected&quot;:</span> <span class="pre">0.50,</span> <span class="pre">&quot;optimistic&quot;:</span> <span class="pre">0.90}</span></code>.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]]</span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>dict[str, dict[str, float]]</em> – A <code class="docutils literal notranslate"><span class="pre">{choice:</span> <span class="pre">{scenario:</span> <span class="pre">payoff}}</span></code> structure accepted by any
+<code class="docutils literal notranslate"><span class="pre">formative.game</span></code> rule (<code class="docutils literal notranslate"><span class="pre">maximin</span></code>, <code class="docutils literal notranslate"><span class="pre">minimax</span></code>,
+<code class="docutils literal notranslate"><span class="pre">hurwicz</span></code>, etc.). The <code class="docutils literal notranslate"><span class="pre">&quot;don't</span> <span class="pre">treat&quot;</span></code> payoff is 0 in every
+scenario — the status quo baseline.</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><code class="docutils literal notranslate"><span class="pre">treat</span></code> payoffs are quantiles of N(net_benefit, se_net), where
+<code class="docutils literal notranslate"><span class="pre">se_net</span></code> is derived from the 95% CI. <code class="docutils literal notranslate"><span class="pre">robust=True</span></code> is equivalent
+to <code class="docutils literal notranslate"><span class="pre">maximin</span></code> returning the same choice as <code class="docutils literal notranslate"><span class="pre">optimal</span></code> when scenarios
+are set to the CI bounds (quantiles 0.025 and 0.975).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.causal.DecisionReport.summary">
+<span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.DecisionReport.summary" title="Link to this definition"></a></dt>
+<dd><p>Formatted summary of the decision analysis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="policyresult">
+<h3>PolicyResult<a class="headerlink" href="#policyresult" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.causal.</span></span><span class="sig-name descname"><span class="pre">PolicyResult</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">treatment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modifiers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">benefit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_depth</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.PolicyResult" title="Link to this definition"></a></dt>
+<dd><p>A treatment assignment policy learned from an RCT.</p>
+<p>Produced by <code class="docutils literal notranslate"><span class="pre">RCTResult.learn_policy()</span></code>. The policy is a shallow decision
+tree over discrete pre-treatment features, chosen to maximise total net
+benefit (<code class="docutils literal notranslate"><span class="pre">benefit</span> <span class="pre">×</span> <span class="pre">effect</span> <span class="pre">−</span> <span class="pre">cost</span></code> per treated unit) under doubly robust
+scoring. <code class="docutils literal notranslate"><span class="pre">value</span></code> is an honest (cross-fitted) estimate of how much net
+benefit per unit the policy adds over the best constant policy — treating
+everyone or no one, whichever is better — so <code class="docutils literal notranslate"><span class="pre">value</span> <span class="pre">≈</span> <span class="pre">0</span></code> means the
+learned targeting is worthless even if treating is not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fit</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">_PolicyFit</span></code></span>)</p></li>
+<li><p><strong>treatment</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>outcome</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>modifiers</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>)</p></li>
+<li><p><strong>cost</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>)</p></li>
+<li><p><strong>benefit</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>)</p></li>
+<li><p><strong>max_depth</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>)</p></li>
+<li><p><strong>n</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.tree">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">tree</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#formative.causal.PolicyNode" title="formative.causal.estimators.policy.PolicyNode"><span class="pre">PolicyNode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.causal.PolicyResult.tree" title="Link to this definition"></a></dt>
+<dd><p>The learned policy tree (<code class="docutils literal notranslate"><span class="pre">True</span></code>/<code class="docutils literal notranslate"><span class="pre">False</span></code> if a constant policy won).</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.rules">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">rules</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#formative.causal.PolicyResult.rules" title="Link to this definition"></a></dt>
+<dd><p>The policy as readable text, one line per treated path.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.value">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">value</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.causal.PolicyResult.value" title="Link to this definition"></a></dt>
+<dd><p>Honest per-unit net-benefit advantage over the best constant policy.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.value_se">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">value_se</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.causal.PolicyResult.value_se" title="Link to this definition"></a></dt>
+<dd><p>Standard error of the policy value estimate.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.value_ci">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">value_ci</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.causal.PolicyResult.value_ci" title="Link to this definition"></a></dt>
+<dd><p>95% confidence interval for the policy value.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.coverage">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">coverage</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></span><a class="headerlink" href="#formative.causal.PolicyResult.coverage" title="Link to this definition"></a></dt>
+<dd><p>Share of the sample the policy treats.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.modifiers">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">modifiers</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.causal.PolicyResult.modifiers" title="Link to this definition"></a></dt>
+<dd><p>Candidate feature columns the tree was allowed to split on.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.assumptions">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">assumptions</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="refutations.html#formative.causal.Assumption" title="formative.causal.refutations._check.Assumption"><span class="pre">Assumption</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.causal.PolicyResult.assumptions" title="Link to this definition"></a></dt>
+<dd><p>Modelling assumptions required for the policy value to be causal.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.assign">
+<span class="sig-name descname"><span class="pre">assign</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.PolicyResult.assign" title="Link to this definition"></a></dt>
+<dd><p>Apply the learned policy to (new) data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em>) – Must contain the modifier columns the tree splits on.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></span></p>
+</dd>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>pd.Series</em> – Boolean treat/don’t-treat assignment, aligned with <code class="docutils literal notranslate"><span class="pre">data</span></code>’s index.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.summary">
+<span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.PolicyResult.summary" title="Link to this definition"></a></dt>
+<dd><p>Concise tabular summary of the learned rule, its value, and assumptions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.executive_summary">
+<span class="sig-name descname"><span class="pre">executive_summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.PolicyResult.executive_summary" title="Link to this definition"></a></dt>
+<dd><p>Narrative explanation of the method, learned rule, and caveats.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.causal.PolicyResult.refute">
+<span class="sig-name descname"><span class="pre">refute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.PolicyResult.refute" title="Link to this definition"></a></dt>
+<dd><p>Run refutation checks against this learned policy.</p>
+<p>Currently runs:</p>
+<ul class="simple">
+<li><p><strong>Placebo modifiers</strong>: permutes every candidate feature column and
+re-learns. With the features scrambled there is nothing to target,
+so the placebo policy’s value should not be significantly positive.</p></li>
+<li><p><strong>Random modifier</strong>: adds a pure-noise feature to the candidates and
+re-learns. The honest value should not improve by more than one
+standard error — if noise helps, the value estimate is not trustworthy.</p></li>
+</ul>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data</strong> (<em>pd.DataFrame</em>) – The same dataframe passed to <code class="docutils literal notranslate"><span class="pre">learn_policy()</span></code>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="policynode">
+<h3>PolicyNode<a class="headerlink" href="#policynode" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="formative.causal.PolicyNode">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.causal.</span></span><span class="sig-name descname"><span class="pre">PolicyNode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">feature</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">if_true</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">if_false</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.PolicyNode" title="Link to this definition"></a></dt>
+<dd><p>One internal split of a learned policy tree.</p>
+<p>Units where <code class="docutils literal notranslate"><span class="pre">feature</span> <span class="pre">==</span> <span class="pre">level</span></code> follow <code class="docutils literal notranslate"><span class="pre">if_true</span></code>, all others follow
+<code class="docutils literal notranslate"><span class="pre">if_false</span></code>. A child is either another <code class="docutils literal notranslate"><span class="pre">PolicyNode</span></code> or a leaf action:
+<code class="docutils literal notranslate"><span class="pre">True</span></code> (treat) / <code class="docutils literal notranslate"><span class="pre">False</span></code> (don’t treat).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>feature</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>level</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></span>)</p></li>
+<li><p><strong>if_true</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#formative.causal.PolicyNode" title="formative.causal.estimators.policy.PolicyNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolicyNode</span></code></a> | <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+<li><p><strong>if_false</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="#formative.causal.PolicyNode" title="formative.causal.estimators.policy.PolicyNode"><code class="xref py py-class docutils literal notranslate"><span class="pre">PolicyNode</span></code></a> | <code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.PolicyNode.feature">
+<span class="sig-name descname"><span class="pre">feature</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><a class="headerlink" href="#formative.causal.PolicyNode.feature" title="Link to this definition"></a></dt>
+<dd><p>Column the split tests.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.PolicyNode.level">
+<span class="sig-name descname"><span class="pre">level</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">object</span></span><a class="headerlink" href="#formative.causal.PolicyNode.level" title="Link to this definition"></a></dt>
+<dd><p>the split is <code class="docutils literal notranslate"><span class="pre">feature</span> <span class="pre">==</span> <span class="pre">level</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The level compared against</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.PolicyNode.if_true">
+<span class="sig-name descname"><span class="pre">if_true</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#formative.causal.PolicyNode" title="formative.causal.estimators.policy.PolicyNode"><span class="pre">PolicyNode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.causal.PolicyNode.if_true" title="Link to this definition"></a></dt>
+<dd><p>Subtree or leaf action for units where the condition holds.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="formative.causal.PolicyNode.if_false">
+<span class="sig-name descname"><span class="pre">if_false</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#formative.causal.PolicyNode" title="formative.causal.estimators.policy.PolicyNode"><span class="pre">PolicyNode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.causal.PolicyNode.if_false" title="Link to this definition"></a></dt>
+<dd><p>Subtree or leaf action for the remaining units.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="policyrefutationreport">
+<h3>PolicyRefutationReport<a class="headerlink" href="#policyrefutationreport" title="Link to this heading"></a></h3>
+<dl class="py class">
+<dt class="sig sig-object py" id="formative.causal.PolicyRefutationReport">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">formative.causal.</span></span><span class="sig-name descname"><span class="pre">PolicyRefutationReport</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">treatment</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outcome</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.PolicyRefutationReport" title="Link to this definition"></a></dt>
+<dd><p>Refutation report for a policy learned via <code class="docutils literal notranslate"><span class="pre">learn_policy()</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>checks</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<a class="reference internal" href="refutations.html#formative.causal.RefutationCheck" title="formative.causal.refutations._check.RefutationCheck"><code class="xref py py-class docutils literal notranslate"><span class="pre">RefutationCheck</span></code></a>]</span>)</p></li>
+<li><p><strong>treatment</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+<li><p><strong>outcome</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyRefutationReport.checks">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="refutations.html#formative.causal.RefutationCheck" title="formative.causal.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.causal.PolicyRefutationReport.checks" title="Link to this definition"></a></dt>
+<dd><p>All checks, in the order they were run.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyRefutationReport.failed_checks">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">failed_checks</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="refutations.html#formative.causal.RefutationCheck" title="formative.causal.refutations._check.RefutationCheck"><span class="pre">RefutationCheck</span></a><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#formative.causal.PolicyRefutationReport.failed_checks" title="Link to this definition"></a></dt>
+<dd><p>Only the checks that did not pass.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="formative.causal.PolicyRefutationReport.passed">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">passed</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#formative.causal.PolicyRefutationReport.passed" title="Link to this definition"></a></dt>
+<dd><p><code class="docutils literal notranslate"><span class="pre">True</span></code> if every check passed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="formative.causal.PolicyRefutationReport.summary">
+<span class="sig-name descname"><span class="pre">summary</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#formative.causal.PolicyRefutationReport.summary" title="Link to this definition"></a></dt>
+<dd><p>Formatted report showing each check result and the overall verdict.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="refutations.html" class="btn btn-neutral float-left" title="Refutations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="benchmarks.html" class="btn btn-neutral float-right" title="Benchmarks" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Max Pagels.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
