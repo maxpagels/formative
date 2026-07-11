@@ -1,4 +1,4 @@
-Estimands: ATE, ATT, LATE etc.
+Estimands
 ==============================
 
 Every causal estimator targets a specific *estimand*. Choosing the wrong estimator for your question gives a valid answer to the wrong

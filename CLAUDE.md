@@ -1,5 +1,7 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
 ## Commands
 
 ```bash
@@ -7,8 +9,15 @@ uv sync --dev                          # install dependencies
 uv run pytest                          # run all tests
 uv run pytest tests/test_iv.py         # run one file
 uv run pytest tests/test_iv.py::TestIV2SLSEstimation::test_iv_recovers_true_effect  # run one test
-uv run --group docs sphinx-build -b html docs docs/_build  # build docs
+make lint                              # ruff check (excludes notebooks/)
+make fmt                               # ruff format
+make check                             # lint + format check + tests with coverage (CI requires ≥80%)
+make build-docs                        # sphinx with -W: warnings are errors in CI
 ```
+
+CI (`.github/workflows/ci.yml`) runs lint, format check, tests with `--cov-fail-under=80`, and the `-W` docs build on every PR — `make check` plus `make build-docs` reproduces it locally.
+
+Published on PyPI as `formative-ds`; the import name is `formative`. Releases: `uvx bump-my-version bump patch|minor|major` then `git push --follow-tags` triggers the publish workflow.
 
 ---
 
@@ -46,11 +55,16 @@ Called as `result.refute(df)` — always pass the same `df` used for `fit()`. Re
 - `_PLACEBO_TIME_SEED = 22222` — time permutation in DiD
 - `_PLACEBO_MODIFIER_SEED = 77777` — modifier permutation in CATE checks
 - `_RANDOM_MODIFIER_SEED = 31313` — noise modifier column in CATE checks
+- `_PLACEBO_POLICY_SEED = 88888` — feature permutation in policy checks
+- `_RANDOM_POLICY_MODIFIER_SEED = 46464` — noise feature column in policy checks
+- `_FOLD_SEED = 13579` — cross-fitting fold assignment in policy learning (not a refutation seed)
 - `_BOOTSTRAP_SEED = 42` — safe to reuse in matching's bootstrap (samples row indices, not independent values)
 
 Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise collides with instrument/treatment data and produces a singular matrix in IV.
 
 **Heterogeneous effects (CATE)** — `OLSObservational` and `RCT` accept `effect_modifier=` (a discrete, pre-treatment column). `fit()` then returns `OLSCATEResult`/`RCTCATEResult` with `effect_by_group`, a homogeneity F-test, and `decide_by_group()`. The headline `effect` is the sample-share-weighted average of group effects (the raw treatment coefficient under interaction coding is only the reference group's effect). Shared machinery lives in `estimators/_cate.py`; DAG validation rejects modifiers that are descendants of the treatment (mediators) or not ancestors of the outcome.
+
+**Policy learning** — `RCTResult.learn_policy(df, modifiers=[...], cost=, benefit=, max_depth=1|2)` (design note: `docs/design/policy_learning.md`) does Athey–Wager doubly robust policy learning: cross-fitted AIPW scores, exhaustive shallow-tree search over discrete features, honest (out-of-fold) value reported as the advantage over the best constant policy. Returns `PolicyResult` (`rules`, `value`, `assign()`, `refute()`). Refutation checks test the honest *value*, not tree structure — in-sample search happily splits on noise within its depth budget, so structural checks would be flaky. Trees are simplified post-hoc by dropping splits that don't change the assignment (equal-value trees with redundant conditions can win the search on candidate order).
 
 **Package layout:**
 - `formative/causal/dag.py` — `DAG`, `_Node`
@@ -58,6 +72,7 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 - `formative/causal/estimators/_base.py` — `_BaseResult`, `_StatsmodelsResult` (shared result plumbing: effect stats via `_param`, `decide()`, assumptions footer)
 - `formative/causal/estimators/_cate.py` — `GroupEffect`, `_fit_cate`, `_CATEResultMixin`, modifier validation (shared by OLS/RCT and the CATE refutations)
 - `formative/causal/estimators/ols.py` — `OLSObservational`, `OLSResult`, `OLSCATEResult`
+- `formative/causal/estimators/policy.py` — `PolicyNode`, `PolicyResult`, `_fit_policy` (used by refutations), `_learn_policy` (entry from `RCTResult.learn_policy`)
 - `formative/causal/estimators/iv.py` — `IV2SLS`, `IVResult`
 - `formative/causal/estimators/matching.py` — `PropensityScoreMatching`, `MatchingResult`; exports `_propensity_scores`, `_att_from_ps` for use by refutations
 - `formative/causal/estimators/rct.py` — `RCT`, `RCTResult`, `RCTCATEResult`
@@ -68,6 +83,7 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 - `formative/causal/refutations/iv.py` — `IVRefutationReport`, `_check_first_stage_f`, `_check_random_common_cause`
 - `formative/causal/refutations/matching.py` — `MatchingRefutationReport`, `_check_placebo_treatment`, `_check_random_common_cause`
 - `formative/causal/refutations/rct.py` — `RCTRefutationReport`, `_check_random_common_cause`
+- `formative/causal/refutations/policy.py` — `PolicyRefutationReport`, `_check_placebo_modifiers`, `_check_random_modifier` (import `_fit_policy` lazily — a module-level import is circular via `refutations/__init__`)
 - `formative/causal/refutations/cate.py` — `_check_placebo_modifier`, `_check_random_modifier`, `_check_random_common_cause` (used by `OLSCATEResult`/`RCTCATEResult`; reports reuse the OLS/RCT report classes)
 - `formative/causal/refutations/did.py` — `DiDRefutationReport`, `_check_placebo_group`, `_check_random_common_cause`
 - `formative/causal/refutations/rdd.py` — `RDDRefutationReport`, `_check_placebo_cutoff`, `_check_random_common_cause`
@@ -78,6 +94,8 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 **Adding an estimator:** follow `OLSObservational`/`IV2SLS` — `__init__` validates DAG, `fit()` calls `_identify()`, raises `IdentificationError` where appropriate, returns a result object with a `refute()` method. Export from `__init__.py`. Add a refutations module under `formative/causal/refutations/`.
 
 **Bootstrap-heavy tests:** matching tests use `setup_class` (not `setup_method`) so `.fit()` runs once per class. Use N=1_000 — larger N widens bootstrap SE faster than NN noise shrinks, causing refutation checks to fail even on well-specified data.
+
+**Benchmarks:** `notebooks/` holds Jupyter notebooks (LaLonde, Card–Krueger) that validate estimators against published results from famous studies; `docs/causal/benchmarks.rst` renders them as a docs page. Notebooks are excluded from ruff. Runnable per-estimator example scripts live in `examples/`.
 
 **Planned estimators:** the goal is to cover all methods in the causal inference decision tree at https://www.maxpagels.com/prototypes/causal-wizard. Remaining: **Synthetic Control**.
 

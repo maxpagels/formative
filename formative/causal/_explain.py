@@ -529,3 +529,79 @@ def explain_matching(result) -> str:
         _SEP,
     ]
     return "\n\n".join(blocks)
+
+
+def explain_policy(result) -> str:
+    T, Y = result._treatment, result._outcome
+    lo, hi = result.value_ci
+    mods = _list_vars(result.modifiers)
+
+    if result.value > 0 and lo > 0:
+        verdict = (
+            f"The learned policy is estimated to add {result.value:.4f} in net benefit per "
+            f"unit over the best one-size-fits-all option, and the confidence interval "
+            f"excludes zero: the targeting appears genuinely valuable."
+        )
+    elif result.value > 0:
+        verdict = (
+            f"The learned policy is estimated to add {result.value:.4f} in net benefit per "
+            f"unit over the best one-size-fits-all option, but the confidence interval "
+            f"includes zero — the targeting may not beat simply treating everyone or no one."
+        )
+    else:
+        verdict = (
+            f"The learned policy is not estimated to beat the best one-size-fits-all "
+            f"option (value = {result.value:.4f} per unit). Treat everyone or no one "
+            f"according to decide() rather than targeting on {mods}."
+        )
+
+    rule_lines = result.rules.split("\n")
+
+    blocks = [
+        "\n".join(
+            [
+                _SEP,
+                "Executive Summary — Learned Treatment Policy",
+                f"  {T} → {Y}  |  estimand: policy value vs best constant policy",
+                f"  Generated: {_fmt_timestamp()}",
+                _SEP,
+            ]
+        ),
+        "\n".join(
+            [
+                "METHOD",
+                f"Rather than deciding whether to apply {T} to everyone, this analysis asks "
+                f"who should receive it. Each unit's individual net benefit was estimated with "
+                f"cross-fitted doubly robust scoring, and an exhaustive search found the "
+                f"shallow decision rule over {mods} that maximises total net benefit. The "
+                f"policy's value is estimated honestly: every unit is evaluated under a rule "
+                f"learned without its part of the data, and compared against the best "
+                f"constant policy (treat everyone or treat no one).",
+            ]
+        ),
+        _dag_section(result._dag, T, Y, set()),
+        _assumptions_section(result.assumptions),
+        "\n".join(
+            [
+                "POLICY",
+                *[f"  • {line}" for line in rule_lines],
+                "",
+                f"The rule treats {result.coverage:.1%} of units. {verdict} "
+                f"(value = {result.value:.4f} per unit, 95% CI: {_fmt_ci(lo, hi)}, "
+                f"SE = {result.value_se:.4f}).",
+            ]
+        ),
+        "\n".join(
+            [
+                "CAVEATS",
+                "The value estimate describes the learning procedure, evaluated out-of-fold; "
+                "the printed rule was re-learned on the full sample and may differ slightly "
+                "from the fold-level rules behind the estimate. The tree will use its full "
+                "depth budget even when the data support a simpler rule — compare the value "
+                "of a depth-1 and depth-2 policy before shipping the more complex one, and "
+                "run refute() to check that the value survives placebo features.",
+            ]
+        ),
+        _SEP,
+    ]
+    return "\n\n".join(blocks)
