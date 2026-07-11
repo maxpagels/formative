@@ -52,7 +52,11 @@ earnings using OLS with a DAG that encodes family background as a confounder:
    training   = 0.6 * background + rng.normal(size=N)
    earnings   = 3.0 * training + 1.2 * background + rng.normal(size=N)
 
-   df  = pd.DataFrame({"background": background, "training": training, "earnings": earnings})
+   df = pd.DataFrame({
+       "background": background,
+       "training": training,
+       "earnings": earnings,
+   })
    dag = DAG()
    dag.assume("background").causes("training", "earnings")
    dag.assume("training").causes("earnings")
@@ -163,19 +167,33 @@ and everyone else not at all:
    tenure    = rng.choice(["<2y", "2-5y", ">5y"], size=N)
    region    = rng.choice(["north", "south"], size=N)
    coaching  = rng.integers(0, 2, size=N)
-   retention = 6.0 * coaching * (tenure == "<2y") + 2.0 * (tenure == ">5y") + rng.normal(size=N)
+   retention = (
+       6.0 * coaching * (tenure == "<2y")
+       + 2.0 * (tenure == ">5y")
+       + rng.normal(size=N)
+   )
 
-   df = pd.DataFrame({"tenure": tenure, "region": region, "coaching": coaching, "retention": retention})
+   df = pd.DataFrame({
+       "tenure": tenure,
+       "region": region,
+       "coaching": coaching,
+       "retention": retention,
+   })
 
    dag = DAG()
    dag.assume("coaching").causes("retention")
    dag.assume("tenure").causes("retention")
    dag.assume("region").causes("retention")
 
-   result = RCT(dag, treatment="coaching", outcome="retention", effect_modifier="tenure").fit(df)
+   result = RCT(
+       dag, treatment="coaching", outcome="retention", effect_modifier="tenure"
+   ).fit(df)
    for level, decision in result.decide_by_group(cost=2.5, benefit=1.0).items():
        lo, hi = decision.net_benefit_ci
-       print(f"{level:>5}: {decision.optimal:<12} net benefit {decision.net_benefit:+.2f}  [{lo:+.2f}, {hi:+.2f}]")
+       print(
+           f"{level:>5}: {decision.optimal:<12} "
+           f"net benefit {decision.net_benefit:+.2f}  [{lo:+.2f}, {hi:+.2f}]"
+       )
 
 .. code-block:: text
 
@@ -293,10 +311,17 @@ it only helps recent hires in the north:
    coaching  = rng.integers(0, 2, size=N)
    helped    = (tenure == "<2y") & (region == "north")
    retention = 7.0 * coaching * helped + 2.0 * (tenure == ">5y") + rng.normal(size=N)
-   df = pd.DataFrame({"tenure": tenure, "region": region, "coaching": coaching, "retention": retention})
+   df = pd.DataFrame({
+       "tenure": tenure,
+       "region": region,
+       "coaching": coaching,
+       "retention": retention,
+   })
 
    result = RCT(dag, treatment="coaching", outcome="retention").fit(df)
-   policy = result.learn_policy(df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=2)
+   policy = result.learn_policy(
+       df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=2
+   )
    print(policy.summary())
 
 .. code-block:: text
@@ -323,7 +348,9 @@ back to treating all recent hires and burns money on the southern half:
 
 .. code-block:: python
 
-   result.learn_policy(df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=1).value
+   result.learn_policy(
+       df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=1
+   ).value
    # +0.34 per unit — versus +0.75 at depth 2
 
 When the deeper policy's value is clearly higher (as here), ship it; when the
@@ -346,7 +373,12 @@ segment-2 employees in the north:
    training = rng.integers(0, 2, size=N)
    effect   = 4.0 * (segment == 0) + 5.0 * ((segment == 2) & (region == "north"))
    earnings = effect * training + 0.5 * segment + rng.normal(size=N)
-   df = pd.DataFrame({"segment": segment, "region": region, "training": training, "earnings": earnings})
+   df = pd.DataFrame({
+       "segment": segment,
+       "region": region,
+       "training": training,
+       "earnings": earnings,
+   })
 
    dag = DAG()
    dag.assume("training").causes("earnings")
