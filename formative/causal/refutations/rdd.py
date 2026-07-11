@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ._check import RefutationCheck, RefutationReport, _add_random_column
+from ._check import RefutationCheck, RefutationReport, _add_random_column, _shift_check
 
 _PLACEBO_SEED = 99999
 
@@ -86,17 +86,9 @@ def _check_random_common_cause(
     ).fit()
     new_effect = float(result.params[treatment])
 
-    shift = abs(new_effect - original_effect)
-    passed = shift <= original_se
-
-    if passed:
-        detail = f"estimate shifted by {shift:.4f}  (\u2264 1 SE = {original_se:.4f})"
-    else:
-        detail = (
-            f"estimate shifted by {shift:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"Adding a random common cause destabilised the RDD estimate."
-        )
-    return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
+    return _shift_check(
+        new_effect, original_effect, original_se, "Adding a random common cause destabilised the RDD estimate."
+    )
 
 
 class RDDRefutationReport(RefutationReport):

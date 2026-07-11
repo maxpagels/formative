@@ -16,8 +16,8 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
+from .._assumptions import Assumption
 from ..dag import DAG
-from ..refutations._check import Assumption
 
 CATE_ASSUMPTIONS: list[Assumption] = [
     Assumption("Correct specification of effect modification (linear interaction form)", testable=False),

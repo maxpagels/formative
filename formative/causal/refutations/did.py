@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ._check import RefutationCheck, RefutationReport, _add_random_column
+from ._check import RefutationCheck, RefutationReport, _add_random_column, _placebo_check, _shift_check
 
 _PLACEBO_SEED = 99999
 _PLACEBO_TIME_SEED = 22222
@@ -25,15 +25,14 @@ def _placebo_permutation(
     rng = np.random.default_rng(seed)
     augmented = data.assign(**{permute_var: rng.permutation(data[permute_var].values)})
     placebo_effect = float(smf.ols(f"{outcome} ~ {group} * {time}", data=augmented).fit().params[f"{group}:{time}"])
-    passed = abs(placebo_effect) <= original_se
-    if passed:
-        detail = (
-            f"placebo estimate = {placebo_effect:.4f}  (≤ 1 SE = {original_se:.4f})  "
-            f"Permuting {axis_label} labels yields near-zero effect, as expected."
-        )
-    else:
-        detail = f"placebo estimate = {placebo_effect:.4f}  (> 1 SE = {original_se:.4f})  {fail_suffix}"
-    return RefutationCheck(name=check_name, passed=passed, detail=detail)
+    return _placebo_check(
+        name=check_name,
+        label="placebo estimate",
+        placebo_effect=placebo_effect,
+        original_se=original_se,
+        pass_suffix=f"Permuting {axis_label} labels yields near-zero effect, as expected.",
+        fail_suffix=fail_suffix,
+    )
 
 
 def _check_placebo_group(
@@ -120,20 +119,11 @@ def _check_random_common_cause(
     augmented, col = _add_random_column(data)
 
     result = smf.ols(f"{outcome} ~ {group} * {time} + {col}", data=augmented).fit()
-    interaction = f"{group}:{time}"
-    new_effect = float(result.params[interaction])
+    new_effect = float(result.params[f"{group}:{time}"])
 
-    shift = abs(new_effect - original_effect)
-    passed = shift <= original_se
-
-    if passed:
-        detail = f"estimate shifted by {shift:.4f}  (≤ 1 SE = {original_se:.4f})"
-    else:
-        detail = (
-            f"estimate shifted by {shift:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"Adding a random common cause destabilised the DiD estimate."
-        )
-    return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
+    return _shift_check(
+        new_effect, original_effect, original_se, "Adding a random common cause destabilised the DiD estimate."
+    )
 
 
 class DiDRefutationReport(RefutationReport):

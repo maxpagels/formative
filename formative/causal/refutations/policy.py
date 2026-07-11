@@ -13,6 +13,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+from ..estimators.policy import _fit_policy
 from ._check import RefutationCheck, RefutationReport
 
 _PLACEBO_POLICY_SEED = 88888
@@ -44,8 +45,6 @@ def _check_placebo_modifiers(
     (z ≤ 2). A significantly positive placebo value means the learner is
     manufacturing value out of noise.
     """
-    from ..estimators.policy import _fit_policy
-
     rng = np.random.default_rng(_PLACEBO_POLICY_SEED)
     augmented = data.assign(**{m: rng.permutation(data[m].to_numpy()) for m in modifiers})
 
@@ -87,8 +86,6 @@ def _check_random_modifier(
     Noise carries no targeting information, so the honest value should not
     improve by more than one standard error of the original estimate.
     """
-    from ..estimators.policy import _fit_policy
-
     rng = np.random.default_rng(_RANDOM_POLICY_MODIFIER_SEED)
     col = "_rpol"
     while col in data.columns:

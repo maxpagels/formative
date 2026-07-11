@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
+from .._assumptions import Assumption
 from .._exceptions import IdentificationError
 from ..dag import DAG
-from ..refutations._check import Assumption
 from ._base import _BaseResult
 
 MATCHING_ASSUMPTIONS: list[Assumption] = [
@@ -23,19 +24,19 @@ _BOOTSTRAP_SEED = 42
 # ── Private helpers (also imported by formative/refutations/matching.py) ──────
 
 
+def _ps_model(data: pd.DataFrame, treatment: str, adjustment_set: set[str]):
+    """Unfitted logit model of treatment on the adjustment set (intercept-only when empty)."""
+    rhs = " + ".join(sorted(adjustment_set)) if adjustment_set else "1"
+    return smf.logit(f"{treatment} ~ {rhs}", data=data)
+
+
 def _propensity_scores(
     data: pd.DataFrame,
     treatment: str,
     adjustment_set: set[str],
 ) -> np.ndarray:
     """Fit logistic regression and return propensity scores as a 1-D array."""
-    if adjustment_set:
-        rhs = " + ".join(sorted(adjustment_set))
-        ps = smf.logit(f"{treatment} ~ {rhs}", data=data).fit(disp=0).predict()
-    else:
-        # Intercept-only: all units get the same PS (treatment base rate).
-        ps = smf.logit(f"{treatment} ~ 1", data=data).fit(disp=0).predict()
-    return np.asarray(ps)
+    return np.asarray(_ps_model(data, treatment, adjustment_set).fit(disp=0).predict())
 
 
 def _att_from_ps(
@@ -54,11 +55,19 @@ def _att_from_ps(
         raise ValueError("Sample must contain both treated and control units.")
 
     ps_treated = ps[treated_idx]
-    ps_control = ps[control_idx]
 
-    # For each treated unit find the nearest control unit by PS distance.
-    dists = np.abs(ps_treated[:, None] - ps_control[None, :])
-    matched = control_idx[np.argmin(dists, axis=1)]
+    # For each treated unit find the nearest control unit by PS distance,
+    # by binary search over the sorted control scores rather than a full
+    # treated × control distance matrix.
+    order = np.argsort(ps[control_idx], kind="stable")
+    sorted_controls = control_idx[order]
+    sorted_ps = ps[sorted_controls]
+
+    pos = np.searchsorted(sorted_ps, ps_treated)
+    left = np.clip(pos - 1, 0, len(sorted_ps) - 1)
+    right = np.clip(pos, 0, len(sorted_ps) - 1)
+    take_right = np.abs(sorted_ps[right] - ps_treated) < np.abs(sorted_ps[left] - ps_treated)
+    matched = sorted_controls[np.where(take_right, right, left)]
 
     return float(np.mean(outcome[treated_idx] - outcome[matched]))
 
@@ -340,22 +349,21 @@ class PropensityScoreMatching:
         Y_arr = data[Y].values.astype(float)
 
         # Point estimate ATT.
-        ps = _propensity_scores(data, T, adjustment_set)
+        model = _ps_model(data, T, adjustment_set)
+        ps = np.asarray(model.fit(disp=0).predict())
         att = _att_from_ps(T_arr, Y_arr, ps)
 
         # Bootstrap SE and CI.
-        # Use a minimal DataFrame (treatment + confounders only) to avoid
-        # copying unneeded columns on every iteration.
+        # Resample rows of the design matrix built for the point estimate —
+        # re-parsing the formula per replicate dominates the runtime otherwise.
+        X = model.exog
         rng = np.random.default_rng(_BOOTSTRAP_SEED)
         n = len(data)
-        ps_cols = sorted({T} | adjustment_set)
-        ps_data = data[ps_cols]
         boot = []
         for _ in range(_BOOTSTRAP_N):
             idx = rng.integers(0, n, size=n)
-            bd = ps_data.iloc[idx].reset_index(drop=True)
             try:
-                bps = _propensity_scores(bd, T, adjustment_set)
+                bps = np.asarray(sm.Logit(T_arr[idx], X[idx]).fit(disp=0).predict())
                 boot.append(_att_from_ps(T_arr[idx], Y_arr[idx], bps))
             except Exception:
                 # Degenerate sample or logit failure — skip this replicate.

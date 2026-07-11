@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from ..estimators.matching import _att_from_ps, _propensity_scores
-from ._check import RefutationCheck, RefutationReport, _add_random_column
+from ._check import RefutationCheck, RefutationReport, _add_random_column, _placebo_check, _shift_check
 
 _PLACEBO_SEED = 99999
 
@@ -42,19 +42,17 @@ def _check_placebo_treatment(
             detail="Matching failed on permuted treatment — check data quality.",
         )
 
-    passed = abs(placebo_att) <= original_se
-    if passed:
-        detail = (
-            f"placebo ATT = {placebo_att:.4f}  (≤ 1 SE = {original_se:.4f})  "
-            f"Permuting treatment labels yields near-zero effect, as expected."
-        )
-    else:
-        detail = (
-            f"placebo ATT = {placebo_att:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"A randomly permuted treatment produced a large effect — the original "
-            f"result may be driven by residual confounding or overfitting."
-        )
-    return RefutationCheck(name="Placebo treatment", passed=passed, detail=detail)
+    return _placebo_check(
+        name="Placebo treatment",
+        label="placebo ATT",
+        placebo_effect=placebo_att,
+        original_se=original_se,
+        pass_suffix="Permuting treatment labels yields near-zero effect, as expected.",
+        fail_suffix=(
+            "A randomly permuted treatment produced a large effect — the original "
+            "result may be driven by residual confounding or overfitting."
+        ),
+    )
 
 
 def _check_random_common_cause(
@@ -91,17 +89,9 @@ def _check_random_common_cause(
             detail="Matching failed after adding random covariate — check data quality.",
         )
 
-    shift = abs(new_att - original_att)
-    passed = shift <= original_se
-
-    if passed:
-        detail = f"estimate shifted by {shift:.4f}  (≤ 1 SE = {original_se:.4f})"
-    else:
-        detail = (
-            f"estimate shifted by {shift:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"Adding a random common cause destabilised the ATT estimate."
-        )
-    return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
+    return _shift_check(
+        new_att, original_att, original_se, "Adding a random common cause destabilised the ATT estimate."
+    )
 
 
 class MatchingRefutationReport(RefutationReport):

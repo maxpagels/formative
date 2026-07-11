@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 
 from ..estimators._cate import _fit_cate
-from ._check import RefutationCheck, _add_random_column
+from ._check import RefutationCheck, _add_random_column, _shift_check
 
 _PLACEBO_MODIFIER_SEED = 77777
 _RANDOM_MODIFIER_SEED = 31313
@@ -42,17 +42,9 @@ def _check_random_common_cause(
 
     fit = _fit_cate(augmented, treatment, outcome, modifier, adjustment_set | {col})
 
-    shift = abs(fit.effect - original_effect)
-    passed = shift <= original_se
-
-    if passed:
-        detail = f"estimate shifted by {shift:.4f}  (≤ 1 SE = {original_se:.4f})"
-    else:
-        detail = (
-            f"estimate shifted by {shift:.4f}  (> 1 SE = {original_se:.4f})  "
-            f"Adding a random common cause destabilised the estimate."
-        )
-    return RefutationCheck(name="Random common cause", passed=passed, detail=detail)
+    return _shift_check(
+        fit.effect, original_effect, original_se, "Adding a random common cause destabilised the estimate."
+    )
 
 
 def _check_placebo_modifier(

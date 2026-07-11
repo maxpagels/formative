@@ -22,7 +22,7 @@ from dataclasses import dataclass
 import numpy as np
 import pandas as pd
 
-from ..refutations._check import Assumption
+from .._assumptions import Assumption
 from ._cate import _validate_modifier_dag
 
 _FOLD_SEED = 13579
