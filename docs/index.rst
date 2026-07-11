@@ -29,7 +29,6 @@ under uncertainty or in strategic situations. :doc:`Get started <game/introducti
    causal/estimators
    causal/refutations
    causal/decisions
-   causal/policy
    causal/benchmarks
 
 .. toctree::

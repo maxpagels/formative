@@ -5,7 +5,7 @@ formative makes causal effect estimation more accessible. Causal estimation is f
 statistical jargon that hinders adoption; formative's goal is to lower that barrier.
 Attempting to do causal estimation is better than simply comparing averages or correlations.
 
-Every analysis follows three steps.
+Every analysis follows four steps.
 
 **1. Encode your causal assumptions as a DAG**
 
@@ -101,3 +101,78 @@ mathematical certainty.
      [PASS]  Random common cause: estimate shifted by 0.0001  (≤ 1 SE = 0.0377)
 
      All checks passed.
+
+**4. Decide**
+
+An estimate is rarely the end goal — the question is whether to act on it. Pass the
+cost per unit of treatment applied and the value of one unit of improvement in the
+outcome, and formative turns the estimate and its uncertainty into a treat/don't-treat
+call. Suppose a unit of education costs $8 and a unit of income is worth $15:
+
+.. code-block:: python
+
+   decision = result.decide(cost=8, benefit=15)
+   print(decision)
+
+.. code-block:: text
+
+   Decision Analysis: education → income
+   ──────────────────────────────────────────────────
+     Cost per unit of treatment   :     8.0000
+     Benefit per unit of outcome  :    15.0000
+
+     Net benefit (point estimate) :   +21.4647
+     Net benefit 95% CI           : [+20.3574, +22.5720]
+
+     Optimal decision             : treat
+     Decision confidence          :     100.0%
+     Robust to estimation error   : Yes — decision is stable across 95% CI
+
+Depending on the estimator, decisions can go beyond a single call for everyone:
+per-group decisions via an effect modifier, or a learned treatment rule that
+decides *whom* to treat. See :doc:`decisions` for the full decision layer.
+
+What's supported
+----------------
+
+Every estimator follows the same four steps — DAG in, ``fit()``, ``refute()``,
+``decide()`` — but they target different estimands and support different levels
+of decision granularity:
+
+.. list-table::
+   :header-rows: 1
+   :widths: 26 24 22 28
+
+   * - Estimator
+     - Estimand
+     - Heterogeneous effects
+     - Decisions
+   * - ``RCT``
+     - ATE
+     - ``effect_modifier``
+     - decide for all, decide per group, learn a policy
+   * - ``OLSObservational``
+     - ATE
+     - ``effect_modifier``
+     - decide for all, decide per group
+   * - ``IV2SLS``
+     - LATE
+     - —
+     - decide for all
+   * - ``PropensityScoreMatching``
+     - ATT
+     - —
+     - decide for all
+   * - ``DiD``
+     - ATT
+     - —
+     - decide for all
+   * - ``RDD``
+     - LATE at the cutoff
+     - —
+     - decide for all
+
+All estimators support ``summary()``, ``executive_summary()``, and ``refute()``,
+and every decision report can be handed to the game-theoretic rules in
+``formative.game`` via ``to_outcomes()``. See :doc:`estimands` for what the
+estimands mean and :doc:`estimators` for the estimators themselves.

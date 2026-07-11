@@ -20,23 +20,28 @@ Comprehensive documentation is available at [docs.getformative.dev](https://docs
 
 ### Causal estimation
 
+Every analysis follows the same four steps: assume, estimate, refute, decide.
+
 ```python
 from formative.causal import DAG, OLSObservational
 
+# 1. Encode your causal assumptions as a DAG
 dag = DAG()
 dag.assume("ability").causes("education", "income")
 dag.assume("education").causes("income")
 
-result = OLSObservational(
-    dag,
-    treatment="education",
-    outcome="income"
-).fit(df)
-
+# 2. Estimate the causal effect
+result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
 print(result.summary())
+
+# 3. Refute: stress-test the result's assumptions
+print(result.refute(df).summary())
+
+# 4. Decide: is the treatment worth acting on?
+print(result.decide(cost=8, benefit=15))
 ```
 
-Confounders declared in the DAG are controlled for automatically. If a confounder is absent from the dataframe, an `IdentificationError` is raised before any estimation runs.
+Confounders declared in the DAG are controlled for automatically. If a confounder is absent from the dataframe, an `IdentificationError` is raised before any estimation runs. Some estimators go further at step 4 — per-group decisions, or learning a treatment rule with `learn_policy()`.
 
 ### Decision rules
 
