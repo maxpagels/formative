@@ -34,7 +34,7 @@ class DAG:
     your data.
 
     Build the graph by calling ``assume().causes()`` for each causal relationship
-    you believe holds. Include latent variables freely — if a node is not in
+    you believe holds. Include latent variables — if a node is not in
     your data at ``fit()`` time, the estimator treats it as unobserved.
 
     Example::

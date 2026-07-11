@@ -21,8 +21,8 @@ under uncertainty or in strategic situations. :doc:`Get started <game/introducti
    :caption: Causal Estimation
    :hidden:
 
-   causal/introduction
    causal/motivation
+   causal/introduction
    causal/dag
    causal/estimands
    causal/wizard

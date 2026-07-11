@@ -85,7 +85,7 @@ But how confident are we in that estimate? And is it robust to estimation error?
      Decision confidence          :    100.0%
      Robust to estimation error   : Yes — decision is stable across 95% CI
 
-Game-theoretic robustness
+Robustness
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``decide()`` uses expected value maximisation: it picks "treat" when
@@ -96,7 +96,7 @@ treats a certain $37 gain and a 50/50 gamble between $0 and $74 identically.
 The ``robust`` flag is a first step toward robustness: it checks whether
 the decision flips anywhere inside the 95% confidence interval. But it
 only returns ``True`` or ``False``, and it is implicitly using the most
-conservative possible standard (the CI bounds).
+conservative possible standard (the confidence interval bounds).
 
 For finer control, call ``to_outcomes()`` on the report and pass the result
 to any rule in ``formative.game``:
@@ -118,8 +118,8 @@ to any rule in ``formative.game``:
 
 By default, the three scenarios correspond to the 10th, 50th, and 90th
 percentiles of the net-benefit sampling distribution (assumed normal with
-the se derived from the 95% CI). The ``"don't treat"`` payoff is 0 in
-every scenario — the status quo baseline.
+the standard error derived from the 95% confidence interval). The ``"don't treat"`` payoff is 0 in
+every scenario.
 
 You can supply your own scenario names and quantiles:
 
@@ -129,17 +129,19 @@ You can supply your own scenario names and quantiles:
        scenarios={"bear": 0.05, "base": 0.50, "bull": 0.95}
    )
 
-**Relationship to** ``robust``. ``robust=True`` is equivalent to
-``maximin`` returning the same choice as ``optimal`` when the scenarios are
-set to the CI bounds (quantiles 0.025 and 0.975). ``to_outcomes()``
+How does this differ from using ``robust``? ``robust=True`` is equivalent to
+``maximin``, returning the same choice when the scenarios are
+set to the confidence interval bounds (quantiles 0.025 and 0.975). ``to_outcomes()``
 generalises that check: different rules express different risk attitudes, and
 you can dial in your own pessimism level via ``hurwicz(alpha=...)``.
 
 Should we treat each segment?
 -----------------------------
 
-An average effect can hide groups where the treatment is worthless — or where
-it pays for itself several times over. When an estimator was fitted with an
+An average effect can hide groups where the treatment is worthless, or where
+it pays for itself several times over. It will also cause you to scale up a treatment
+that is not worth it for everyone.
+When an estimator is fitted with an
 ``effect_modifier`` (see :doc:`estimands`), ``decide_by_group(cost, benefit)``
 runs the same cost-benefit analysis within each level of the modifier and
 returns a mapping of level → :class:`~formative.DecisionReport`, so different
@@ -203,10 +205,9 @@ one less thing to get wrong.
 How it works
 ~~~~~~~~~~~~
 
-``learn_policy()`` implements doubly robust policy learning in the style of
-Athey & Wager (2021):
+``learn_policy()`` implements doubly robust policy learning:
 
-1. **Score every unit.** Each unit gets a cross-fitted AIPW score — an
+1. **Score every unit.** Each unit gets a cross-fitted score — an
    unbiased estimate of its individual treatment effect. Outcome models are
    fit by OLS on the candidate features over four folds and evaluated on the
    fifth, so no unit is scored by a model that saw it.
@@ -225,7 +226,7 @@ Athey & Wager (2021):
 
 Because the tree may split on any level of any candidate feature, features
 must be discrete: bin continuous columns before passing them in. Candidate
-features face the same DAG validation as effect modifiers — each must cause
+features face the same DAG validation as effect modifiers; each must cause
 the outcome and must not be a descendant of the treatment (targeting on a
 mediator is not actionable at assignment time).
 
@@ -238,7 +239,13 @@ features instead of choosing a segmentation ourselves:
 .. code-block:: python
 
    result = RCT(dag, treatment="coaching", outcome="retention").fit(df)
-   policy = result.learn_policy(df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=2)
+   policy = result.learn_policy(
+      df,
+      modifiers=["tenure", "region"],
+      cost=2.5,
+      benefit=1.0,
+      max_depth=2
+   )
    print(policy.summary())
 
 .. code-block:: text
@@ -347,7 +354,13 @@ segment-2 employees in the north:
    dag.assume("region").causes("earnings")
 
    result = RCT(dag, treatment="training", outcome="earnings").fit(df)
-   policy = result.learn_policy(df, modifiers=["segment", "region"], cost=1.0, benefit=1.0, max_depth=2)
+   policy = result.learn_policy(
+      df, 
+      modifiers=["segment", "region"],
+      cost=1.0,
+      benefit=1.0,
+      max_depth=2
+   )
    print(policy.summary())
 
 .. code-block:: text
