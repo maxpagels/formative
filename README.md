@@ -78,11 +78,14 @@ This creates a `.venv`, installs all dependencies, and installs the package in e
 ### Releasing a new version
 
 ```bash
-uvx bump-my-version bump patch   # 0.1.0 → 0.1.1 (bug fixes)
-uvx bump-my-version bump minor   # 0.1.0 → 0.2.0 (new features)
-uvx bump-my-version bump major   # 0.1.0 → 1.0.0 (breaking changes)
-git push --follow-tags            # triggers publish to PyPI
+make release BUMP=patch   # 0.1.0 → 0.1.1 (bug fixes)
+make release BUMP=minor   # 0.1.0 → 0.2.0 (new features)
+make release BUMP=major   # 0.1.0 → 1.0.0 (breaking changes)
 ```
+
+One command does everything: bumps the version (commit + tag), builds the docs, snapshots
+them into `site/<major.minor>/` (the versioned docs site Vercel serves statically), and
+pushes with tags — which triggers the publish to PyPI.
 
 ### Running tests
 

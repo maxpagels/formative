@@ -1,0 +1,175 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Motivation &mdash; formative 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/version_switcher.css?v=9b866bab" />
+
+  
+    <link rel="canonical" href="https://docs.getformative.dev/causal/motivation.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/version_switcher.js?v=40e5c8a2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="DAG" href="dag.html" />
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            formative
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Causal Estimation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimands.html">Estimands: ATE, ATT, LATE etc.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wizard.html">Choosing an estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decisions.html">Decisions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="benchmarks.html">Benchmarks</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Game Theory</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../game/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../game/single_player.html">Single-player</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">formative</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Motivation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/causal/motivation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="motivation">
+<h1>Motivation<a class="headerlink" href="#motivation" title="Link to this heading"></a></h1>
+<p>Causal estimation is an incredibly fascinating topic. What causes what is one of the great questions,
+with implications for everything from science to policy to personal decision-making. You’ll find plenty
+of resources on the topic, but there are scarce resources on how causal estimation is necessarily a blend
+of art, science and problem-framing.</p>
+<p>The first thing to understand about causal estimation is that all causal problems are based on <em>assumptions</em>.
+YouTube has a <a class="reference external" href="https://www.youtube.com/watch?v=Dp4dpeJVDxs">classic clip by Richard Feynman</a> answering a
+question about why magnets attract and repel. The interviewer grows impatient with Feynman’s answer, which is
+that you can feel magnets pushing apart from each other because they repel each other. This short answer doesn’t
+satisfy the interviewer, who wants a deeper explanation, which leads Feynman to explain the dangerousness of
+asking “why?” – it leads to an infinite chain of asking why. If you want to understand why a customer bought a
+product, it may be because they wanted it. And they may have wanted it because they like the colour. The colour, in
+turn, may be likeable because it reminds them of a fond memory. And why they have that fond memory is because
+their brain recalled it. Which is because of the way their brain works. And so on. At some point, you will start
+questioning the universe itself, unless you simply accept that some things are just assumed to be true. This also
+implies that some assumptions are not <em>testable</em>; it is simply not possible to gather data to confirm or refute them.</p>
+<p>Causal assumptions differ based on the problem you are trying to solve, the method you have chosen, and the data
+you have available. There are always assumptions that you yourself make and argue for, and there are assumptions
+that you inherit from the method you have chosen. A classic example is the so-called SUTVA assumption. If you show
+variant A to a customer, and variant B to another customer, customer B may change their behaviour because they know
+that variant A exists (maybe their friend told them about it). This messes up your estimation, and is also something
+you cannot reasonably test using collected data. You assume it holds, based on experience and knowledge. Someone else
+might assume it doesn’t hold, and that is a perfectly valid assumption to make. Art is subjective, and so is the art
+side of causal estimation.</p>
+<p>The second part of causal estimation that I find exciting is the methods you use and the ingenious ways they frame
+and exploit problem settings in order to control for other factors influencing the outcome. These can be coarsely
+divided into three categories: <em>pseudo-randomisation</em>, quasi-randomisation, and what I would call “intelligent design”.</p>
+<p>Pseudo-randomisation is the gold standard, and is the basis of the classic A/B test — if we randomly assign customers
+to variant A or variant B, then we can claim the difference in outcomes cannot be explained by any other factor than
+treatment, because it is exceedingly unlikely that other factors would systematically differ between groups. We use the
+term “pseudo”-randomisation here because no randomisation algorithm made on a computer is ever truly random.</p>
+<p>Quasi-randomisation is a clever way to find structure that <em>mimics</em> randomisation. Let’s say you launch a new version
+of your website, and this new version is rolled out to all customers at once because the complexity of rolling it out
+via A/B testing is too high. If you know the exact time of the rollout, and didn’t tell anyone it was going to happen,
+you can bucket the users online just before and just after the rollout. There is a good chance there is no systematic
+difference between these two groups of users – from their perspective, it is down to luck which version they saw. The
+only difference is the treatment, and the rest is “quasi-random”, allowing us to make claims about causality on similar
+grounds to pseudo-randomisation.</p>
+<p>Intelligent design is a more generic term, because methods that fall into this category use a variety of interesting
+techniques. Notably these do <em>not</em> rely on making a “random-like” assumption. One method to highlight because of its
+beautiful design is instrumental variables. If we want to know if education causes income, we can control for confounding
+factors by assuming that some other phenomenon causes (at least partially) education but does not directly cause income.
+And we do mean <em>causes</em>, not just correlates. If we claim the distance to the nearest college will (at least partially)
+have a causal effect on education attendance, and further claim that a mere distance to college will not make you earn
+more, we have found a valid instrument that we can elegantly use to eliminate confounding.</p>
+<p>I hope this introduction to causal estimation has given you a sense of the blend of art, science and problem-framing
+that it requires. I find beauty in the ways we exploit the structure of problems to understand more about the world,
+and I hope you do too.</p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dag.html" class="btn btn-neutral float-right" title="DAG" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Max Pagels.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

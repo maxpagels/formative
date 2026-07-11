@@ -17,7 +17,9 @@ make build-docs                        # sphinx with -W: warnings are errors in 
 
 CI (`.github/workflows/ci.yml`) runs lint, format check, tests with `--cov-fail-under=80`, and the `-W` docs build on every PR — `make check` plus `make build-docs` reproduces it locally.
 
-Published on PyPI as `formative-ds`; the import name is `formative`. Releases: `uvx bump-my-version bump patch|minor|major` then `git push --follow-tags` triggers the publish workflow.
+Published on PyPI as `formative-ds`; the import name is `formative`. Releases: `make release BUMP=patch|minor|major` — bumps the version, rebuilds docs, snapshots them into `site/<major.minor>/` via `scripts/snapshot_docs.py`, and pushes with tags to trigger the PyPI publish workflow.
+
+Docs are versioned: `site/` holds one committed HTML snapshot per minor version plus `versions.json`; Vercel serves it statically (no build). Unversioned paths (including `/`) are rewritten — not redirected — to the latest snapshot via the catch-all rewrite in `vercel.json`, whose destination the snapshot script bumps each release. Never add a `site/index.html` (it would shadow the rewrite at the root), never edit `site/` by hand, and don't run the snapshot script outside a release. The version dropdown (`docs/_static/version_switcher.js`) fetches `versions.json` from the site root at runtime so old snapshots list newer versions too.
 
 ---
 

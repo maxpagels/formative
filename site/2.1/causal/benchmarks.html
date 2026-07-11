@@ -1,0 +1,547 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Benchmarks &mdash; formative 2.1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/version_switcher.css?v=9b866bab" />
+
+  
+    <link rel="canonical" href="https://docs.getformative.dev/causal/benchmarks.html" />
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=20623aea"></script>
+      <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="../_static/version_switcher.js?v=40e5c8a2"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Introduction" href="../game/introduction.html" />
+    <link rel="prev" title="Decisions" href="decisions.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            formative
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Causal Estimation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimands.html">Estimands: ATE, ATT, LATE etc.</a></li>
+<li class="toctree-l1"><a class="reference internal" href="wizard.html">Choosing an estimator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="estimators.html">Estimators</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a></li>
+<li class="toctree-l1"><a class="reference internal" href="decisions.html">Decisions</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Benchmarks</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#the-lalonde-benchmark-does-job-training-raise-earnings">The LaLonde benchmark: does job training raise earnings?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#loading-the-data">Loading the data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-1-the-experimental-answer">Step 1: the experimental answer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-2-the-naive-comparison-goes-badly-wrong">Step 2: the naive comparison goes badly wrong</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#step-3-matching-recovers-the-benchmark">Step 3: matching recovers the benchmark</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scorecard">Scorecard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#the-cardkrueger-benchmark-does-raising-the-minimum-wage-kill-jobs">The Card–Krueger benchmark: does raising the minimum wage kill jobs?</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Loading the data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#running-did">Running DiD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Scorecard</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">References</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Game Theory</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../game/introduction.html">Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../game/single_player.html">Single-player</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">formative</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Benchmarks</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/causal/benchmarks.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="benchmarks">
+<h1>Benchmarks<a class="headerlink" href="#benchmarks" title="Link to this heading"></a></h1>
+<p>You shouldn’t trust a causal estimation library at face value.
+This page takes famous studies where the “right answer” is already established, runs them through
+formative, and shows the results side by side with the published figures. Every code block is
+runnable as-is: the data is downloaded from its canonical public source, so you can reproduce
+each number yourself.</p>
+<p>Each benchmark has three ingredients: a dataset with a known ground truth, the formative code to
+estimate the effect, and a scorecard comparing our numbers against the published ones. Each is
+also available as a runnable Jupyter notebook in the <a class="reference external" href="https://github.com/maxpagels/formative/tree/main/notebooks">notebooks/ directory of the repository</a>.</p>
+<section id="the-lalonde-benchmark-does-job-training-raise-earnings">
+<h2>The LaLonde benchmark: does job training raise earnings?<a class="headerlink" href="#the-lalonde-benchmark-does-job-training-raise-earnings" title="Link to this heading"></a></h2>
+<p>The <a class="reference external" href="https://en.wikipedia.org/wiki/National_Supported_Work_Demonstration">National Supported Work Demonstration</a>
+(NSW) was a 1970s US programme that gave disadvantaged workers 9–18 months of subsidised work
+experience. Crucially, admission was <strong>randomised</strong>, so the programme doubles as a randomised
+controlled trial: we know the true effect of the training on 1978 earnings.</p>
+<p>Robert LaLonde’s famous 1986 paper <em>“Evaluating the Econometric Evaluations of Training Programs
+with Experimental Data”</em> used this to run a devastating test. He threw away the experimental
+control group, replaced it with survey respondents from the Panel Study of Income Dynamics (PSID)
+and the Current Population Survey (CPS) — people who were never in the programme — and asked
+whether standard econometric methods could recover the experimental answer from this
+observational data. Mostly, they could not: naive comparisons were wildly wrong, and regression
+adjustment didn’t rescue them. Dehejia &amp; Wahba (1999) then revisited the data and showed that
+propensity score methods land close to the experimental benchmark.</p>
+<p>This makes the NSW data the classic stress test for observational causal methods, because it lets
+us check three things at once:</p>
+<ol class="arabic simple">
+<li><p>Does <a class="reference internal" href="estimators.html#formative.causal.RCT" title="formative.causal.RCT"><code class="xref py py-class docutils literal notranslate"><span class="pre">RCT</span></code></a> reproduce the published experimental effect (<strong>$1,794</strong> in
+the Dehejia-Wahba sample)?</p></li>
+<li><p>Does the naive comparison on observational data go as badly wrong as LaLonde reported
+(<strong>−$15,205</strong> against PSID controls)?</p></li>
+<li><p>Does <a class="reference internal" href="estimators.html#formative.causal.PropensityScoreMatching" title="formative.causal.PropensityScoreMatching"><code class="xref py py-class docutils literal notranslate"><span class="pre">PropensityScoreMatching</span></code></a> pull the estimate back to the
+neighbourhood of the experimental answer, as Dehejia &amp; Wahba found?</p></li>
+</ol>
+<section id="loading-the-data">
+<h3>Loading the data<a class="headerlink" href="#loading-the-data" title="Link to this heading"></a></h3>
+<p>The Dehejia-Wahba sample is hosted on <a class="reference external" href="https://users.nber.org/~rdehejia/nswdata2.html">Rajeev Dehejia’s data page</a>. Each file has the same ten columns: a
+treatment indicator, pre-treatment characteristics (age, education, race, marital status, and
+real earnings in 1974 and 1975), and the outcome — real earnings in 1978 (<code class="docutils literal notranslate"><span class="pre">re78</span></code>).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">BASE</span> <span class="o">=</span> <span class="s2">&quot;https://users.nber.org/~rdehejia/data&quot;</span>
+<span class="n">COLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;treat&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;education&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;hispanic&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;married&quot;</span><span class="p">,</span> <span class="s2">&quot;nodegree&quot;</span><span class="p">,</span> <span class="s2">&quot;re74&quot;</span><span class="p">,</span> <span class="s2">&quot;re75&quot;</span><span class="p">,</span> <span class="s2">&quot;re78&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">BASE</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">COLS</span><span class="p">)</span>
+
+<span class="n">treated</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s2">&quot;nswre74_treated&quot;</span><span class="p">)</span>      <span class="c1"># 185 NSW participants</span>
+<span class="n">experimental_control</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s2">&quot;nswre74_control&quot;</span><span class="p">)</span>  <span class="c1"># 260 randomised controls</span>
+<span class="n">psid</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="s2">&quot;psid_controls&quot;</span><span class="p">)</span>           <span class="c1"># 2,490 PSID respondents (never in NSW)</span>
+
+<span class="n">experimental</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">treated</span><span class="p">,</span> <span class="n">experimental_control</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">observational</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">treated</span><span class="p">,</span> <span class="n">psid</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="step-1-the-experimental-answer">
+<h3>Step 1: the experimental answer<a class="headerlink" href="#step-1-the-experimental-answer" title="Link to this heading"></a></h3>
+<p>Because NSW admission was randomised, the DAG is as simple as it gets — treatment causes the
+outcome, and nothing causes treatment:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative.causal</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAG</span><span class="p">,</span> <span class="n">RCT</span>
+
+<span class="n">rct_dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
+<span class="n">rct_dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;treat&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;re78&quot;</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">rct_dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;treat&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;re78&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">experimental</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>RCT Causal Effect: treat → re78
+  Estimand: ATE (average treatment effect)
+──────────────────────────────────────────────────
+  ATE estimate         :  1794.3424
+
+  Std. error           :   632.8534
+  95% CI               : [550.5745, 3038.1103]
+  p-value              :     0.0048
+  N                    :        445
+</pre></div>
+</div>
+<p><strong>$1,794.34</strong> — the published experimental benchmark for this sample is $1,794 (Dehejia &amp; Wahba
+1999, Table 3). This is the ground truth the observational methods below will be judged against.</p>
+</section>
+<section id="step-2-the-naive-comparison-goes-badly-wrong">
+<h3>Step 2: the naive comparison goes badly wrong<a class="headerlink" href="#step-2-the-naive-comparison-goes-badly-wrong" title="Link to this heading"></a></h3>
+<p>Now we discard the experimental controls and compare NSW participants against PSID respondents,
+as LaLonde did. The comparison group is now nothing like the treated group — PSID respondents
+are older, better educated, far more likely to be employed — so the covariates confound the
+treatment/outcome relationship. The observational DAG declares this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative.causal</span><span class="w"> </span><span class="kn">import</span> <span class="n">OLSObservational</span>
+
+<span class="n">COVARIATES</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;education&quot;</span><span class="p">,</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;hispanic&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;married&quot;</span><span class="p">,</span> <span class="s2">&quot;nodegree&quot;</span><span class="p">,</span> <span class="s2">&quot;re74&quot;</span><span class="p">,</span> <span class="s2">&quot;re75&quot;</span><span class="p">]</span>
+
+<span class="n">obs_dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">COVARIATES</span><span class="p">:</span>
+    <span class="n">obs_dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;treat&quot;</span><span class="p">,</span> <span class="s2">&quot;re78&quot;</span><span class="p">)</span>
+<span class="n">obs_dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;treat&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;re78&quot;</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">OLSObservational</span><span class="p">(</span><span class="n">obs_dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;treat&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;re78&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">observational</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>OLS Causal Effect: treat → re78
+──────────────────────────────────────────────────
+  Adjusted estimate    :   751.9464  (controlling for: age, black, education, hispanic, married, nodegree, re74, re75)
+  Unadjusted estimate  : -15204.7775  (no controls)
+  Confounding bias     : -15956.7239
+
+  Std. error           :   915.2572
+  95% CI               : [-1042.7399, 2546.6327]
+  p-value              :     0.4114
+  N                    :       2675
+</pre></div>
+</div>
+<p>This single summary reproduces LaLonde’s core finding. The unadjusted estimate — the answer you
+would get by simply comparing average earnings between the two groups — is <strong>−$15,204.78</strong>,
+matching the −$15,205 raw gap in the published data. Taken at face value it says the training
+programme <em>destroyed</em> fifteen thousand dollars of annual earnings; in reality it measures how
+much poorer NSW participants were than average PSID respondents to begin with. Linear regression
+adjustment moves the estimate to $752 — the right sign, but still less than half the experimental
+benchmark and statistically indistinguishable from zero, echoing LaLonde’s conclusion that
+regression on a badly mismatched comparison group cannot be trusted. The adjusted-vs-unadjusted
+comparison that every formative result carries exists precisely to make this kind of confounding
+visible.</p>
+</section>
+<section id="step-3-matching-recovers-the-benchmark">
+<h3>Step 3: matching recovers the benchmark<a class="headerlink" href="#step-3-matching-recovers-the-benchmark" title="Link to this heading"></a></h3>
+<p>Dehejia &amp; Wahba’s insight was that most PSID respondents are so unlike NSW participants that a
+linear model extrapolates across incomparable people. Propensity score matching instead compares
+each treated person only with the most similar controls:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative.causal</span><span class="w"> </span><span class="kn">import</span> <span class="n">PropensityScoreMatching</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">PropensityScoreMatching</span><span class="p">(</span><span class="n">obs_dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;treat&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;re78&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">observational</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>PSM Causal Effect: treat → re78
+  Estimand: ATT (average treatment effect on the treated)
+──────────────────────────────────────────────────────
+  ATT estimate         :  2125.7131  (controlling for: age, black, education, hispanic, married, nodegree, re74, re75)
+  Unadjusted estimate  : -15204.7775  (naive mean difference)
+  Confounding bias     : -17330.4906
+
+  Std. error           :  1079.2522  (bootstrap, N=500)
+  95% CI               : [-943.4393, 3438.7593]  (bootstrap percentile)
+  p-value              :     0.0489
+  N                    :       2675
+</pre></div>
+</div>
+<p>From the same observational data that produced −$15,205 naively, matching estimates <strong>$2,125.71</strong>
+— within one standard error of the experimental $1,794. Repeating the exercise with the much
+larger CPS comparison group (15,992 controls, naive gap −$8,497.52) gives an ATT of
+<strong>$2,074.02</strong>: two very different comparison groups, matched estimates a mere $50 apart, both
+bracketing the experimental truth. Dehejia &amp; Wahba’s own matching estimates were $1,691 (PSID)
+and $1,582 (CPS); the residual spread between their numbers and ours reflects implementation
+choices (they used stratification and different matching variants; formative uses 1-to-1
+nearest-neighbour matching with replacement), and later work (Smith &amp; Todd 2005) showed estimates
+in this range are sensitive to exactly such choices. All of them are within one standard error of
+the experimental answer.</p>
+</section>
+<section id="scorecard">
+<h3>Scorecard<a class="headerlink" href="#scorecard" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Quantity</p></th>
+<th class="head"><p>Published</p></th>
+<th class="head"><p>formative</p></th>
+<th class="head"><p>Verdict</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Experimental ATE (RCT)</p></td>
+<td><p>$1,794</p></td>
+<td><p>$1,794.34</p></td>
+<td><p>exact match</p></td>
+</tr>
+<tr class="row-odd"><td><p>Naive mean difference, PSID controls</p></td>
+<td><p>−$15,205</p></td>
+<td><p>−$15,204.78</p></td>
+<td><p>exact match</p></td>
+</tr>
+<tr class="row-even"><td><p>Naive mean difference, CPS controls</p></td>
+<td><p>−$8,498</p></td>
+<td><p>−$8,497.52</p></td>
+<td><p>exact match</p></td>
+</tr>
+<tr class="row-odd"><td><p>PSM ATT, PSID controls</p></td>
+<td><p>$1,691 (DW 1999)</p></td>
+<td><p>$2,125.71</p></td>
+<td><p>within 1 SE of experimental truth</p></td>
+</tr>
+<tr class="row-even"><td><p>PSM ATT, CPS controls</p></td>
+<td><p>$1,582 (DW 1999)</p></td>
+<td><p>$2,074.02</p></td>
+<td><p>within 1 SE of experimental truth</p></td>
+</tr>
+</tbody>
+</table>
+<p>The pattern is exactly what forty years of literature says it should be: the experimental
+estimate is reproduced to the dollar, the naive observational comparison is catastrophically
+biased (and formative’s unadjusted estimate quantifies that bias to the dollar), and propensity
+score matching recovers an estimate statistically indistinguishable from the experimental truth.</p>
+</section>
+<section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>LaLonde, R. (1986). “Evaluating the Econometric Evaluations of Training Programs with
+Experimental Data.” <em>American Economic Review</em>, 76(4), 604–620.</p></li>
+<li><p>Dehejia, R. &amp; Wahba, S. (1999). “Causal Effects in Nonexperimental Studies: Reevaluating the
+Evaluation of Training Programs.” <em>Journal of the American Statistical Association</em>, 94(448),
+1053–1062.</p></li>
+<li><p>Smith, J. &amp; Todd, P. (2005). “Does matching overcome LaLonde’s critique of nonexperimental
+estimators?” <em>Journal of Econometrics</em>, 125(1–2), 305–353.</p></li>
+<li><p>Data: <a class="reference external" href="https://users.nber.org/~rdehejia/nswdata2.html">Rajeev Dehejia’s NSW data page</a>.</p></li>
+</ul>
+</section>
+</section>
+<section id="the-cardkrueger-benchmark-does-raising-the-minimum-wage-kill-jobs">
+<h2>The Card–Krueger benchmark: does raising the minimum wage kill jobs?<a class="headerlink" href="#the-cardkrueger-benchmark-does-raising-the-minimum-wage-kill-jobs" title="Link to this heading"></a></h2>
+<p>On 1 April 1992, New Jersey raised its minimum wage from $4.25 to $5.05 an hour. Neighbouring
+Pennsylvania kept its minimum at $4.25. The textbook competitive-market prediction is
+unambiguous: a binding wage floor should reduce employment. Card &amp; Krueger (1994) tested it by
+surveying 410 fast-food restaurants — Burger King, KFC, Roy Rogers, and Wendy’s — on both sides
+of the state border, once in February–March 1992 (before the rise) and again in November–December
+1992 (after). Because the two states share a labour market and an economic climate, Pennsylvania
+serves as the counterfactual for what would have happened to New Jersey employment without the
+wage rise.</p>
+<p>This is <em>the</em> canonical difference-in-differences study, and its result was famously
+counterintuitive: employment in New Jersey did <strong>not</strong> fall relative to Pennsylvania — the
+published DiD estimate is <strong>+2.76</strong> full-time-equivalent (FTE) jobs per store (Table 3, standard
+error 1.36). The benchmark for <a class="reference internal" href="estimators.html#formative.causal.DiD" title="formative.causal.DiD"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiD</span></code></a> is therefore: feed it the public
+survey data and check that it reproduces that coefficient.</p>
+<section id="id1">
+<h3>Loading the data<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p>The dataset is distributed on <a class="reference external" href="https://davidcard.berkeley.edu/data_sets.html">David Card’s data page</a>
+as a zip containing <code class="docutils literal notranslate"><span class="pre">public.dat</span></code> (one row per store, both survey waves side by side) and a
+codebook. Following Card &amp; Krueger, employment is measured in full-time equivalents: full-time
+staff plus managers plus half the part-time staff.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">urllib.request</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">URL</span> <span class="o">=</span> <span class="s2">&quot;https://davidcard.berkeley.edu/data_sets/njmin.zip&quot;</span>
+<span class="n">COLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;SHEET&quot;</span><span class="p">,</span> <span class="s2">&quot;CHAIN&quot;</span><span class="p">,</span> <span class="s2">&quot;CO_OWNED&quot;</span><span class="p">,</span> <span class="s2">&quot;STATE&quot;</span><span class="p">,</span> <span class="s2">&quot;SOUTHJ&quot;</span><span class="p">,</span> <span class="s2">&quot;CENTRALJ&quot;</span><span class="p">,</span> <span class="s2">&quot;NORTHJ&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PA1&quot;</span><span class="p">,</span> <span class="s2">&quot;PA2&quot;</span><span class="p">,</span> <span class="s2">&quot;SHORE&quot;</span><span class="p">,</span> <span class="s2">&quot;NCALLS&quot;</span><span class="p">,</span> <span class="s2">&quot;EMPFT&quot;</span><span class="p">,</span> <span class="s2">&quot;EMPPT&quot;</span><span class="p">,</span> <span class="s2">&quot;NMGRS&quot;</span><span class="p">,</span> <span class="s2">&quot;WAGE_ST&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;INCTIME&quot;</span><span class="p">,</span> <span class="s2">&quot;FIRSTINC&quot;</span><span class="p">,</span> <span class="s2">&quot;BONUS&quot;</span><span class="p">,</span> <span class="s2">&quot;PCTAFF&quot;</span><span class="p">,</span> <span class="s2">&quot;MEALS&quot;</span><span class="p">,</span> <span class="s2">&quot;OPEN&quot;</span><span class="p">,</span> <span class="s2">&quot;HRSOPEN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PSODA&quot;</span><span class="p">,</span> <span class="s2">&quot;PFRY&quot;</span><span class="p">,</span> <span class="s2">&quot;PENTREE&quot;</span><span class="p">,</span> <span class="s2">&quot;NREGS&quot;</span><span class="p">,</span> <span class="s2">&quot;NREGS11&quot;</span><span class="p">,</span> <span class="s2">&quot;TYPE2&quot;</span><span class="p">,</span> <span class="s2">&quot;STATUS2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DATE2&quot;</span><span class="p">,</span> <span class="s2">&quot;NCALLS2&quot;</span><span class="p">,</span> <span class="s2">&quot;EMPFT2&quot;</span><span class="p">,</span> <span class="s2">&quot;EMPPT2&quot;</span><span class="p">,</span> <span class="s2">&quot;NMGRS2&quot;</span><span class="p">,</span> <span class="s2">&quot;WAGE_ST2&quot;</span><span class="p">,</span> <span class="s2">&quot;INCTIME2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;FIRSTIN2&quot;</span><span class="p">,</span> <span class="s2">&quot;SPECIAL2&quot;</span><span class="p">,</span> <span class="s2">&quot;MEALS2&quot;</span><span class="p">,</span> <span class="s2">&quot;OPEN2R&quot;</span><span class="p">,</span> <span class="s2">&quot;HRSOPEN2&quot;</span><span class="p">,</span> <span class="s2">&quot;PSODA2&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PFRY2&quot;</span><span class="p">,</span> <span class="s2">&quot;PENTREE2&quot;</span><span class="p">,</span> <span class="s2">&quot;NREGS2&quot;</span><span class="p">,</span> <span class="s2">&quot;NREGS112&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">urllib</span><span class="o">.</span><span class="n">request</span><span class="o">.</span><span class="n">urlopen</span><span class="p">(</span><span class="n">URL</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()))</span> <span class="k">as</span> <span class="n">z</span><span class="p">:</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">z</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;public.dat&quot;</span><span class="p">),</span> <span class="n">sep</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="n">header</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">names</span><span class="o">=</span><span class="n">COLS</span><span class="p">,</span> <span class="n">na_values</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+
+<span class="c1"># FTE employment = full-timers + managers + 0.5 × part-timers (CK&#39;s definition)</span>
+<span class="n">raw</span><span class="p">[</span><span class="s2">&quot;fte_before&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;EMPFT&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;NMGRS&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;EMPPT&quot;</span><span class="p">]</span>
+<span class="n">raw</span><span class="p">[</span><span class="s2">&quot;fte_after&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;EMPFT2&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;NMGRS2&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">raw</span><span class="p">[</span><span class="s2">&quot;EMPPT2&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Before estimating anything, we can check the raw ingredients against the paper. Card &amp; Krueger’s
+Table 3 reports four cell means; formative’s DiD will be built from exactly these:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">state</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;NJ&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;PA&quot;</span><span class="p">)]:</span>
+    <span class="n">sub</span> <span class="o">=</span> <span class="n">raw</span><span class="p">[</span><span class="n">raw</span><span class="o">.</span><span class="n">STATE</span> <span class="o">==</span> <span class="n">state</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: before </span><span class="si">{</span><span class="n">sub</span><span class="o">.</span><span class="n">fte_before</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, after </span><span class="si">{</span><span class="n">sub</span><span class="o">.</span><span class="n">fte_after</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>NJ: before 20.44, after 21.03
+PA: before 23.33, after 21.17
+</pre></div>
+</div>
+<p>All four match the published Table 3 to the last digit (NJ: 20.44 → 21.03; PA: 23.33 → 21.17).
+Note the shape of the problem already visible here: New Jersey stores were <em>smaller</em> than
+Pennsylvania stores before the wage rise, so a naive post-period comparison would be biased
+against New Jersey — the exact baseline difference DiD exists to remove.</p>
+</section>
+<section id="running-did">
+<h3>Running DiD<a class="headerlink" href="#running-did" title="Link to this heading"></a></h3>
+<p><a class="reference internal" href="estimators.html#formative.causal.DiD" title="formative.causal.DiD"><code class="xref py py-class docutils literal notranslate"><span class="pre">DiD</span></code></a> expects long-format data — one row per store per period — with
+binary group and time indicators:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative.causal</span><span class="w"> </span><span class="kn">import</span> <span class="n">DAG</span><span class="p">,</span> <span class="n">DiD</span>
+
+<span class="n">long</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+    <span class="p">[</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;store&quot;</span><span class="p">:</span> <span class="n">raw</span><span class="o">.</span><span class="n">SHEET</span><span class="p">,</span> <span class="s2">&quot;nj&quot;</span><span class="p">:</span> <span class="n">raw</span><span class="o">.</span><span class="n">STATE</span><span class="p">,</span> <span class="s2">&quot;after&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;fte&quot;</span><span class="p">:</span> <span class="n">raw</span><span class="o">.</span><span class="n">fte_before</span><span class="p">}),</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;store&quot;</span><span class="p">:</span> <span class="n">raw</span><span class="o">.</span><span class="n">SHEET</span><span class="p">,</span> <span class="s2">&quot;nj&quot;</span><span class="p">:</span> <span class="n">raw</span><span class="o">.</span><span class="n">STATE</span><span class="p">,</span> <span class="s2">&quot;after&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;fte&quot;</span><span class="p">:</span> <span class="n">raw</span><span class="o">.</span><span class="n">fte_after</span><span class="p">}),</span>
+    <span class="p">],</span>
+    <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fte&quot;</span><span class="p">])</span>
+
+<span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;nj&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;fte&quot;</span><span class="p">)</span>
+<span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;after&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;fte&quot;</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">DiD</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;nj&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;fte&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">long</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>DiD Causal Effect: (nj × after) → fte
+  Estimand: ATT (average treatment effect on the treated)
+──────────────────────────────────────────────────────
+  DiD estimate         :     2.7536
+  Naive post-diff      :    -0.1382  (treated post − control post)
+  Baseline bias removed:    -2.8918
+
+  Std. error           :     1.6884
+  95% CI               : [-0.5607, 6.0679]
+  p-value              :     0.1033
+  N                    :        794
+</pre></div>
+</div>
+<p>The DiD estimate is <strong>+2.75</strong> FTE jobs — Card &amp; Krueger’s published figure is 2.76, an agreement
+to within a hundredth of an FTE (rounding-level noise; note that the published two-decimal cell
+means themselves difference to 2.75). The naive
+post-period difference of −0.14 also matches the paper’s reported NJ−PA gap of −0.14, and the
+summary shows DiD stripping out the −2.89 baseline difference between the states. The sign of
+the result is the famous finding: no evidence that the minimum wage rise reduced employment.</p>
+<p>Restricting to the balanced panel — the 384 stores with employment measured in both waves —
+reproduces the paper’s balanced-sample row exactly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">balanced</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;fte_before&quot;</span><span class="p">,</span> <span class="s2">&quot;fte_after&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">SHEET</span>
+<span class="n">result_bal</span> <span class="o">=</span> <span class="n">DiD</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">group</span><span class="o">=</span><span class="s2">&quot;nj&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;fte&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+    <span class="n">long</span><span class="p">[</span><span class="n">long</span><span class="o">.</span><span class="n">store</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">balanced</span><span class="p">)]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;balanced-sample DiD: </span><span class="si">{</span><span class="n">result_bal</span><span class="o">.</span><span class="n">effect</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>balanced-sample DiD: 2.7500
+</pre></div>
+</div>
+<p>against a published 2.75 (Table 3, row 5, where the underlying mean changes are NJ +0.47 and
+PA −2.28 — both of which this data reproduces exactly).</p>
+<p>A note on the standard error: formative reports 1.69, computed from the pooled OLS interaction
+model on store-periods. Card &amp; Krueger’s published 1.36 comes from a different (and for panel
+data, sharper) calculation — the variance of the store-level <em>changes</em>, which nets out
+persistent store-to-store size differences before computing uncertainty. The same data
+reproduces their number too: the change-score formula on the balanced panel gives an SE of
+1.3423 against their published 1.34. The point estimate is identical either way; the two SEs
+answer slightly different questions about it, and formative’s is the more conservative of the
+two.</p>
+</section>
+<section id="id2">
+<h3>Scorecard<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Quantity</p></th>
+<th class="head"><p>Published</p></th>
+<th class="head"><p>formative</p></th>
+<th class="head"><p>Verdict</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Four Table 3 cell means (NJ/PA × before/after)</p></td>
+<td><p>20.44, 21.03, 23.33, 21.17</p></td>
+<td><p>20.44, 21.03, 23.33, 21.17</p></td>
+<td><p>exact match</p></td>
+</tr>
+<tr class="row-odd"><td><p>Naive post-period NJ−PA difference</p></td>
+<td><p>−0.14</p></td>
+<td><p>−0.1382</p></td>
+<td><p>exact match</p></td>
+</tr>
+<tr class="row-even"><td><p>DiD estimate, all available stores</p></td>
+<td><p>+2.76 (SE 1.36)</p></td>
+<td><p>+2.7536 (SE 1.69)</p></td>
+<td><p>match (see SE note)</p></td>
+</tr>
+<tr class="row-odd"><td><p>DiD estimate, balanced panel</p></td>
+<td><p>+2.75 (SE 1.34)</p></td>
+<td><p>+2.7500 (change-score SE 1.3423)</p></td>
+<td><p>exact match</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="id3">
+<h3>References<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Card, D. &amp; Krueger, A. (1994). “Minimum Wages and Employment: A Case Study of the Fast-Food
+Industry in New Jersey and Pennsylvania.” <em>American Economic Review</em>, 84(4), 772–793.</p></li>
+<li><p>Data: <a class="reference external" href="https://davidcard.berkeley.edu/data_sets.html">David Card’s data page</a> (<code class="docutils literal notranslate"><span class="pre">njmin.zip</span></code>).</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="decisions.html" class="btn btn-neutral float-left" title="Decisions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../game/introduction.html" class="btn btn-neutral float-right" title="Introduction" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Max Pagels.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
