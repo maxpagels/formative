@@ -1,0 +1,150 @@
+Decisions
+=========
+
+Causal estimation answers "does X cause Y, and by how much?" but practitioners
+usually need to go one step further: *should we act on this estimate?*
+
+In formative, given a causal estimate and its uncertainty, you can run a decision
+analysis to determine if a treatment is worthwhile. Simply estimating the causal effect
+is not enough: it may be uncertain, or the cost of treatment may outweigh any benefit.
+
+How it works
+------------
+
+Every result object exposes a ``.decide(cost, benefit)`` method. Pass the average cost
+per unit of treatment applied and the monetary (or utility) value of one unit of
+improvement in the outcome. formative returns a :class:`~formative.DecisionReport`
+that answers three questions:
+
+1. **What is the net benefit?** ``net_benefit = effect × benefit − cost``. If
+   positive, treating is expected to be worthwhile.
+2. **How confident are we?** ``p_beneficial`` is the probability that the true
+   net benefit is positive, derived by treating the causal estimate as normally
+   distributed around its point estimate with the reported standard error.
+3. **Is the decision robust?** ``robust`` is ``True`` when the optimal decision
+   (treat vs. don't treat) is the same at both ends of the 95% confidence
+   interval. A fragile decision that flips within the CI is a signal
+   that the estimate is too uncertain to act on without more data.
+
+Example
+-------
+
+Consider a job-training programme. We estimate the causal effect of training on
+earnings using OLS with a DAG that encodes family background as a confounder:
+
+.. code-block:: python
+
+   import numpy as np
+   import pandas as pd
+   from formative.causal import DAG, OLSObservational
+
+   rng = np.random.default_rng(0)
+   N = 2_000
+   background = rng.normal(size=N)
+   training   = 0.6 * background + rng.normal(size=N)
+   earnings   = 3.0 * training + 1.2 * background + rng.normal(size=N)
+
+   df  = pd.DataFrame({"background": background, "training": training, "earnings": earnings})
+   dag = DAG()
+   dag.assume("background").causes("training", "earnings")
+   dag.assume("training").causes("earnings")
+
+   result = OLSObservational(dag, treatment="training", outcome="earnings").fit(df)
+
+In the above example, the point estimate of the causal effect of training on earnings is around 3.0,
+meaning that that for each unit increase in training, we expect a 3.0 unit increase in earnings.
+Now suppose rolling out the programme costs $8 per participant, and each unit of
+earnings increase is worth $15 in lifetime value. The expected net benefit per unit for training
+is around ``3.0 × 15 − 8 = 37``, i.e. we expect to gain $37 for every unit of training applied.
+But how confident are we in that estimate? And is it robust to estimation error?
+
+.. code-block:: python
+
+   decision = result.decide(cost=8, benefit=15)
+   print(decision)
+
+.. code-block:: text
+
+   Decision Analysis: training → earnings
+   ──────────────────────────────────────────────────
+     Cost per unit of treatment   :     8.0000
+     Benefit per unit of outcome  :    15.0000
+
+     Net benefit (point estimate) :    +36.9958
+     Net benefit 95% CI           : [+35.3981, +38.5935]
+
+     Optimal decision             : treat
+     Decision confidence          :    100.0%
+     Robust to estimation error   : Yes — decision is stable across 95% CI
+
+Game-theoretic robustness
+-------------------------
+
+``decide()`` uses expected value maximisation: it picks "treat" when
+``effect × benefit − cost > 0``. This is the right rule when you want to
+maximise the average outcome, but it is silent about risk attitude — it
+treats a certain $37 gain and a 50/50 gamble between $0 and $74 identically.
+
+The ``robust`` flag is a first step toward robustness: it checks whether
+the decision flips anywhere inside the 95% confidence interval. But it
+only returns ``True`` or ``False``, and it is implicitly using the most
+conservative possible standard (the CI bounds).
+
+For finer control, call ``to_outcomes()`` on the report and pass the result
+to any rule in ``formative.game``:
+
+.. code-block:: python
+
+   from formative.game import maximin, minimax, hurwicz
+
+   decision = result.decide(cost=8, benefit=15)
+   outcomes = decision.to_outcomes()
+   # {
+   #   "treat":       {"pessimistic": ..., "expected": ..., "optimistic": ...},
+   #   "don't treat": {"pessimistic": 0.0, "expected": 0.0, "optimistic": 0.0},
+   # }
+
+   maximin(outcomes).solve()            # best worst-case
+   minimax(outcomes).solve()            # minimise maximum regret
+   hurwicz(outcomes, alpha=0.3).solve() # weighted pessimism–optimism
+
+By default, the three scenarios correspond to the 10th, 50th, and 90th
+percentiles of the net-benefit sampling distribution (assumed normal with
+the se derived from the 95% CI). The ``"don't treat"`` payoff is 0 in
+every scenario — the status quo baseline.
+
+You can supply your own scenario names and quantiles:
+
+.. code-block:: python
+
+   outcomes = decision.to_outcomes(
+       scenarios={"bear": 0.05, "base": 0.50, "bull": 0.95}
+   )
+
+**Relationship to** ``robust``. ``robust=True`` is equivalent to
+``maximin`` returning the same choice as ``optimal`` when the scenarios are
+set to the CI bounds (quantiles 0.025 and 0.975). ``to_outcomes()``
+generalises that check: different rules express different risk attitudes, and
+you can dial in your own pessimism level via ``hurwicz(alpha=...)``.
+
+Philosophy
+----------
+
+The decision layer is deliberately simple. It does not attempt to model complex
+decision structures such as thresholds, multiple treatments, or dynamic policies.
+It simply translates a causal estimate and its uncertainty into a binary decision:
+treat or don't treat.
+
+Most packages do not include such functionality, because decision-making is
+inherently complex. formative does, simply because we believe that an attempt at numerical
+decision analysis is better than none.
+
+Note that a ``robust=False`` result is not a failure. It is an honest statement that the
+data, as collected, cannot yet discriminate between two different actions. That is
+valuable information.
+
+API reference
+-------------
+
+.. autoclass:: formative.causal.DecisionReport
+   :members:

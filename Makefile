@@ -1,4 +1,4 @@
-.PHONY: build-docs test lint fmt check
+.PHONY: build-docs test lint fmt check release
 
 build-docs:
 	rm -rf docs/_build
@@ -16,3 +16,14 @@ fmt:
 check: lint
 	uv run ruff format --check --exclude notebooks .
 	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80
+
+release:  # usage: make release BUMP=patch|minor|major
+	@test -n "$(BUMP)" || { echo "Usage: make release BUMP=patch|minor|major"; exit 1; }
+	@git diff --quiet && git diff --cached --quiet || { echo "Working tree not clean — commit or stash first."; exit 1; }
+	uv lock --check
+	uvx bump-my-version bump $(BUMP)
+	$(MAKE) build-docs
+	uv run python scripts/snapshot_docs.py
+	git add site vercel.json
+	git commit -m "Snapshot docs for $$(uv run python scripts/snapshot_docs.py --print-version)"
+	git push --follow-tags

@@ -104,6 +104,51 @@ class RCTResult(_StatsmodelsResult):
             outcome=self._outcome,
         )
 
+    def learn_policy(
+        self,
+        data: pd.DataFrame,
+        modifiers: list[str],
+        cost: float,
+        benefit: float,
+        max_depth: int = 2,
+    ):
+        """
+        Learn a treatment assignment policy from this experiment.
+
+        Where ``decide()`` asks *should we treat everyone?*, this asks *whom
+        should we treat?* — it searches for the shallow decision tree over the
+        candidate features that maximises total net benefit
+        (``benefit × effect − cost`` per treated unit), using cross-fitted
+        doubly robust scores (Athey & Wager style policy learning).
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            The same dataframe passed to ``fit()``. Treatment must be
+            binary 0/1.
+        modifiers : list[str]
+            Candidate discrete, pre-treatment feature columns the tree may
+            split on. Each must be a DAG node that causes the outcome and is
+            not a descendant of the treatment. Bin continuous features first.
+        cost : float
+            Cost per unit of treatment applied.
+        benefit : float
+            Benefit (revenue, utility, etc.) per unit increase in the outcome.
+        max_depth : int
+            Tree depth, 1 or 2. Depth is the regularizer: compare the
+            ``value`` of a depth-1 and depth-2 policy to see whether the
+            extra complexity earns its keep.
+
+        Returns
+        -------
+        PolicyResult
+            The learned rule, an honest estimate of its per-unit value over
+            the best constant policy, and an ``assign()`` method for new data.
+        """
+        from .policy import _learn_policy
+
+        return _learn_policy(data, self._treatment, self._outcome, modifiers, cost, benefit, max_depth, self._dag)
+
 
 class RCTCATEResult(_CATEResultMixin, RCTResult):
     """
