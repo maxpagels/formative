@@ -118,7 +118,9 @@ treatment/outcome relationship. The observational DAG declares this:
         obs_dag.assume(c).causes("treat", "re78")
     obs_dag.assume("treat").causes("re78")
 
-    result = OLSObservational(obs_dag, treatment="treat", outcome="re78").fit(observational)
+    result = OLSObservational(
+        obs_dag, treatment="treat", outcome="re78"
+    ).fit(observational)
     print(result.summary())
 
 .. code-block:: text
@@ -156,7 +158,9 @@ each treated person only with the most similar controls:
 
     from formative.causal import PropensityScoreMatching
 
-    result = PropensityScoreMatching(obs_dag, treatment="treat", outcome="re78").fit(observational)
+    result = PropensityScoreMatching(
+        obs_dag, treatment="treat", outcome="re78"
+    ).fit(observational)
     print(result.summary())
 
 .. code-block:: text
@@ -293,7 +297,10 @@ Table 3 reports four cell means; formative's DiD will be built from exactly thes
 
     for state, name in [(1, "NJ"), (0, "PA")]:
         sub = raw[raw.STATE == state]
-        print(f"{name}: before {sub.fte_before.mean():.2f}, after {sub.fte_after.mean():.2f}")
+        print(
+            f"{name}: before {sub.fte_before.mean():.2f}, "
+            f"after {sub.fte_after.mean():.2f}"
+        )
 
 .. code-block:: text
 
@@ -317,8 +324,18 @@ binary group and time indicators:
 
     long = pd.concat(
         [
-            pd.DataFrame({"store": raw.SHEET, "nj": raw.STATE, "after": 0, "fte": raw.fte_before}),
-            pd.DataFrame({"store": raw.SHEET, "nj": raw.STATE, "after": 1, "fte": raw.fte_after}),
+            pd.DataFrame({
+                "store": raw.SHEET,
+                "nj": raw.STATE,
+                "after": 0,
+                "fte": raw.fte_before,
+            }),
+            pd.DataFrame({
+                "store": raw.SHEET,
+                "nj": raw.STATE,
+                "after": 1,
+                "fte": raw.fte_after,
+            }),
         ],
         ignore_index=True,
     ).dropna(subset=["fte"])

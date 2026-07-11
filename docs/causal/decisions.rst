@@ -52,7 +52,11 @@ earnings using OLS with a DAG that encodes family background as a confounder:
    training   = 0.6 * background + rng.normal(size=N)
    earnings   = 3.0 * training + 1.2 * background + rng.normal(size=N)
 
-   df  = pd.DataFrame({"background": background, "training": training, "earnings": earnings})
+   df = pd.DataFrame({
+       "background": background,
+       "training": training,
+       "earnings": earnings,
+   })
    dag = DAG()
    dag.assume("background").causes("training", "earnings")
    dag.assume("training").causes("earnings")
@@ -85,7 +89,7 @@ But how confident are we in that estimate? And is it robust to estimation error?
      Decision confidence          :    100.0%
      Robust to estimation error   : Yes — decision is stable across 95% CI
 
-Game-theoretic robustness
+Robustness
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ``decide()`` uses expected value maximisation: it picks "treat" when
@@ -96,7 +100,7 @@ treats a certain $37 gain and a 50/50 gamble between $0 and $74 identically.
 The ``robust`` flag is a first step toward robustness: it checks whether
 the decision flips anywhere inside the 95% confidence interval. But it
 only returns ``True`` or ``False``, and it is implicitly using the most
-conservative possible standard (the CI bounds).
+conservative possible standard (the confidence interval bounds).
 
 For finer control, call ``to_outcomes()`` on the report and pass the result
 to any rule in ``formative.game``:
@@ -118,8 +122,8 @@ to any rule in ``formative.game``:
 
 By default, the three scenarios correspond to the 10th, 50th, and 90th
 percentiles of the net-benefit sampling distribution (assumed normal with
-the se derived from the 95% CI). The ``"don't treat"`` payoff is 0 in
-every scenario — the status quo baseline.
+the standard error derived from the 95% confidence interval). The ``"don't treat"`` payoff is 0 in
+every scenario.
 
 You can supply your own scenario names and quantiles:
 
@@ -129,17 +133,19 @@ You can supply your own scenario names and quantiles:
        scenarios={"bear": 0.05, "base": 0.50, "bull": 0.95}
    )
 
-**Relationship to** ``robust``. ``robust=True`` is equivalent to
-``maximin`` returning the same choice as ``optimal`` when the scenarios are
-set to the CI bounds (quantiles 0.025 and 0.975). ``to_outcomes()``
+How does this differ from using ``robust``? ``robust=True`` is equivalent to
+``maximin``, returning the same choice when the scenarios are
+set to the confidence interval bounds (quantiles 0.025 and 0.975). ``to_outcomes()``
 generalises that check: different rules express different risk attitudes, and
 you can dial in your own pessimism level via ``hurwicz(alpha=...)``.
 
 Should we treat each segment?
 -----------------------------
 
-An average effect can hide groups where the treatment is worthless — or where
-it pays for itself several times over. When an estimator was fitted with an
+An average effect can hide groups where the treatment is worthless, or where
+it pays for itself several times over. It will also cause you to scale up a treatment
+that is not worth it for everyone.
+When an estimator is fitted with an
 ``effect_modifier`` (see :doc:`estimands`), ``decide_by_group(cost, benefit)``
 runs the same cost-benefit analysis within each level of the modifier and
 returns a mapping of level → :class:`~formative.DecisionReport`, so different
@@ -161,19 +167,33 @@ and everyone else not at all:
    tenure    = rng.choice(["<2y", "2-5y", ">5y"], size=N)
    region    = rng.choice(["north", "south"], size=N)
    coaching  = rng.integers(0, 2, size=N)
-   retention = 6.0 * coaching * (tenure == "<2y") + 2.0 * (tenure == ">5y") + rng.normal(size=N)
+   retention = (
+       6.0 * coaching * (tenure == "<2y")
+       + 2.0 * (tenure == ">5y")
+       + rng.normal(size=N)
+   )
 
-   df = pd.DataFrame({"tenure": tenure, "region": region, "coaching": coaching, "retention": retention})
+   df = pd.DataFrame({
+       "tenure": tenure,
+       "region": region,
+       "coaching": coaching,
+       "retention": retention,
+   })
 
    dag = DAG()
    dag.assume("coaching").causes("retention")
    dag.assume("tenure").causes("retention")
    dag.assume("region").causes("retention")
 
-   result = RCT(dag, treatment="coaching", outcome="retention", effect_modifier="tenure").fit(df)
+   result = RCT(
+       dag, treatment="coaching", outcome="retention", effect_modifier="tenure"
+   ).fit(df)
    for level, decision in result.decide_by_group(cost=2.5, benefit=1.0).items():
        lo, hi = decision.net_benefit_ci
-       print(f"{level:>5}: {decision.optimal:<12} net benefit {decision.net_benefit:+.2f}  [{lo:+.2f}, {hi:+.2f}]")
+       print(
+           f"{level:>5}: {decision.optimal:<12} "
+           f"net benefit {decision.net_benefit:+.2f}  [{lo:+.2f}, {hi:+.2f}]"
+       )
 
 .. code-block:: text
 
@@ -203,10 +223,9 @@ one less thing to get wrong.
 How it works
 ~~~~~~~~~~~~
 
-``learn_policy()`` implements doubly robust policy learning in the style of
-Athey & Wager (2021):
+``learn_policy()`` implements doubly robust policy learning:
 
-1. **Score every unit.** Each unit gets a cross-fitted AIPW score — an
+1. **Score every unit.** Each unit gets a cross-fitted score — an
    unbiased estimate of its individual treatment effect. Outcome models are
    fit by OLS on the candidate features over four folds and evaluated on the
    fifth, so no unit is scored by a model that saw it.
@@ -225,7 +244,7 @@ Athey & Wager (2021):
 
 Because the tree may split on any level of any candidate feature, features
 must be discrete: bin continuous columns before passing them in. Candidate
-features face the same DAG validation as effect modifiers — each must cause
+features face the same DAG validation as effect modifiers; each must cause
 the outcome and must not be a descendant of the treatment (targeting on a
 mediator is not actionable at assignment time).
 
@@ -238,7 +257,13 @@ features instead of choosing a segmentation ourselves:
 .. code-block:: python
 
    result = RCT(dag, treatment="coaching", outcome="retention").fit(df)
-   policy = result.learn_policy(df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=2)
+   policy = result.learn_policy(
+      df,
+      modifiers=["tenure", "region"],
+      cost=2.5,
+      benefit=1.0,
+      max_depth=2
+   )
    print(policy.summary())
 
 .. code-block:: text
@@ -286,10 +311,17 @@ it only helps recent hires in the north:
    coaching  = rng.integers(0, 2, size=N)
    helped    = (tenure == "<2y") & (region == "north")
    retention = 7.0 * coaching * helped + 2.0 * (tenure == ">5y") + rng.normal(size=N)
-   df = pd.DataFrame({"tenure": tenure, "region": region, "coaching": coaching, "retention": retention})
+   df = pd.DataFrame({
+       "tenure": tenure,
+       "region": region,
+       "coaching": coaching,
+       "retention": retention,
+   })
 
    result = RCT(dag, treatment="coaching", outcome="retention").fit(df)
-   policy = result.learn_policy(df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=2)
+   policy = result.learn_policy(
+       df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=2
+   )
    print(policy.summary())
 
 .. code-block:: text
@@ -316,7 +348,9 @@ back to treating all recent hires and burns money on the southern half:
 
 .. code-block:: python
 
-   result.learn_policy(df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=1).value
+   result.learn_policy(
+       df, modifiers=["tenure", "region"], cost=2.5, benefit=1.0, max_depth=1
+   ).value
    # +0.34 per unit — versus +0.75 at depth 2
 
 When the deeper policy's value is clearly higher (as here), ship it; when the
@@ -339,7 +373,12 @@ segment-2 employees in the north:
    training = rng.integers(0, 2, size=N)
    effect   = 4.0 * (segment == 0) + 5.0 * ((segment == 2) & (region == "north"))
    earnings = effect * training + 0.5 * segment + rng.normal(size=N)
-   df = pd.DataFrame({"segment": segment, "region": region, "training": training, "earnings": earnings})
+   df = pd.DataFrame({
+       "segment": segment,
+       "region": region,
+       "training": training,
+       "earnings": earnings,
+   })
 
    dag = DAG()
    dag.assume("training").causes("earnings")
@@ -347,7 +386,13 @@ segment-2 employees in the north:
    dag.assume("region").causes("earnings")
 
    result = RCT(dag, treatment="training", outcome="earnings").fit(df)
-   policy = result.learn_policy(df, modifiers=["segment", "region"], cost=1.0, benefit=1.0, max_depth=2)
+   policy = result.learn_policy(
+      df, 
+      modifiers=["segment", "region"],
+      cost=1.0,
+      benefit=1.0,
+      max_depth=2
+   )
    print(policy.summary())
 
 .. code-block:: text
