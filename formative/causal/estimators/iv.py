@@ -5,8 +5,8 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
+from .._assumptions import Assumption
 from ..dag import DAG
-from ..refutations._check import Assumption
 from ._base import _StatsmodelsResult
 
 IV_ASSUMPTIONS: list[Assumption] = [

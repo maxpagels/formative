@@ -71,6 +71,7 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 **Package layout:**
 - `formative/causal/dag.py` — `DAG`, `_Node`
 - `formative/causal/_exceptions.py` — `IdentificationError`, `GraphError`
+- `formative/causal/_assumptions.py` — `Assumption` (estimators must not import from `refutations/` at module level — keeping this one-directional is what lets refutation modules import estimator internals without import cycles)
 - `formative/causal/estimators/_base.py` — `_BaseResult`, `_StatsmodelsResult` (shared result plumbing: effect stats via `_param`, `decide()`, assumptions footer)
 - `formative/causal/estimators/_cate.py` — `GroupEffect`, `_fit_cate`, `_CATEResultMixin`, modifier validation (shared by OLS/RCT and the CATE refutations)
 - `formative/causal/estimators/ols.py` — `OLSObservational`, `OLSResult`, `OLSCATEResult`
@@ -80,12 +81,12 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 - `formative/causal/estimators/rct.py` — `RCT`, `RCTResult`, `RCTCATEResult`
 - `formative/causal/estimators/did.py` — `DiD`, `DiDResult`
 - `formative/causal/estimators/rdd.py` — `RDD`, `RDDResult`
-- `formative/causal/refutations/_check.py` — `Assumption`, `RefutationCheck`, `RefutationReport`
+- `formative/causal/refutations/_check.py` — `RefutationCheck`, `RefutationReport`, shared verdict helpers (`_shift_check`, `_placebo_check`)
 - `formative/causal/refutations/ols.py` — `OLSRefutationReport`, `_check_random_common_cause`
 - `formative/causal/refutations/iv.py` — `IVRefutationReport`, `_check_first_stage_f`, `_check_random_common_cause`
 - `formative/causal/refutations/matching.py` — `MatchingRefutationReport`, `_check_placebo_treatment`, `_check_random_common_cause`
 - `formative/causal/refutations/rct.py` — `RCTRefutationReport`, `_check_random_common_cause`
-- `formative/causal/refutations/policy.py` — `PolicyRefutationReport`, `_check_placebo_modifiers`, `_check_random_modifier` (import `_fit_policy` lazily — a module-level import is circular via `refutations/__init__`)
+- `formative/causal/refutations/policy.py` — `PolicyRefutationReport`, `_check_placebo_modifiers`, `_check_random_modifier`
 - `formative/causal/refutations/cate.py` — `_check_placebo_modifier`, `_check_random_modifier`, `_check_random_common_cause` (used by `OLSCATEResult`/`RCTCATEResult`; reports reuse the OLS/RCT report classes)
 - `formative/causal/refutations/did.py` — `DiDRefutationReport`, `_check_placebo_group`, `_check_random_common_cause`
 - `formative/causal/refutations/rdd.py` — `RDDRefutationReport`, `_check_placebo_cutoff`, `_check_random_common_cause`

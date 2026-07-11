@@ -5,9 +5,9 @@ import pandas as pd
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
+from .._assumptions import Assumption
 from .._exceptions import IdentificationError
 from ..dag import DAG
-from ..refutations._check import Assumption
 from ._base import _BaseResult
 
 MATCHING_ASSUMPTIONS: list[Assumption] = [

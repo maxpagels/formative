@@ -3,8 +3,8 @@ from __future__ import annotations
 import pandas as pd
 import statsmodels.formula.api as smf
 
+from .._assumptions import Assumption
 from ..dag import DAG
-from ..refutations._check import Assumption
 from ._base import _StatsmodelsResult
 from ._cate import (
     CATE_ASSUMPTIONS,

@@ -1,3 +1,4 @@
+from ._assumptions import Assumption
 from .dag import DAG
 from .decision import DecisionReport
 from .estimators._cate import GroupEffect
@@ -19,7 +20,6 @@ from .refutations import (
     RefutationCheck,
     RefutationReport,
 )
-from .refutations._check import Assumption
 
 __all__ = [
     "DAG",

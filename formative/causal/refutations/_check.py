@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
-
 import numpy as np
 import pandas as pd
 
@@ -43,28 +41,6 @@ def _placebo_check(
     else:
         detail = f"{label} = {placebo_effect:.4f}  (> 1 SE = {original_se:.4f})  {fail_suffix}"
     return RefutationCheck(name=name, passed=passed, detail=detail)
-
-
-@dataclass(frozen=True)
-class Assumption:
-    """
-    A single modelling assumption required for causal identification.
-
-    Every estimator exposes its assumptions via ``result.assumptions``,
-    a list of ``Assumption`` objects. Each assumption has a human-readable
-    name and a ``testable`` flag indicating whether it can be empirically
-    checked in the data or must be justified on substantive grounds.
-    """
-
-    name: str
-    """Human-readable description of the assumption."""
-
-    testable: bool
-    """``True`` if the assumption can be empirically checked; ``False`` if it rests on domain knowledge."""
-
-    def fmt_tag(self) -> str:
-        """Return a fixed-width bracketed testability label for use in summary output."""
-        return "[  testable  ]" if self.testable else "[ untestable ]"
 
 
 class RefutationCheck:
