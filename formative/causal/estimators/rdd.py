@@ -253,9 +253,9 @@ class RDD:
         # Apply bandwidth filter
         if self._bandwidth is not None:
             mask = (data[self._running_var] - self._cutoff).abs() <= self._bandwidth
-            filtered = data.loc[mask].copy()
+            filtered = data.loc[mask]
         else:
-            filtered = data.copy()
+            filtered = data
 
         # Unadjusted effect: naive mean difference above vs below cutoff
         above = filtered.loc[filtered[self._running_var] >= self._cutoff, self._outcome].mean()
