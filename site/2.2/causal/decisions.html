@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Decisions &mdash; formative 2.2.2 documentation</title>
+  <title>Decisions &mdash; formative 2.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="canonical" href="https://docs.getformative.dev/causal/decisions.html" />
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=219dea72"></script>
+      <script src="../_static/documentation_options.js?v=85e56e6b"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -50,8 +50,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Causal Estimation</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimands.html">Estimands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wizard.html">Choosing an estimator</a></li>
@@ -59,7 +59,7 @@
 <li class="toctree-l1"><a class="reference internal" href="refutations.html">Refutations</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Decisions</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#should-we-treat-at-all">Should we treat at all?</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#game-theoretic-robustness">Game-theoretic robustness</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#robustness">Robustness</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#should-we-treat-each-segment">Should we treat each segment?</a></li>
@@ -174,7 +174,11 @@ earnings using OLS with a DAG that encodes family background as a confounder:</p
 <span class="n">training</span>   <span class="o">=</span> <span class="mf">0.6</span> <span class="o">*</span> <span class="n">background</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
 <span class="n">earnings</span>   <span class="o">=</span> <span class="mf">3.0</span> <span class="o">*</span> <span class="n">training</span> <span class="o">+</span> <span class="mf">1.2</span> <span class="o">*</span> <span class="n">background</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
 
-<span class="n">df</span>  <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;background&quot;</span><span class="p">:</span> <span class="n">background</span><span class="p">,</span> <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="n">training</span><span class="p">,</span> <span class="s2">&quot;earnings&quot;</span><span class="p">:</span> <span class="n">earnings</span><span class="p">})</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;background&quot;</span><span class="p">:</span> <span class="n">background</span><span class="p">,</span>
+    <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="n">training</span><span class="p">,</span>
+    <span class="s2">&quot;earnings&quot;</span><span class="p">:</span> <span class="n">earnings</span><span class="p">,</span>
+<span class="p">})</span>
 <span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;background&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;training&quot;</span><span class="p">,</span> <span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;training&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
@@ -205,8 +209,8 @@ But how confident are we in that estimate? And is it robust to estimation error?
   Robust to estimation error   : Yes — decision is stable across 95% CI
 </pre></div>
 </div>
-<section id="game-theoretic-robustness">
-<h3>Game-theoretic robustness<a class="headerlink" href="#game-theoretic-robustness" title="Link to this heading"></a></h3>
+<section id="robustness">
+<h3>Robustness<a class="headerlink" href="#robustness" title="Link to this heading"></a></h3>
 <p><code class="docutils literal notranslate"><span class="pre">decide()</span></code> uses expected value maximisation: it picks “treat” when
 <code class="docutils literal notranslate"><span class="pre">effect</span> <span class="pre">×</span> <span class="pre">benefit</span> <span class="pre">−</span> <span class="pre">cost</span> <span class="pre">&gt;</span> <span class="pre">0</span></code>. This is the right rule when you want to
 maximise the average outcome, but it is silent about risk attitude — it
@@ -214,7 +218,7 @@ treats a certain $37 gain and a 50/50 gamble between $0 and $74 identically.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">robust</span></code> flag is a first step toward robustness: it checks whether
 the decision flips anywhere inside the 95% confidence interval. But it
 only returns <code class="docutils literal notranslate"><span class="pre">True</span></code> or <code class="docutils literal notranslate"><span class="pre">False</span></code>, and it is implicitly using the most
-conservative possible standard (the CI bounds).</p>
+conservative possible standard (the confidence interval bounds).</p>
 <p>For finer control, call <code class="docutils literal notranslate"><span class="pre">to_outcomes()</span></code> on the report and pass the result
 to any rule in <code class="docutils literal notranslate"><span class="pre">formative.game</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">formative.game</span><span class="w"> </span><span class="kn">import</span> <span class="n">maximin</span><span class="p">,</span> <span class="n">minimax</span><span class="p">,</span> <span class="n">hurwicz</span>
@@ -233,25 +237,27 @@ to any rule in <code class="docutils literal notranslate"><span class="pre">form
 </div>
 <p>By default, the three scenarios correspond to the 10th, 50th, and 90th
 percentiles of the net-benefit sampling distribution (assumed normal with
-the se derived from the 95% CI). The <code class="docutils literal notranslate"><span class="pre">&quot;don't</span> <span class="pre">treat&quot;</span></code> payoff is 0 in
-every scenario — the status quo baseline.</p>
+the standard error derived from the 95% confidence interval). The <code class="docutils literal notranslate"><span class="pre">&quot;don't</span> <span class="pre">treat&quot;</span></code> payoff is 0 in
+every scenario.</p>
 <p>You can supply your own scenario names and quantiles:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">outcomes</span> <span class="o">=</span> <span class="n">decision</span><span class="o">.</span><span class="n">to_outcomes</span><span class="p">(</span>
     <span class="n">scenarios</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;bear&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s2">&quot;base&quot;</span><span class="p">:</span> <span class="mf">0.50</span><span class="p">,</span> <span class="s2">&quot;bull&quot;</span><span class="p">:</span> <span class="mf">0.95</span><span class="p">}</span>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p><strong>Relationship to</strong> <code class="docutils literal notranslate"><span class="pre">robust</span></code>. <code class="docutils literal notranslate"><span class="pre">robust=True</span></code> is equivalent to
-<code class="docutils literal notranslate"><span class="pre">maximin</span></code> returning the same choice as <code class="docutils literal notranslate"><span class="pre">optimal</span></code> when the scenarios are
-set to the CI bounds (quantiles 0.025 and 0.975). <code class="docutils literal notranslate"><span class="pre">to_outcomes()</span></code>
+<p>How does this differ from using <code class="docutils literal notranslate"><span class="pre">robust</span></code>? <code class="docutils literal notranslate"><span class="pre">robust=True</span></code> is equivalent to
+<code class="docutils literal notranslate"><span class="pre">maximin</span></code>, returning the same choice when the scenarios are
+set to the confidence interval bounds (quantiles 0.025 and 0.975). <code class="docutils literal notranslate"><span class="pre">to_outcomes()</span></code>
 generalises that check: different rules express different risk attitudes, and
 you can dial in your own pessimism level via <code class="docutils literal notranslate"><span class="pre">hurwicz(alpha=...)</span></code>.</p>
 </section>
 </section>
 <section id="should-we-treat-each-segment">
 <h2>Should we treat each segment?<a class="headerlink" href="#should-we-treat-each-segment" title="Link to this heading"></a></h2>
-<p>An average effect can hide groups where the treatment is worthless — or where
-it pays for itself several times over. When an estimator was fitted with an
+<p>An average effect can hide groups where the treatment is worthless, or where
+it pays for itself several times over. It will also cause you to scale up a treatment
+that is not worth it for everyone.
+When an estimator is fitted with an
 <code class="docutils literal notranslate"><span class="pre">effect_modifier</span></code> (see <a class="reference internal" href="estimands.html"><span class="doc">Estimands</span></a>), <code class="docutils literal notranslate"><span class="pre">decide_by_group(cost,</span> <span class="pre">benefit)</span></code>
 runs the same cost-benefit analysis within each level of the modifier and
 returns a mapping of level → <code class="xref py py-class docutils literal notranslate"><span class="pre">DecisionReport</span></code>, so different
@@ -269,19 +275,33 @@ and everyone else not at all:</p>
 <span class="n">tenure</span>    <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;&lt;2y&quot;</span><span class="p">,</span> <span class="s2">&quot;2-5y&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
 <span class="n">region</span>    <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="s2">&quot;north&quot;</span><span class="p">,</span> <span class="s2">&quot;south&quot;</span><span class="p">],</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
 <span class="n">coaching</span>  <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="n">retention</span> <span class="o">=</span> <span class="mf">6.0</span> <span class="o">*</span> <span class="n">coaching</span> <span class="o">*</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&lt;2y&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="n">retention</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mf">6.0</span> <span class="o">*</span> <span class="n">coaching</span> <span class="o">*</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&lt;2y&quot;</span><span class="p">)</span>
+    <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">)</span>
+    <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
+<span class="p">)</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;tenure&quot;</span><span class="p">:</span> <span class="n">tenure</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span> <span class="s2">&quot;coaching&quot;</span><span class="p">:</span> <span class="n">coaching</span><span class="p">,</span> <span class="s2">&quot;retention&quot;</span><span class="p">:</span> <span class="n">retention</span><span class="p">})</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;tenure&quot;</span><span class="p">:</span> <span class="n">tenure</span><span class="p">,</span>
+    <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span>
+    <span class="s2">&quot;coaching&quot;</span><span class="p">:</span> <span class="n">coaching</span><span class="p">,</span>
+    <span class="s2">&quot;retention&quot;</span><span class="p">:</span> <span class="n">retention</span><span class="p">,</span>
+<span class="p">})</span>
 
 <span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;coaching&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;tenure&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span>
 
-<span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;coaching&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;retention&quot;</span><span class="p">,</span> <span class="n">effect_modifier</span><span class="o">=</span><span class="s2">&quot;tenure&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span>
+    <span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;coaching&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;retention&quot;</span><span class="p">,</span> <span class="n">effect_modifier</span><span class="o">=</span><span class="s2">&quot;tenure&quot;</span>
+<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">level</span><span class="p">,</span> <span class="n">decision</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">decide_by_group</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
     <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">decision</span><span class="o">.</span><span class="n">net_benefit_ci</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">level</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">decision</span><span class="o">.</span><span class="n">optimal</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2"> net benefit </span><span class="si">{</span><span class="n">decision</span><span class="o">.</span><span class="n">net_benefit</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">lo</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">hi</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">level</span><span class="si">:</span><span class="s2">&gt;5</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">decision</span><span class="o">.</span><span class="n">optimal</span><span class="si">:</span><span class="s2">&lt;12</span><span class="si">}</span><span class="s2"> &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;net benefit </span><span class="si">{</span><span class="n">decision</span><span class="o">.</span><span class="n">net_benefit</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">  [</span><span class="si">{</span><span class="n">lo</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">hi</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="p">)</span>
 </pre></div>
 </div>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>2-5y: don&#39;t treat  net benefit -2.48  [-2.57, -2.38]
@@ -306,10 +326,9 @@ with randomised treatment the machinery needs no propensity model, so there is
 one less thing to get wrong.</p>
 <section id="how-it-works">
 <h3>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading"></a></h3>
-<p><code class="docutils literal notranslate"><span class="pre">learn_policy()</span></code> implements doubly robust policy learning in the style of
-Athey &amp; Wager (2021):</p>
+<p><code class="docutils literal notranslate"><span class="pre">learn_policy()</span></code> implements doubly robust policy learning:</p>
 <ol class="arabic simple">
-<li><p><strong>Score every unit.</strong> Each unit gets a cross-fitted AIPW score — an
+<li><p><strong>Score every unit.</strong> Each unit gets a cross-fitted score — an
 unbiased estimate of its individual treatment effect. Outcome models are
 fit by OLS on the candidate features over four folds and evaluated on the
 fifth, so no unit is scored by a model that saw it.</p></li>
@@ -328,7 +347,7 @@ everyone is profitable.</p></li>
 </ol>
 <p>Because the tree may split on any level of any candidate feature, features
 must be discrete: bin continuous columns before passing them in. Candidate
-features face the same DAG validation as effect modifiers — each must cause
+features face the same DAG validation as effect modifiers; each must cause
 the outcome and must not be a descendant of the treatment (targeting on a
 mediator is not actionable at assignment time).</p>
 </section>
@@ -337,7 +356,13 @@ mediator is not actionable at assignment time).</p>
 <p>Continuing the coaching scenario, we now hand the learner <em>both</em> candidate
 features instead of choosing a segmentation ourselves:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;coaching&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span>
+   <span class="n">df</span><span class="p">,</span>
+   <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span>
+   <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span>
+   <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+   <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -379,10 +404,17 @@ it only helps recent hires in the north:</p>
 <span class="n">coaching</span>  <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
 <span class="n">helped</span>    <span class="o">=</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&lt;2y&quot;</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">region</span> <span class="o">==</span> <span class="s2">&quot;north&quot;</span><span class="p">)</span>
 <span class="n">retention</span> <span class="o">=</span> <span class="mf">7.0</span> <span class="o">*</span> <span class="n">coaching</span> <span class="o">*</span> <span class="n">helped</span> <span class="o">+</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">tenure</span> <span class="o">==</span> <span class="s2">&quot;&gt;5y&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;tenure&quot;</span><span class="p">:</span> <span class="n">tenure</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span> <span class="s2">&quot;coaching&quot;</span><span class="p">:</span> <span class="n">coaching</span><span class="p">,</span> <span class="s2">&quot;retention&quot;</span><span class="p">:</span> <span class="n">retention</span><span class="p">})</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;tenure&quot;</span><span class="p">:</span> <span class="n">tenure</span><span class="p">,</span>
+    <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span>
+    <span class="s2">&quot;coaching&quot;</span><span class="p">:</span> <span class="n">coaching</span><span class="p">,</span>
+    <span class="s2">&quot;retention&quot;</span><span class="p">:</span> <span class="n">retention</span><span class="p">,</span>
+<span class="p">})</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;coaching&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;retention&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
 </pre></div>
 </div>
@@ -406,7 +438,9 @@ it only helps recent hires in the north:</p>
 employees where coaching pays for itself. This is also where comparing depths
 earns its keep — a depth-1 tree cannot express the interaction, so it falls
 back to treating all recent hires and burns money on the southern half:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;tenure&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">2.5</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span><span class="o">.</span><span class="n">value</span>
 <span class="c1"># +0.34 per unit — versus +0.75 at depth 2</span>
 </pre></div>
 </div>
@@ -426,7 +460,12 @@ segment-2 employees in the north:</p>
 <span class="n">training</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
 <span class="n">effect</span>   <span class="o">=</span> <span class="mf">4.0</span> <span class="o">*</span> <span class="p">(</span><span class="n">segment</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">5.0</span> <span class="o">*</span> <span class="p">((</span><span class="n">segment</span> <span class="o">==</span> <span class="mi">2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">region</span> <span class="o">==</span> <span class="s2">&quot;north&quot;</span><span class="p">))</span>
 <span class="n">earnings</span> <span class="o">=</span> <span class="n">effect</span> <span class="o">*</span> <span class="n">training</span> <span class="o">+</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">segment</span> <span class="o">+</span> <span class="n">rng</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">segment</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span> <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="n">training</span><span class="p">,</span> <span class="s2">&quot;earnings&quot;</span><span class="p">:</span> <span class="n">earnings</span><span class="p">})</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">segment</span><span class="p">,</span>
+    <span class="s2">&quot;region&quot;</span><span class="p">:</span> <span class="n">region</span><span class="p">,</span>
+    <span class="s2">&quot;training&quot;</span><span class="p">:</span> <span class="n">training</span><span class="p">,</span>
+    <span class="s2">&quot;earnings&quot;</span><span class="p">:</span> <span class="n">earnings</span><span class="p">,</span>
+<span class="p">})</span>
 
 <span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;training&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
@@ -434,7 +473,13 @@ segment-2 employees in the north:</p>
 <span class="n">dag</span><span class="o">.</span><span class="n">assume</span><span class="p">(</span><span class="s2">&quot;region&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">causes</span><span class="p">(</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">RCT</span><span class="p">(</span><span class="n">dag</span><span class="p">,</span> <span class="n">treatment</span><span class="o">=</span><span class="s2">&quot;training&quot;</span><span class="p">,</span> <span class="n">outcome</span><span class="o">=</span><span class="s2">&quot;earnings&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span> <span class="n">cost</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">policy</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">learn_policy</span><span class="p">(</span>
+   <span class="n">df</span><span class="p">,</span>
+   <span class="n">modifiers</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;region&quot;</span><span class="p">],</span>
+   <span class="n">cost</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+   <span class="n">benefit</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+   <span class="n">max_depth</span><span class="o">=</span><span class="mi">2</span>
+<span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">policy</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
 </pre></div>
 </div>

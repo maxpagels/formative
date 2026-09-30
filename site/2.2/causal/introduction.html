@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Introduction &mdash; formative 2.2.2 documentation</title>
+  <title>Introduction &mdash; formative 2.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="canonical" href="https://docs.getformative.dev/causal/introduction.html" />
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=219dea72"></script>
+      <script src="../_static/documentation_options.js?v=85e56e6b"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -25,8 +25,8 @@
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Motivation" href="motivation.html" />
-    <link rel="prev" title="formative" href="../index.html" /> 
+    <link rel="next" title="DAG" href="dag.html" />
+    <link rel="prev" title="Motivation" href="motivation.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,11 +50,11 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Causal Estimation</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-s-supported">What’s supported</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dag.html">DAG</a></li>
 <li class="toctree-l1"><a class="reference internal" href="estimands.html">Estimands</a></li>
 <li class="toctree-l1"><a class="reference internal" href="wizard.html">Choosing an estimator</a></li>
@@ -134,7 +134,7 @@ you choose.</p>
 </div>
 <p>After you have obtained the result object, you can print a summary of the estimate and
 its assumptions. The assumptions are marked as testable or untestable depending on whether
-formative can check them. Most assumptions in causal inference are untestable by nature —
+formative can check them. Most assumptions in causal inference are untestable by nature, i.e.
 things you must argue for based on domain knowledge and theory.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">())</span>
 </pre></div>
@@ -163,7 +163,7 @@ things you must argue for based on domain knowledge and theory.</p>
 communicating with non-technical audiences.</p>
 <p><strong>3. Refute</strong></p>
 <p>Once you have a result, run statistical checks that probe whether its assumptions hold
-in the data. Each check returns a clear pass or fail — but no set of tests can guarantee
+in the data. Each check returns a clear pass or fail, but no set of tests can guarantee
 validity. Use them as diagnostics, not proof. Causal inference is a judgment call, not a
 mathematical certainty.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">report</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">refute</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
@@ -180,10 +180,10 @@ mathematical certainty.</p>
 </pre></div>
 </div>
 <p><strong>4. Decide</strong></p>
-<p>An estimate is rarely the end goal — the question is whether to act on it. Pass the
+<p>An estimate is rarely the end goal; the question is whether to act on it. Pass the
 cost per unit of treatment applied and the value of one unit of improvement in the
 outcome, and formative turns the estimate and its uncertainty into a treat/don’t-treat
-call. Suppose a unit of education costs $8 and a unit of income is worth $15:</p>
+decision. Suppose a unit of education costs $8 and a unit of income is worth $15:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">decision</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">decide</span><span class="p">(</span><span class="n">cost</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">benefit</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">decision</span><span class="p">)</span>
 </pre></div>
@@ -201,7 +201,11 @@ call. Suppose a unit of education costs $8 and a unit of income is worth $15:</p
   Robust to estimation error   : Yes — decision is stable across 95% CI
 </pre></div>
 </div>
-<p>Depending on the estimator, decisions can go beyond a single call for everyone:
+<p>You may ask why a cost must be passed; is it not enough if the estimate is positive?
+The answer is that a positive estimate does not guarantee that the treatment is worth it.
+If the estimate gives an effect of +1.0, but the treatment costs $10 and the outcome is worth $1,
+then the treatment is not worth it. The decision layer makes this explicit.</p>
+<p>Depending on the estimator you choose, decisions can go beyond a single call for everyone:
 per-group decisions via an effect modifier, or a learned treatment rule that
 decides <em>whom</em> to treat. See <a class="reference internal" href="decisions.html"><span class="doc">Decisions</span></a> for the full decision layer.</p>
 <section id="what-s-supported">
@@ -267,8 +271,8 @@ estimands mean and <a class="reference internal" href="estimators.html"><span cl
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../index.html" class="btn btn-neutral float-left" title="formative" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="motivation.html" class="btn btn-neutral float-right" title="Motivation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="motivation.html" class="btn btn-neutral float-left" title="Motivation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dag.html" class="btn btn-neutral float-right" title="DAG" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

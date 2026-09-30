@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DAG &mdash; formative 2.2.2 documentation</title>
+  <title>DAG &mdash; formative 2.2.3 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=9edc463e" />
       <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
@@ -16,7 +16,7 @@
     <link rel="canonical" href="https://docs.getformative.dev/causal/dag.html" />
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=219dea72"></script>
+      <script src="../_static/documentation_options.js?v=85e56e6b"></script>
       <script src="../_static/doctools.js?v=fd6eb6e6"></script>
       <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
       <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -26,7 +26,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Estimands" href="estimands.html" />
-    <link rel="prev" title="Motivation" href="motivation.html" /> 
+    <link rel="prev" title="Introduction" href="introduction.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -50,8 +50,8 @@
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Causal Estimation</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1"><a class="reference internal" href="motivation.html">Motivation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">DAG</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#formative.causal.DAG"><code class="docutils literal notranslate"><span class="pre">DAG</span></code></a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#formative.causal.DAG.assume"><code class="docutils literal notranslate"><span class="pre">DAG.assume()</span></code></a></li>
@@ -116,7 +116,7 @@
 be your starting point for using formative, before fitting any estimators on
 your data.</p>
 <p>Build the graph by calling <code class="docutils literal notranslate"><span class="pre">assume().causes()</span></code> for each causal relationship
-you believe holds. Include latent variables freely — if a node is not in
+you believe holds. Include latent variables — if a node is not in
 your data at <code class="docutils literal notranslate"><span class="pre">fit()</span></code> time, the estimator treats it as unobserved.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dag</span> <span class="o">=</span> <span class="n">DAG</span><span class="p">()</span>
@@ -266,7 +266,7 @@ Returns self so you can chain further <code class="docutils literal notranslate"
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="motivation.html" class="btn btn-neutral float-left" title="Motivation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="introduction.html" class="btn btn-neutral float-left" title="Introduction" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="estimands.html" class="btn btn-neutral float-right" title="Estimands" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

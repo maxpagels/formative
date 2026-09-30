@@ -49,7 +49,7 @@ you choose.
 
 After you have obtained the result object, you can print a summary of the estimate and
 its assumptions. The assumptions are marked as testable or untestable depending on whether
-formative can check them. Most assumptions in causal inference are untestable by nature —
+formative can check them. Most assumptions in causal inference are untestable by nature, i.e.
 things you must argue for based on domain knowledge and theory.
 
 .. code-block:: python
@@ -83,7 +83,7 @@ communicating with non-technical audiences.
 **3. Refute**
 
 Once you have a result, run statistical checks that probe whether its assumptions hold
-in the data. Each check returns a clear pass or fail — but no set of tests can guarantee
+in the data. Each check returns a clear pass or fail, but no set of tests can guarantee
 validity. Use them as diagnostics, not proof. Causal inference is a judgment call, not a
 mathematical certainty.
 
@@ -104,10 +104,10 @@ mathematical certainty.
 
 **4. Decide**
 
-An estimate is rarely the end goal — the question is whether to act on it. Pass the
+An estimate is rarely the end goal; the question is whether to act on it. Pass the
 cost per unit of treatment applied and the value of one unit of improvement in the
 outcome, and formative turns the estimate and its uncertainty into a treat/don't-treat
-call. Suppose a unit of education costs $8 and a unit of income is worth $15:
+decision. Suppose a unit of education costs $8 and a unit of income is worth $15:
 
 .. code-block:: python
 
@@ -128,7 +128,12 @@ call. Suppose a unit of education costs $8 and a unit of income is worth $15:
      Decision confidence          :     100.0%
      Robust to estimation error   : Yes — decision is stable across 95% CI
 
-Depending on the estimator, decisions can go beyond a single call for everyone:
+You may ask why a cost must be passed; is it not enough if the estimate is positive?
+The answer is that a positive estimate does not guarantee that the treatment is worth it.
+If the estimate gives an effect of +1.0, but the treatment costs $10 and the outcome is worth $1,
+then the treatment is not worth it. The decision layer makes this explicit.
+
+Depending on the estimator you choose, decisions can go beyond a single call for everyone:
 per-group decisions via an effect modifier, or a learned treatment rule that
 decides *whom* to treat. See :doc:`decisions` for the full decision layer.
 
