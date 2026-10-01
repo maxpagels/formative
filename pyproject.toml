@@ -12,7 +12,7 @@ license = {text = "MIT"}
 authors = [{name = "Max Pagels"}]
 keywords = ["causal inference", "causal estimation", "econometrics", "statistics", "DAG"]
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Mathematics",
     "License :: OSI Approved :: MIT License",
