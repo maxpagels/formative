@@ -1,6 +1,31 @@
 from __future__ import annotations
 
 from .._assumptions import Assumption
+from .._exceptions import IdentificationError
+
+
+def _backdoor_confounders(dag, treatment: str, outcome: str) -> set[str]:
+    """
+    Confounders under the backdoor criterion: common ancestors of treatment and
+    outcome that are not descendants of treatment (mediators or post-treatment
+    variables).
+    """
+    return (dag.ancestors(treatment) & dag.ancestors(outcome)) - dag.descendants(treatment)
+
+
+def _missing_confounders_error(missing: set[str], treatment: str, outcome: str) -> IdentificationError:
+    """``IdentificationError`` for DAG-declared confounders absent from the dataframe."""
+    return IdentificationError(
+        f"\nDAG confounders not found in dataframe: {sorted(missing)}\n\n"
+        f"Your DAG declares these variables as confounders of '{treatment}' and\n"
+        f"'{outcome}', but they are absent from the dataframe and cannot be\n"
+        f"controlled for. Note: there may also be confounders not modelled in your\n"
+        f"DAG at all — formative cannot detect those.\n\n"
+        f"Consider:\n"
+        f"  - Collecting data on {sorted(missing)} and adding it to the dataframe\n"
+        f"  - IV estimation if you have a valid instrument for '{treatment}'\n"
+        f"  - DiD or RD if a natural experiment is available"
+    )
 
 
 class _BaseResult:
