@@ -4,9 +4,8 @@ import pandas as pd
 import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
-from .._exceptions import IdentificationError
 from ..dag import DAG
-from ._base import _StatsmodelsResult
+from ._base import _backdoor_confounders, _missing_confounders_error, _StatsmodelsResult
 from ._cate import (
     CATE_ASSUMPTIONS,
     _CATEResultMixin,
@@ -282,14 +281,7 @@ class OLSObservational:
         absent from the data. There may be additional unobserved confounders
         not represented in the DAG at all.
         """
-        dag = self._dag
-        T, Y = self._treatment, self._outcome
-
-        treatment_ancestors = dag.ancestors(T)
-        outcome_ancestors = dag.ancestors(Y)
-        treatment_descendants = dag.descendants(T)
-
-        confounders = (treatment_ancestors & outcome_ancestors) - treatment_descendants
+        confounders = _backdoor_confounders(self._dag, self._treatment, self._outcome)
 
         observed_confounders = {c for c in confounders if c in data_columns}
         dag_confounders_not_in_data = {c for c in confounders if c not in data_columns}
@@ -335,17 +327,7 @@ class OLSObservational:
         adjustment_set, dag_confounders_not_in_data = self._identify(data_columns)
 
         if dag_confounders_not_in_data:
-            raise IdentificationError(
-                f"\nDAG confounders not found in dataframe: {sorted(dag_confounders_not_in_data)}\n\n"
-                f"Your DAG declares these variables as confounders of '{self._treatment}' and\n"
-                f"'{self._outcome}', but they are absent from the dataframe and cannot be\n"
-                f"controlled for. Note: there may also be confounders not modelled in your\n"
-                f"DAG at all — formative cannot detect those.\n\n"
-                f"Consider:\n"
-                f"  - Collecting data on {sorted(dag_confounders_not_in_data)} and adding it to the dataframe\n"
-                f"  - IV estimation if you have a valid instrument for '{self._treatment}'\n"
-                f"  - DiD or RD if a natural experiment is available"
-            )
+            raise _missing_confounders_error(dag_confounders_not_in_data, self._treatment, self._outcome)
 
         unadjusted_result = smf.ols(f"{self._outcome} ~ {self._treatment}", data=data).fit()
 

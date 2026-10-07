@@ -6,9 +6,8 @@ import statsmodels.api as sm
 import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
-from .._exceptions import IdentificationError
 from ..dag import DAG
-from ._base import _BaseResult
+from ._base import _backdoor_confounders, _BaseResult, _missing_confounders_error
 
 MATCHING_ASSUMPTIONS: list[Assumption] = [
     Assumption("Conditional independence: no unobserved confounders given matched variables", testable=False),
@@ -283,14 +282,7 @@ class PropensityScoreMatching:
             raise ValueError("Treatment and outcome must be different variables.")
 
     def _identify(self, data_columns: set[str]) -> tuple[set[str], set[str]]:
-        dag = self._dag
-        T, Y = self._treatment, self._outcome
-
-        treatment_ancestors = dag.ancestors(T)
-        outcome_ancestors = dag.ancestors(Y)
-        treatment_descendants = dag.descendants(T)
-
-        confounders = (treatment_ancestors & outcome_ancestors) - treatment_descendants
+        confounders = _backdoor_confounders(self._dag, self._treatment, self._outcome)
         observed = {c for c in confounders if c in data_columns}
         missing = {c for c in confounders if c not in data_columns}
         return observed, missing
@@ -328,16 +320,7 @@ class PropensityScoreMatching:
         adjustment_set, missing = self._identify(data_columns)
 
         if missing:
-            raise IdentificationError(
-                f"\nDAG confounders not found in dataframe: {sorted(missing)}\n\n"
-                f"Your DAG declares these variables as confounders of "
-                f"'{self._treatment}' and '{self._outcome}', but they are "
-                f"absent from the dataframe and cannot be controlled for.\n\n"
-                f"Consider:\n"
-                f"  - Collecting data on {sorted(missing)} and adding it to the dataframe\n"
-                f"  - IV estimation if you have a valid instrument for '{self._treatment}'\n"
-                f"  - DiD or RD if a natural experiment is available"
-            )
+            raise _missing_confounders_error(missing, self._treatment, self._outcome)
 
         T, Y = self._treatment, self._outcome
 
