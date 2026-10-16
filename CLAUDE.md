@@ -9,7 +9,7 @@ uv sync --dev                          # install dependencies
 uv run pytest                          # run all tests
 uv run pytest tests/test_iv.py         # run one file
 uv run pytest tests/test_iv.py::TestIV2SLSEstimation::test_iv_recovers_true_effect  # run one test
-make lint                              # ruff check (excludes notebooks/)
+make lint                              # ruff check
 make fmt                               # ruff format
 make check                             # lint + format check + tests with coverage (CI requires ≥80%)
 make build-docs                        # sphinx with -W: warnings are errors in CI
@@ -98,7 +98,7 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 
 **Bootstrap-heavy tests:** matching tests use `setup_class` (not `setup_method`) so `.fit()` runs once per class. Use N=1_000 — larger N widens bootstrap SE faster than NN noise shrinks, causing refutation checks to fail even on well-specified data.
 
-**Benchmarks:** `notebooks/` holds Jupyter notebooks (LaLonde, Card–Krueger) that validate estimators against published results from famous studies; `docs/causal/benchmarks.rst` renders them as a docs page. Notebooks are excluded from ruff. Runnable per-estimator example scripts live in `examples/`.
+**Examples:** runnable per-estimator example scripts live in `examples/`.
 
 **Planned estimators:** the goal is to cover all methods in the causal inference decision tree at https://www.maxpagels.com/prototypes/causal-wizard. Remaining: **Synthetic Control**.
 

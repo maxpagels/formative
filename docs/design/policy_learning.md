@@ -115,8 +115,7 @@ print(policy.summary())
 - Narrative rendering in `_explain.py`.
 - Tests in `tests/test_policy.py` + `tests/test_policy_refutation.py`; cross-fitting
   makes fitting expensive, so use `setup_class` like the matching tests.
-- Docs page under `docs/causal/` with a worked example; consider a benchmark notebook
-  once a public dataset with a known-good policy exists.
+- Docs page under `docs/causal/` with a worked example.
 
 ## Open questions
 
