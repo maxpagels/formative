@@ -8,13 +8,13 @@ test:
 	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80
 
 lint:
-	uv run ruff check --exclude notebooks .
+	uv run ruff check .
 
 fmt:
-	uv run ruff format --exclude notebooks .
+	uv run ruff format .
 
 check: lint
-	uv run ruff format --check --exclude notebooks .
+	uv run ruff format --check .
 	uv run pytest --cov=formative --cov-report=term-missing --cov-fail-under=80
 
 release:  # usage: make release BUMP=patch|minor|major

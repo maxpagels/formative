@@ -37,7 +37,6 @@ Repository = "https://github.com/maxpagels/formative"
 
 [dependency-groups]
 dev  = [
-    "jupyter>=1.1.1",
     "pytest>=9,<10",
     "pytest-cov",
     "ruff>=0.9",
