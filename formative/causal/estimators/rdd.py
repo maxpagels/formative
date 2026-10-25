@@ -5,7 +5,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _StatsmodelsResult
+from ._base import _reject_missing, _StatsmodelsResult
 
 RDD_ASSUMPTIONS: list[Assumption] = [
     Assumption(
@@ -130,6 +130,10 @@ class RDDResult(_StatsmodelsResult):
             _check_placebo_cutoff,
             _check_random_common_cause,
         )
+
+        # Refute on the same rows fit() used, not the whole dataframe.
+        if self._bandwidth is not None:
+            data = data.loc[(data[self._running_var] - self._cutoff).abs() <= self._bandwidth]
 
         checks = [
             _check_placebo_cutoff(
@@ -256,6 +260,8 @@ class RDD:
             filtered = data.loc[mask]
         else:
             filtered = data
+        # Rows outside the bandwidth are never used, so their gaps don't matter.
+        _reject_missing(filtered, [self._running_var, self._outcome])
 
         # Unadjusted effect: naive mean difference above vs below cutoff
         above = filtered.loc[filtered[self._running_var] >= self._cutoff, self._outcome].mean()

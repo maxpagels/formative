@@ -186,7 +186,8 @@ class TestPolicySimplification:
         """
         With three tenure bands and signal only in one, an equal-value depth-2
         tree with a redundant root (e.g. "tenure ≠ >5y and tenure = <2y") can
-        win the search on candidate order; simplification must collapse it.
+        win the search on candidate order unless deeper trees must strictly
+        beat the best shallower one.
         """
         rng = np.random.default_rng(7)
         n = 5_000

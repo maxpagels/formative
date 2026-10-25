@@ -5,7 +5,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _backdoor_confounders, _missing_confounders_error, _StatsmodelsResult
+from ._base import _backdoor_confounders, _missing_confounders_error, _reject_missing, _StatsmodelsResult
 from ._cate import (
     CATE_ASSUMPTIONS,
     _CATEResultMixin,
@@ -329,6 +329,7 @@ class OLSObservational:
         if dag_confounders_not_in_data:
             raise _missing_confounders_error(dag_confounders_not_in_data, self._treatment, self._outcome)
 
+        _reject_missing(data, [self._treatment, self._outcome, *sorted(adjustment_set)])
         unadjusted_result = smf.ols(f"{self._outcome} ~ {self._treatment}", data=data).fit()
 
         if self._modifier is not None:

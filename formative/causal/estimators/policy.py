@@ -23,6 +23,7 @@ import numpy as np
 import pandas as pd
 
 from .._assumptions import Assumption
+from ._base import _reject_missing
 from ._cate import _validate_modifier_dag
 
 _FOLD_SEED = 13579
@@ -101,30 +102,6 @@ def _rules_lines(tree: PolicyNode | bool) -> list[str]:
     return [f"treat if {' and '.join(conds)}" for conds in paths] + ["otherwise don't treat"]
 
 
-def _simplify_tree(tree: PolicyNode | bool, data: pd.DataFrame) -> PolicyNode | bool:
-    """
-    Drop splits that don't change the assignment on *data*.
-
-    The exhaustive search keeps the first of several equal-value trees, which
-    can carry redundant conditions (e.g. a root split whose subtree already
-    implies it). Replacing a node by one of its children is safe whenever the
-    assignment is identical over the sample — same assignment, same value.
-    """
-    if isinstance(tree, bool):
-        return tree
-    cond = data[tree.feature].to_numpy() == tree.level
-    left = _simplify_tree(tree.if_true, data.loc[cond])
-    right = _simplify_tree(tree.if_false, data.loc[~cond])
-    if isinstance(left, bool) and isinstance(right, bool) and left == right:
-        return left
-    tree = PolicyNode(tree.feature, tree.level, left, right)
-    full = _assign_tree(tree, data)
-    for child in (left, right):
-        if np.array_equal(_assign_tree(child, data), full):
-            return child
-    return tree
-
-
 def _dr_scores(
     W: np.ndarray,
     Y: np.ndarray,
@@ -188,6 +165,9 @@ def _learn_tree(
             best_val = float(vals[i])
         return best_tree, best_val
 
+    # A deeper tree must strictly beat the best shallower one, or an equal-value
+    # tree with redundant splits can win on candidate order.
+    best_tree, best_val = _learn_tree(gamma, M, candidates, max_depth - 1)
     for i, (feature, level) in enumerate(candidates):
         mask = M[i].astype(bool)
         left_tree, left_val = _learn_tree(gamma[mask], M[:, mask], candidates, max_depth - 1)
@@ -260,7 +240,6 @@ def _fit_policy(
     value_ci = (value - 1.96 * value_se, value + 1.96 * value_se)
 
     tree, _ = _learn_tree(gamma, M, candidates, max_depth)
-    tree = _simplify_tree(tree, data)
     coverage = float(_assign_tree(tree, data).mean())
 
     return _PolicyFit(tree=tree, value=value, value_se=value_se, value_ci=value_ci, coverage=coverage)
@@ -458,10 +437,7 @@ def _validate_policy_inputs(
                 f"Policy trees need discrete features — bin continuous or high-cardinality columns first."
             )
 
-    used = [treatment, outcome, *modifiers]
-    with_nan = [c for c in used if data[c].isna().any()]
-    if with_nan:
-        raise ValueError(f"Columns {with_nan} contain missing values — drop or impute them before learning a policy.")
+    _reject_missing(data, [treatment, outcome, *modifiers], action="learning a policy")
 
     w = set(data[treatment].unique())
     if w != {0, 1}:
