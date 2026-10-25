@@ -1,0 +1,11 @@
+.wy-side-nav-search .version-switcher {
+  display: block;
+  width: 100%;
+  margin-top: 0.6em;
+  padding: 0.25em;
+  border: none;
+  border-radius: 3px;
+  font-size: 90%;
+  color: #404040;
+  background-color: #fcfcfc;
+}

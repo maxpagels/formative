@@ -1,6 +1,10 @@
 {
-  "latest": "2.2",
+  "latest": "2.3",
   "versions": [
+    {
+      "version": "2.3",
+      "url": "/2.3/"
+    },
     {
       "version": "2.2",
       "url": "/2.2/"
