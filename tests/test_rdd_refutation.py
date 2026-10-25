@@ -115,3 +115,29 @@ class TestRDDRefutationFail:
         summary = self.report.summary()
         assert "FAIL" in summary
         assert "check(s) failed" in summary
+
+
+class TestRDDRefutationBandwidth:
+    """Refutation must use the same in-bandwidth rows as fit(), not the whole dataframe."""
+
+    @staticmethod
+    def make_curved_data():
+        # Strongly curved far from the cutoff, so full-data refits disagree with a local fit.
+        rng = np.random.default_rng(1)
+        score = rng.uniform(-3, 3, size=4_000)
+        outcome = (score >= CUTOFF).astype(float) + 3 * score**2 + rng.normal(scale=0.3, size=4_000)
+        return pd.DataFrame({"score": score, "outcome": outcome})
+
+    def fit(self, df):
+        return RDD(
+            make_dag(), treatment="treatment", running_var="score", cutoff=CUTOFF, outcome="outcome", bandwidth=0.5
+        ).fit(df)
+
+    def test_checks_pass_on_well_specified_local_data(self):
+        df = self.make_curved_data()
+        assert self.fit(df).refute(df).passed
+
+    def test_missing_values_outside_bandwidth_do_not_fail_checks(self):
+        df = self.make_curved_data()
+        df.loc[df["score"].abs() > 1, "outcome"] = np.nan
+        assert self.fit(df).refute(df).passed

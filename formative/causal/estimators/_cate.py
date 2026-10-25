@@ -18,6 +18,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
+from ._base import _reject_missing
 
 CATE_ASSUMPTIONS: list[Assumption] = [
     Assumption("Correct specification of effect modification (linear interaction form)", testable=False),
@@ -86,6 +87,7 @@ def _validate_modifier_data(data: pd.DataFrame, treatment: str, modifier: str) -
     """Data checks on the effect modifier column. Raises ``ValueError`` on violation."""
     if modifier not in data.columns:
         raise ValueError(f"Effect modifier column '{modifier}' not found in dataframe.")
+    _reject_missing(data, [modifier])
     levels = data[modifier].dropna().unique()
     if len(levels) < 2:
         raise ValueError(f"Effect modifier '{modifier}' must have at least 2 levels. Found: {list(levels)}")

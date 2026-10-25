@@ -28,6 +28,13 @@ def _missing_confounders_error(missing: set[str], treatment: str, outcome: str) 
     )
 
 
+def _reject_missing(data, columns, action: str = "fitting") -> None:
+    """Raise if any used column has NaNs: statsmodels formulas drop those rows silently, our own code doesn't."""
+    with_nan = [c for c in dict.fromkeys(columns) if data[c].isna().any()]
+    if with_nan:
+        raise ValueError(f"Columns {with_nan} contain missing values — drop or impute them before {action}.")
+
+
 class _BaseResult:
     """
     Shared behaviour for estimation result classes.

@@ -7,7 +7,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _backdoor_confounders, _BaseResult, _missing_confounders_error
+from ._base import _backdoor_confounders, _BaseResult, _missing_confounders_error, _reject_missing
 
 MATCHING_ASSUMPTIONS: list[Assumption] = [
     Assumption("Conditional independence: no unobserved confounders given matched variables", testable=False),
@@ -323,6 +323,7 @@ class PropensityScoreMatching:
             raise _missing_confounders_error(missing, self._treatment, self._outcome)
 
         T, Y = self._treatment, self._outcome
+        _reject_missing(data, [T, Y, *sorted(adjustment_set)])
 
         # Unadjusted estimate: naive mean difference, no matching.
         unadjusted = data.loc[data[T] == 1, Y].mean() - data.loc[data[T] == 0, Y].mean()

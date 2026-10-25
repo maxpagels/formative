@@ -2,8 +2,8 @@
 
 **Status:** implemented (see `formative/causal/estimators/policy.py`); deviations from this
 note: refutation checks test the honest value rather than tree structure (in-sample search
-splits on noise within its depth budget, so structural checks are flaky), and final trees get
-a simplification pass that drops splits which don't change the assignment.
+splits on noise within its depth budget, so structural checks are flaky), and a deeper tree
+must strictly beat the best shallower one, so equal-value trees with redundant splits never win.
 **Date:** 2026-07-11
 
 ## Motivation
