@@ -5,7 +5,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _reject_missing, _StatsmodelsResult
+from ._base import _reject_missing, _require_formula_names, _StatsmodelsResult
 
 RDD_ASSUMPTIONS: list[Assumption] = [
     Assumption(
@@ -262,6 +262,7 @@ class RDD:
             filtered = data
         # Rows outside the bandwidth are never used, so their gaps don't matter.
         _reject_missing(filtered, [self._running_var, self._outcome])
+        _require_formula_names([self._treatment, self._outcome])
         above_mask = filtered[self._running_var] >= self._cutoff
         if above_mask.all() or not above_mask.any():
             side = "below" if above_mask.all() else "at or above"

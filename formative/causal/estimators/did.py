@@ -5,7 +5,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _reject_missing, _require_variation, _StatsmodelsResult
+from ._base import _reject_missing, _require_formula_names, _require_variation, _StatsmodelsResult
 
 DID_ASSUMPTIONS: list[Assumption] = [
     Assumption(
@@ -214,6 +214,7 @@ class DiD:
             if var not in data.columns:
                 raise ValueError(f"{label} column '{var}' not found in dataframe.")
         _reject_missing(data, [self._group, self._time, self._outcome])
+        _require_formula_names([self._group, self._time, self._outcome])
 
         for label, var in [("Group", self._group), ("Time", self._time)]:
             vals = set(data[var].dropna().unique())

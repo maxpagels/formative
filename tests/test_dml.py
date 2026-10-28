@@ -57,6 +57,14 @@ class TestDoubleMLValidation:
         with pytest.raises(ValueError, match="only one value"):
             DoubleML(make_dag(), treatment="education", outcome="income").fit(df)
 
+    def test_invalid_column_name_raises(self):
+        df = make_data().rename(columns={"income": "my income"})
+        dag = DAG()
+        dag.assume("ability").causes("education", "my income")
+        dag.assume("education").causes("my income")
+        with pytest.raises(ValueError, match="can't be used in a model formula"):
+            DoubleML(dag, treatment="education", outcome="my income").fit(df)
+
     def test_no_confounders_raises(self):
         dag = DAG()
         dag.assume("education").causes("income")
