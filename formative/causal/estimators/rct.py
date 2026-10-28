@@ -5,7 +5,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _reject_missing, _StatsmodelsResult
+from ._base import _reject_missing, _require_variation, _StatsmodelsResult
 from ._cate import (
     CATE_ASSUMPTIONS,
     _CATEResultMixin,
@@ -306,6 +306,7 @@ class RCT:
             if var not in data.columns:
                 raise ValueError(f"{label} column '{var}' not found in dataframe.")
         _reject_missing(data, [self._treatment, self._outcome])
+        _require_variation(data, self._treatment, "Treatment")
 
         if self._modifier is not None:
             _validate_modifier_data(data, self._treatment, self._modifier)

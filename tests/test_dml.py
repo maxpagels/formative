@@ -52,6 +52,11 @@ class TestDoubleMLValidation:
         with pytest.raises(IdentificationError):
             DoubleML(make_dag(), treatment="education", outcome="income").fit(df)
 
+    def test_constant_treatment_raises(self):
+        df = make_data().assign(education=1.0)
+        with pytest.raises(ValueError, match="only one value"):
+            DoubleML(make_dag(), treatment="education", outcome="income").fit(df)
+
     def test_no_confounders_raises(self):
         dag = DAG()
         dag.assume("education").causes("income")

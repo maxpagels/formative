@@ -122,3 +122,12 @@ class TestOLSObservational:
         result = OLSObservational(dag, treatment="education", outcome="income").fit(df)
 
         assert result.effect == result.unadjusted_effect
+
+
+def test_constant_treatment_raises():
+    dag = DAG()
+    dag.assume("ability").causes("education", "income")
+    dag.assume("education").causes("income")
+    df = make_data().assign(education=1.0)
+    with pytest.raises(ValueError, match="only one value"):
+        OLSObservational(dag, treatment="education", outcome="income").fit(df)

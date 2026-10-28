@@ -106,3 +106,11 @@ class TestRCT:
 
         assert report.passed
         assert len(report.checks) == 1
+
+
+def test_constant_treatment_raises():
+    dag = DAG()
+    dag.assume("treatment").causes("outcome")
+    df = make_data().assign(treatment=1.0)
+    with pytest.raises(ValueError, match="only one value"):
+        RCT(dag, treatment="treatment", outcome="outcome").fit(df)

@@ -35,6 +35,14 @@ def _reject_missing(data, columns, action: str = "fitting") -> None:
         raise ValueError(f"Columns {with_nan} contain missing values — drop or impute them before {action}.")
 
 
+def _require_variation(data, column: str, label: str) -> None:
+    """Raise if *column* has a single value: statsmodels would quietly return a meaningless estimate."""
+    if data[column].nunique() < 2:
+        raise ValueError(
+            f"{label} '{column}' has only one value ({data[column].iloc[0]!r}) — there is nothing to compare."
+        )
+
+
 class _BaseResult:
     """
     Shared behaviour for estimation result classes.

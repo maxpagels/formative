@@ -95,43 +95,46 @@ class TestDiDRefutationReport:
             assert check.detail != ""
 
 
-class TestDiDRefutationFail:
-    def test_placebo_group_fails_on_spurious_data(self):
-        """
-        When the outcome contains a group-time interaction that has nothing
-        to do with treatment (i.e. parallel trends is violated by design),
-        permuting group labels can still recover a large interaction,
-        causing the placebo group check to fail.
-        """
-        rng = np.random.default_rng(7)
-        N = 2_000
-        group = rng.integers(0, 2, size=N).astype(float)
-        time = rng.integers(0, 2, size=N).astype(float)
-        # Large spurious confound correlated with group*time drives the interaction
-        confound = 20.0 * group * time
-        outcome = 2.0 + 1.5 * group + 3.0 * time + 3.0 * group * time + confound + rng.normal(size=N)
-        df = pd.DataFrame({"group": group, "time": time, "outcome": outcome})
+def make_large_effect_data():
+    rng = np.random.default_rng(7)
+    n = 2_000
+    group = rng.integers(0, 2, size=n).astype(float)
+    time = rng.integers(0, 2, size=n).astype(float)
+    outcome = 2.0 + 1.5 * group + 3.0 * time + 23.0 * group * time + rng.normal(size=n)
+    return pd.DataFrame({"group": group, "time": time, "outcome": outcome})
 
-        dag = make_dag()
-        result = DiD(dag, group="group", time="time", outcome="outcome").fit(df)
-        report = result.refute(df)
+
+class _IdentityRng:
+    """Stands in for the placebo RNG: 'permutes' nothing, so the real effect survives."""
+
+    def permutation(self, values):
+        return values
+
+
+class TestDiDRefutationFail:
+    def test_large_effect_does_not_trip_placebos(self):
+        """
+        Regression: judged against the original SE, a large real effect made the
+        shuffled fit look significant. Each placebo is now judged by its own SE.
+        """
+        df = make_large_effect_data()
+        report = DiD(make_dag(), group="group", time="time", outcome="outcome").fit(df).refute(df)
+        for name in ("Placebo group", "Placebo time"):
+            check = next(c for c in report.checks if c.name == name)
+            assert check.passed, check.detail
+
+    def test_placebo_fails_when_signal_survives_permutation(self, monkeypatch):
+        import formative.causal.refutations.did as did_refutations
+
+        df = make_large_effect_data()
+        real_rng = np.random.default_rng
+        placebo_seeds = {did_refutations._PLACEBO_SEED, did_refutations._PLACEBO_TIME_SEED}
+        monkeypatch.setattr(
+            np.random, "default_rng", lambda seed=None: _IdentityRng() if seed in placebo_seeds else real_rng(seed)
+        )
+        report = DiD(make_dag(), group="group", time="time", outcome="outcome").fit(df).refute(df)
 
         placebo = next(c for c in report.checks if c.name == "Placebo group")
-        # The placebo effect here should be large, causing a failure
         assert not placebo.passed
-
-    def test_summary_fail_labels(self):
-        rng = np.random.default_rng(7)
-        N = 2_000
-        group = rng.integers(0, 2, size=N).astype(float)
-        time = rng.integers(0, 2, size=N).astype(float)
-        confound = 20.0 * group * time
-        outcome = 2.0 + 1.5 * group + 3.0 * time + 3.0 * group * time + confound + rng.normal(size=N)
-        df = pd.DataFrame({"group": group, "time": time, "outcome": outcome})
-
-        dag = make_dag()
-        result = DiD(dag, group="group", time="time", outcome="outcome").fit(df)
-        summary = result.refute(df).summary()
-
-        assert "FAIL" in summary
-        assert "check(s) failed" in summary
+        assert "FAIL" in report.summary()
+        assert "check(s) failed" in report.summary()

@@ -166,3 +166,13 @@ class TestDiD:
 
         assert report.passed
         assert len(report.checks) == 3
+
+
+@pytest.mark.parametrize("column", ["group", "time"])
+def test_single_valued_group_or_time_raises(column):
+    dag = DAG()
+    dag.assume("group").causes("outcome")
+    dag.assume("time").causes("outcome")
+    df = make_data().assign(**{column: 1.0})
+    with pytest.raises(ValueError, match="only one value"):
+        DiD(dag, group="group", time="time", outcome="outcome").fit(df)

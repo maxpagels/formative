@@ -5,7 +5,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _reject_missing, _StatsmodelsResult
+from ._base import _reject_missing, _require_variation, _StatsmodelsResult
 
 DID_ASSUMPTIONS: list[Assumption] = [
     Assumption(
@@ -117,22 +117,8 @@ class DiDResult(_StatsmodelsResult):
         )
 
         checks = [
-            _check_placebo_group(
-                data,
-                self._group,
-                self._time,
-                self._outcome,
-                self.effect,
-                self.std_err,
-            ),
-            _check_placebo_time(
-                data,
-                self._group,
-                self._time,
-                self._outcome,
-                self.effect,
-                self.std_err,
-            ),
+            _check_placebo_group(data, self._group, self._time, self._outcome),
+            _check_placebo_time(data, self._group, self._time, self._outcome),
             _check_random_common_cause(
                 data,
                 self._group,
@@ -233,6 +219,7 @@ class DiD:
             vals = set(data[var].dropna().unique())
             if not vals <= {0, 1, 0.0, 1.0}:
                 raise ValueError(f"{label} '{var}' must be binary (0/1). Found: {sorted(vals)}")
+            _require_variation(data, var, label)
 
         G, T, Y = self._group, self._time, self._outcome
 

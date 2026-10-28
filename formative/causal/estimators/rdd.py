@@ -262,6 +262,13 @@ class RDD:
             filtered = data
         # Rows outside the bandwidth are never used, so their gaps don't matter.
         _reject_missing(filtered, [self._running_var, self._outcome])
+        above_mask = filtered[self._running_var] >= self._cutoff
+        if above_mask.all() or not above_mask.any():
+            side = "below" if above_mask.all() else "at or above"
+            raise ValueError(
+                f"No observations {side} the cutoff {self._cutoff}"
+                f"{' within the bandwidth' if self._bandwidth is not None else ''} — there is nothing to compare."
+            )
 
         # Unadjusted effect: naive mean difference above vs below cutoff
         above = filtered.loc[filtered[self._running_var] >= self._cutoff, self._outcome].mean()

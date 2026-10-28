@@ -6,7 +6,7 @@ import statsmodels.formula.api as smf
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _backdoor_confounders, _BaseResult, _missing_confounders_error, _reject_missing
+from ._base import _backdoor_confounders, _BaseResult, _missing_confounders_error, _reject_missing, _require_variation
 
 DML_ASSUMPTIONS: list[Assumption] = [
     Assumption("No unobserved confounders (selection on observables)", testable=False),
@@ -339,6 +339,7 @@ class DoubleML:
             )
 
         _reject_missing(data, [self._treatment, self._outcome, *sorted(adjustment_set)])
+        _require_variation(data, self._treatment, "Treatment")
         unadjusted_result = smf.ols(f"{self._outcome} ~ {self._treatment}", data=data).fit()
         learners = (self._ml_outcome, self._ml_treatment)
         model = _fit_dml(data, self._treatment, self._outcome, adjustment_set, *learners, self._n_folds)
