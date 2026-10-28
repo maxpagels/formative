@@ -60,6 +60,7 @@ Called as `result.refute(df)` — always pass the same `df` used for `fit()`. Re
 - `_PLACEBO_POLICY_SEED = 88888` — feature permutation in policy checks
 - `_RANDOM_POLICY_MODIFIER_SEED = 46464` — noise feature column in policy checks
 - `_FOLD_SEED = 13579` — cross-fitting fold assignment in policy learning (not a refutation seed)
+- `_DML_FOLD_SEED = 24680` — cross-fitting folds and default forest learners in Double ML (not a refutation seed)
 - `_BOOTSTRAP_SEED = 42` — safe to reuse in matching's bootstrap (samples row indices, not independent values)
 
 Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise collides with instrument/treatment data and produces a singular matrix in IV.
@@ -81,6 +82,7 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 - `formative/causal/estimators/rct.py` — `RCT`, `RCTResult`, `RCTCATEResult`
 - `formative/causal/estimators/did.py` — `DiD`, `DiDResult`
 - `formative/causal/estimators/rdd.py` — `RDD`, `RDDResult`
+- `formative/causal/estimators/dml.py` — `DoubleML`, `DoubleMLResult`, `_fit_dml` (used by refutations); needs the optional `dml` extra (`doubleml` + scikit-learn), imported lazily inside `_fit_dml`
 - `formative/causal/refutations/_check.py` — `RefutationCheck`, `RefutationReport`, shared verdict helpers (`_shift_check`, `_placebo_check`)
 - `formative/causal/refutations/ols.py` — `OLSRefutationReport`, `_check_random_common_cause`
 - `formative/causal/refutations/iv.py` — `IVRefutationReport`, `_check_first_stage_f`, `_check_random_common_cause`
@@ -89,6 +91,7 @@ Do not change `_RCC_SEED` or `_PLACEBO_SEED` to 42 — the generated noise colli
 - `formative/causal/refutations/policy.py` — `PolicyRefutationReport`, `_check_placebo_modifiers`, `_check_random_modifier`
 - `formative/causal/refutations/cate.py` — `_check_placebo_modifier`, `_check_random_modifier`, `_check_random_common_cause` (used by `OLSCATEResult`/`RCTCATEResult`; reports reuse the OLS/RCT report classes)
 - `formative/causal/refutations/did.py` — `DiDRefutationReport`, `_check_placebo_group`, `_check_random_common_cause`
+- `formative/causal/refutations/dml.py` — `DoubleMLRefutationReport`, `_check_random_common_cause`, `_check_placebo_treatment`, `_check_nuisance_fit`, `_check_overlap` (binary only). Its placebo check uses the placebo fit's own 99% CI, not the shared 1-original-SE rule — permuting leaves the real effect as noise, and the shared rule false-alarmed ~30% in simulation
 - `formative/causal/refutations/rdd.py` — `RDDRefutationReport`, `_check_placebo_cutoff`, `_check_random_common_cause`
 - `formative/causal/_explain.py` — narrative rendering for all estimators
 - `formative/causal/decision.py` — `DecisionReport` (cost-benefit analysis on a causal estimate)

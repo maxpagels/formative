@@ -35,8 +35,14 @@ Homepage = "https://getformative.dev"
 Documentation = "https://docs.getformative.dev"
 Repository = "https://github.com/maxpagels/formative"
 
+[project.optional-dependencies]
+dml = [
+    "doubleml>=0.11,<0.12",
+]
+
 [dependency-groups]
 dev  = [
+    "doubleml>=0.11,<0.12",
     "pytest>=9,<10",
     "pytest-cov",
     "ruff>=0.9",

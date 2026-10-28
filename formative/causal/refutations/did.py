@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-from ._check import RefutationCheck, RefutationReport, _add_random_column, _placebo_check, _shift_check
+from ._check import RefutationCheck, RefutationReport, _add_random_column, _shift_check
 
 _PLACEBO_SEED = 99999
 _PLACEBO_TIME_SEED = 22222
@@ -17,22 +17,32 @@ def _placebo_permutation(
     outcome: str,
     permute_var: str,
     seed: int,
-    original_se: float,
     check_name: str,
     axis_label: str,
     fail_suffix: str,
 ) -> RefutationCheck:
+    """
+    Shared body of the placebo checks: the placebo passes iff its own 99% CI covers zero.
+
+    The placebo is judged by its own SE, not the original's: permuting turns the
+    real effect into noise, so the placebo is noisier than the original fit and
+    the original SE false-alarmed ~1 in 3 on correct data. Robust (HC1) SEs,
+    because that noise differs between pre and post when the periods are unbalanced.
+    """
     rng = np.random.default_rng(seed)
     augmented = data.assign(**{permute_var: rng.permutation(data[permute_var].values)})
-    placebo_effect = float(smf.ols(f"{outcome} ~ {group} * {time}", data=augmented).fit().params[f"{group}:{time}"])
-    return _placebo_check(
-        name=check_name,
-        label="placebo estimate",
-        placebo_effect=placebo_effect,
-        original_se=original_se,
-        pass_suffix=f"Permuting {axis_label} labels yields near-zero effect, as expected.",
-        fail_suffix=fail_suffix,
-    )
+    fit = smf.ols(f"{outcome} ~ {group} * {time}", data=augmented).fit(cov_type="HC1")
+    term = f"{group}:{time}"
+    effect, threshold = float(fit.params[term]), 2.58 * float(fit.bse[term])
+    passed = abs(effect) <= threshold
+    if passed:
+        detail = (
+            f"placebo estimate = {effect:.4f}  (99% CI half-width = {threshold:.4f})  "
+            f"Permuting {axis_label} labels yields near-zero effect, as expected."
+        )
+    else:
+        detail = f"placebo estimate = {effect:.4f}  (> 99% CI half-width = {threshold:.4f})  {fail_suffix}"
+    return RefutationCheck(name=check_name, passed=passed, detail=detail)
 
 
 def _check_placebo_group(
@@ -40,15 +50,13 @@ def _check_placebo_group(
     group: str,
     time: str,
     outcome: str,
-    original_effect: float,
-    original_se: float,
 ) -> RefutationCheck:
     """
     Randomly permute group labels and re-run DiD.
 
     Under the null (no real treatment effect), the placebo DiD estimate
-    should be close to zero.  A placebo estimate larger than one standard
-    error of the original suggests the result may be spurious.
+    should be close to zero; one outside its own 99% CI suggests the
+    standard errors, and so the original result, are not trustworthy.
     """
     return _placebo_permutation(
         data,
@@ -57,7 +65,6 @@ def _check_placebo_group(
         outcome,
         group,
         _PLACEBO_SEED,
-        original_se,
         check_name="Placebo group",
         axis_label="group",
         fail_suffix=(
@@ -72,8 +79,6 @@ def _check_placebo_time(
     group: str,
     time: str,
     outcome: str,
-    original_effect: float,
-    original_se: float,
 ) -> RefutationCheck:
     """
     Randomly permute time labels and re-run DiD.
@@ -91,7 +96,6 @@ def _check_placebo_time(
         outcome,
         time,
         _PLACEBO_TIME_SEED,
-        original_se,
         check_name="Placebo time",
         axis_label="time",
         fail_suffix=(

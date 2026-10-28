@@ -7,7 +7,7 @@ from statsmodels.sandbox.regression.gmm import IV2SLS as _IV2SLS
 
 from .._assumptions import Assumption
 from ..dag import DAG
-from ._base import _backdoor_confounders, _reject_missing, _StatsmodelsResult
+from ._base import _backdoor_confounders, _reject_missing, _require_formula_names, _StatsmodelsResult
 
 IV_ASSUMPTIONS: list[Assumption] = [
     Assumption("Relevance: the instrument strongly affects treatment", testable=True),
@@ -268,6 +268,7 @@ class IV2SLS:
 
         T, Y, Z = self._treatment, self._outcome, self._instrument
         _reject_missing(data, [T, Y, Z, *controls])
+        _require_formula_names([T, Y])
 
         # Build design matrices for 2SLS:
         #   exog:       [const, T, controls]  — includes endogenous treatment

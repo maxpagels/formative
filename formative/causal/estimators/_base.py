@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import keyword
+import re
+
 from .._assumptions import Assumption
 from .._exceptions import IdentificationError
 
@@ -33,6 +36,27 @@ def _reject_missing(data, columns, action: str = "fitting") -> None:
     with_nan = [c for c in dict.fromkeys(columns) if data[c].isna().any()]
     if with_nan:
         raise ValueError(f"Columns {with_nan} contain missing values — drop or impute them before {action}.")
+
+
+def _require_formula_names(columns) -> None:
+    """Raise if a column can't appear in a statsmodels formula ('ad spend' parses as Python and fails cryptically)."""
+    bad = [
+        c for c in dict.fromkeys(columns) if not (isinstance(c, str) and c.isidentifier() and not keyword.iskeyword(c))
+    ]
+    if bad:
+        suggestion = re.sub(r"\W|^(?=\d)", "_", str(bad[0]))
+        raise ValueError(
+            f"Column names {bad} can't be used in a model formula. Rename them to valid Python "
+            f"names (letters, digits and underscores, not starting with a digit), e.g. {bad[0]!r} → {suggestion!r}."
+        )
+
+
+def _require_variation(data, column: str, label: str) -> None:
+    """Raise if *column* has a single value: statsmodels would quietly return a meaningless estimate."""
+    if data[column].nunique() < 2:
+        raise ValueError(
+            f"{label} '{column}' has only one value ({data[column].iloc[0]!r}) — there is nothing to compare."
+        )
 
 
 class _BaseResult:

@@ -137,3 +137,18 @@ class TestRDD:
         report = result.refute(df)
         assert report.passed
         assert len(report.checks) == 2
+
+
+@pytest.mark.parametrize("bandwidth", [None, 0.5])
+def test_one_side_of_cutoff_raises(bandwidth):
+    df = make_data()
+    df = df[df.score >= CUTOFF]
+    with pytest.raises(ValueError, match="No observations below the cutoff"):
+        RDD(
+            make_dag(),
+            treatment="treatment",
+            running_var="score",
+            cutoff=CUTOFF,
+            outcome="outcome",
+            bandwidth=bandwidth,
+        ).fit(df)
