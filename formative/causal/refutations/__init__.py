@@ -1,5 +1,6 @@
 from ._check import RefutationCheck, RefutationReport
 from .did import DiDRefutationReport
+from .dml import DoubleMLRefutationReport
 from .iv import IVRefutationReport
 from .matching import MatchingRefutationReport
 from .ols import OLSRefutationReport
@@ -15,6 +16,7 @@ __all__ = [
     "RCTRefutationReport",
     "DiDRefutationReport",
     "RDDRefutationReport",
+    "DoubleMLRefutationReport",
     "RefutationCheck",
     "RefutationReport",
 ]

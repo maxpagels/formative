@@ -23,6 +23,12 @@ MatchingRefutationReport
 .. autoclass:: formative.causal.MatchingRefutationReport
    :members:
 
+DoubleMLRefutationReport
+------------------------
+
+.. autoclass:: formative.causal.DoubleMLRefutationReport
+   :members:
+
 RCTRefutationReport
 -------------------
 

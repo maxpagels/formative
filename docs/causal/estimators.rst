@@ -93,6 +93,19 @@ RDDResult
    :members:
    :inherited-members:
 
+DoubleML
+--------
+
+.. autoclass:: formative.causal.DoubleML
+   :members:
+
+DoubleMLResult
+--------------
+
+.. autoclass:: formative.causal.DoubleMLResult
+   :members:
+   :inherited-members:
+
 GroupEffect
 -----------
 

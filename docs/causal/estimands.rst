@@ -13,7 +13,7 @@ question. The five estimands formative works with are ATE, ATT, LATE, LATE at th
      - Method
    * - **ATE**
      - Average Treatment Effect
-     - :class:`~formative.OLSObservational`, :class:`~formative.RCT`
+     - :class:`~formative.OLSObservational`, :class:`~formative.DoubleML`, :class:`~formative.RCT`
    * - **CATE**
      - Conditional Average Treatment Effect
      - :class:`~formative.OLSObservational`, :class:`~formative.RCT` (with ``effect_modifier``)
@@ -44,8 +44,8 @@ the same unit. ATE averages this difference across *all units*, treated and untr
 
 **When it makes sense:** When you want a policy-relevant effect for the whole population —
 e.g., "what would happen if we rolled this programme out to everyone?". Note that this is
-usually the question you want answered, but strictly speaking only OLS and RCT can answer it
-in formative.
+usually the question you want answered, but strictly speaking only OLS, Double ML and RCT can
+answer it in formative.
 
 RCTs can do ATE because you are randomising the treatment, so the characteristics of the
 treatment and control groups are assumed to be balanced. If the ATE is 1.5, the estimate
@@ -60,6 +60,11 @@ both treatment and outcome, you can recover the ATE.
 
 - **OLS Observational** — estimates ATE by adjusting for confounders identified via the
   backdoor criterion. Requires all relevant confounders to be observed.
+- **Double ML** — adjusts for the same backdoor confounders as OLS, but learns how they
+  affect treatment and outcome with machine-learning models, so curved and interacting
+  confounding is handled. With a binary treatment the ATE is valid under any effect
+  heterogeneity. With a continuous treatment the estimate is an average slope: if the effect
+  grows or shrinks with the treatment level, it is a weighted average over those levels.
 - **RCT** — randomisation makes treated and control groups exchangeable, so the simple
   difference in means is an unbiased ATE estimate with no adjustment required.
 

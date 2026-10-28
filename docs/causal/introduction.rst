@@ -160,6 +160,10 @@ of decision granularity:
      - ATE
      - ``effect_modifier``
      - decide for all, decide per group
+   * - ``DoubleML``
+     - ATE
+     - —
+     - decide for all
    * - ``IV2SLS``
      - LATE
      - —

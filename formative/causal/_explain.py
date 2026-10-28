@@ -531,6 +531,81 @@ def explain_matching(result) -> str:
     return "\n\n".join(blocks)
 
 
+def explain_dml(result) -> str:
+    T, Y = result._treatment, result._outcome
+    adj = sorted(result._adjustment_set)
+    lo, hi = result.conf_int
+    bias = result.unadjusted_effect - result.effect
+    bias_dir = "upward" if bias > 0 else "downward"
+    learners = [type(m).__name__ if m is not None else "random forest" for m in result._learners]
+
+    if result.binary_treatment:
+        direction = "increase" if result.effect >= 0 else "decrease"
+        effect_phrase = (
+            f"treating everyone with {T} is estimated to cause an average {direction} of "
+            f"{abs(result.effect):.4f} in {Y} compared to treating no one"
+        )
+        model_note = (
+            f"Because {T} is binary, the outcome model is fully flexible: the estimate is valid "
+            f"even if the effect of {T} differs from unit to unit."
+        )
+    else:
+        effect_phrase = _effect_phrase(result.effect, T, Y)
+        model_note = (
+            f"Because {T} is continuous, the effect is summarised as one average slope. If the "
+            f"effect of {T} grows or shrinks with its level, this is an average over those levels."
+        )
+
+    blocks = [
+        "\n".join(
+            [
+                _SEP,
+                "Executive Summary — Double Machine Learning",
+                f"  {T} → {Y}  |  estimand: average effect across everyone",
+                f"  Generated: {_fmt_timestamp()}",
+                _SEP,
+            ]
+        ),
+        "\n".join(
+            [
+                "METHOD",
+                f"Double Machine Learning removes the influence of {_list_vars(adj)} in two steps. "
+                f"First, machine-learning models predict {Y} ({learners[0]}) and {T} ({learners[1]}) "
+                f"from {_list_vars(adj)}. Then the part of {Y} those models could not predict is "
+                f"compared with the part of {T} they could not predict: what remains of {T} is "
+                f"variation unrelated to {_list_vars(adj)}. Unlike standard regression, the models "
+                f"can learn curved and interacting relationships. Each prediction comes from a model "
+                f"that did not see that unit ({result._n_folds}-fold cross-fitting), which keeps "
+                f"overfitting out of the estimate. {model_note}",
+            ]
+        ),
+        _dag_section(result._dag, T, Y, result._adjustment_set),
+        _assumptions_section(result.assumptions),
+        "\n".join(
+            [
+                "RESULT",
+                f"Accounting for {_list_vars(adj)}, {effect_phrase} "
+                f"(95% CI: {_fmt_ci(lo, hi)}, SE = {result.std_err:.4f}, {_fmt_p(result.pvalue)}).",
+                "",
+                f"For comparison, the unadjusted estimate (ignoring shared causes) was "
+                f"{result.unadjusted_effect:.4f}. The difference of {abs(bias):.4f} reflects "
+                f"{bias_dir} bias that is removed by accounting for {_list_vars(adj)}.",
+            ]
+        ),
+        "\n".join(
+            [
+                "CAVEATS",
+                f"Flexible models fix the shape of the relationships, not missing variables: "
+                f"anything that influences both {T} and {Y} but is absent from the causal diagram "
+                f"still biases the result in an unknown direction. Run refute() to check that the "
+                f"prediction models fit sensibly and that comparable treated and untreated units exist.",
+            ]
+        ),
+        _SEP,
+    ]
+    return "\n\n".join(blocks)
+
+
 def explain_policy(result) -> str:
     T, Y = result._treatment, result._outcome
     lo, hi = result.value_ci
